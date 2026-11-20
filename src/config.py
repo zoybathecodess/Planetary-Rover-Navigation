@@ -90,6 +90,7 @@ class AssuranceConfig:
     use_uncertainty: bool = True
     use_ood: bool = True
     use_monitor: bool = True
+    allow_stop: bool = True      # False = ablation: never end the episode; keep driving on the best ranked move
 
 
 @dataclass

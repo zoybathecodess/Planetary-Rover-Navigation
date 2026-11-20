@@ -28,6 +28,9 @@ import numpy as np
 
 FIT_OFFSET = 30_000
 CONFIG = "configs/sim32_id_ensemble.yaml"
+# ablation variants (Task 7 uses these too); "full" is the system
+VARIANTS = {"full": {}, "no_ood": {"use_ood": False}, "no_unc": {"use_uncertainty": False}, "no_monitor": {"use_monitor": False},
+            "no_stop": {"allow_stop": False}, "monitor_only": {"use_ood": False, "use_uncertainty": False}}
 
 
 def parse_seeds(s):
@@ -150,7 +153,7 @@ def cmd_calibrate(a):
 
 # ------------------------------------------------------------------ eval
 def _eval_one(task):
-    kind, k, pct, preset, split, n_maps, out, ckpt_name, log_maps = task
+    kind, k, pct, preset, split, n_maps, out, ckpt_name, log_maps, variant = task
     import torch
     torch.set_num_threads(1)
     from src.evaluation.assurance_factory import build_assured
@@ -160,7 +163,7 @@ def _eval_one(task):
     cfg = load_config(ROOT / CONFIG)
     out = Path(out)
     ens = _load_system(cfg, out, k, ckpt_name)
-    tag = f"{kind}_p{int(pct)}_s{k}" if kind == "assured" else f"{kind}_s{k}"
+    tag = (f"assured{'' if variant == 'full' else '-' + variant}_p{int(pct)}_s{k}") if kind == "assured" else f"{kind}_s{k}"
     if kind == "ens":
         from dataclasses import replace
         pol = build_assured(cfg, ens, MahalanobisOOD().fit(np.random.default_rng(0).normal(size=(500, 59))), np.inf, np.inf,
@@ -169,7 +172,8 @@ def _eval_one(task):
     else:
         ood = MahalanobisOOD.load(out / "calib" / f"ens_s{k}" / "ood.npz")
         tu, to = thresholds(out, k, pct, pct)
-        pol = build_assured(cfg, ens, ood, tu, to, keep_log=log_maps > 0, seed=k)
+        from dataclasses import replace as _rep
+        pol = build_assured(cfg, ens, ood, tu, to, keep_log=log_maps > 0, seed=k, acfg=_rep(cfg.assurance, **VARIANTS[variant]))
     dest = out / "eval" / split / preset
     off = SPLIT_OFFSET[split]
     cfg_path = ROOT / f"configs/sim32_{preset}.yaml"
@@ -199,8 +203,9 @@ def cmd_eval(a):
     tasks = []
     for p in presets:
         for k in seeds:
-            tasks.append(("ens", k, 0, p, a.split, a.n_maps, str(out), a.ckpt, 0))
-            tasks += [("assured", k, pc, p, a.split, a.n_maps, str(out), a.ckpt, a.log_maps if pc == pcts[0] else 0) for pc in pcts]
+            tasks.append(("ens", k, 0, p, a.split, a.n_maps, str(out), a.ckpt, 0, "full"))
+            tasks += [("assured", k, pc, p, a.split, a.n_maps, str(out), a.ckpt, a.log_maps if (pc == pcts[0] and v == "full") else 0, v)
+                      for v in a.variants.split(",") for pc in pcts]
     print(f"{len(tasks)} evaluation tasks ({a.split} x {a.n_maps} maps, presets {presets}, percentiles {pcts})")
     with ProcessPoolExecutor(a.jobs, mp_context=multiprocessing.get_context("spawn")) as ex:
         for tag, preset, msg in ex.map(_eval_one, tasks):
@@ -255,14 +260,15 @@ def cmd_report(a):
         lines = [f"\n### {pdir.name} — {a.split} maps (mean ± 95% CI over system seeds)\n",
                  "| Method | n seeds | Success | Collisions/ep | Unsafe attempts/ep | Safe-stop rate | Intervention rate | Fallback rate | Unc. alarms | OOD alarms | Energy/optimal |",
                  "|---|---|---|---|---|---|---|---|---|---|---|"]
-        kinds = ["ens"] + sorted({re.sub(r"_s\d+\.csv$", "", f.name) for f in pdir.glob("assured_p*_s*.csv")},
-                                 key=lambda s: int(re.search(r"p(\d+)", s).group(1)))
+        kinds = ["ens"] + sorted({re.sub(r"_s\d+\.csv$", "", f.name) for f in pdir.glob("assured*_p*_s*.csv")},
+                                 key=lambda s: (s.split("_p")[0] != "assured", s.split("_p")[0], int(s.split("_p")[1])))
         for kind in kinds:
             files = sorted(f for f in pdir.glob("*.csv") if re.fullmatch(rf"{kind}_s\d+\.csv", f.name))
             if not files:
                 continue
             s = _per_seed(files)
-            label = "ensemble (no assurance)" if kind == "ens" else f"assured (percentile {kind.split('_p')[1]})"
+            variant = kind.split("_p")[0].replace("assured", "").lstrip("-") or "full"
+            label = "ensemble (no assurance)" if kind == "ens" else f"assured {variant} (percentile {kind.split('_p')[1]})"
             lines.append(f"| {label} | {len(files)} | {_stat(s['sr'])} | {_stat(s['col'])} | {_stat(s['unsafe'])} | {_stat(s['stop'])} | "
                          f"{_stat(s['interv'])} | {_stat(s['fb'])} | {_stat(s['unc'])} | {_stat(s['ood'])} | {_stat(s['energy'])} |")
         print("\n".join(lines))
@@ -290,6 +296,7 @@ def main():
             p.add_argument("--pcts", default="95,99,90")
             p.add_argument("--ckpt", default="best_val")
             p.add_argument("--log-maps", type=int, default=5)
+            p.add_argument("--variants", default="full", help="comma list of: " + ",".join(VARIANTS))
         if name == "report":
             p.add_argument("--split", choices=("val", "test"), default="test")
     a = ap.parse_args()

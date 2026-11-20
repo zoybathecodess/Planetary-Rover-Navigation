@@ -1,0 +1,143 @@
+diff --git a/scripts/run_task4.py b/scripts/run_task4.py
+index 582731c..55028e4 100644
+--- a/scripts/run_task4.py
++++ b/scripts/run_task4.py
+@@ -28,6 +28,9 @@ import numpy as np
+ 
+ FIT_OFFSET = 30_000
+ CONFIG = "configs/sim32_id_ensemble.yaml"
++# ablation variants (Task 7 uses these too); "full" is the system
++VARIANTS = {"full": {}, "no_ood": {"use_ood": False}, "no_unc": {"use_uncertainty": False}, "no_monitor": {"use_monitor": False},
++            "no_stop": {"allow_stop": False}, "monitor_only": {"use_ood": False, "use_uncertainty": False}}
+ 
+ 
+ def parse_seeds(s):
+@@ -150,7 +153,7 @@ def cmd_calibrate(a):
+ 
+ # ------------------------------------------------------------------ eval
+ def _eval_one(task):
+-    kind, k, pct, preset, split, n_maps, out, ckpt_name, log_maps = task
++    kind, k, pct, preset, split, n_maps, out, ckpt_name, log_maps, variant = task
+     import torch
+     torch.set_num_threads(1)
+     from src.evaluation.assurance_factory import build_assured
+@@ -160,7 +163,7 @@ def _eval_one(task):
+     cfg = load_config(ROOT / CONFIG)
+     out = Path(out)
+     ens = _load_system(cfg, out, k, ckpt_name)
+-    tag = f"{kind}_p{int(pct)}_s{k}" if kind == "assured" else f"{kind}_s{k}"
++    tag = (f"assured{'' if variant == 'full' else '-' + variant}_p{int(pct)}_s{k}") if kind == "assured" else f"{kind}_s{k}"
+     if kind == "ens":
+         from dataclasses import replace
+         pol = build_assured(cfg, ens, MahalanobisOOD().fit(np.random.default_rng(0).normal(size=(500, 59))), np.inf, np.inf,
+@@ -169,7 +172,8 @@ def _eval_one(task):
+     else:
+         ood = MahalanobisOOD.load(out / "calib" / f"ens_s{k}" / "ood.npz")
+         tu, to = thresholds(out, k, pct, pct)
+-        pol = build_assured(cfg, ens, ood, tu, to, keep_log=log_maps > 0, seed=k)
++        from dataclasses import replace as _rep
++        pol = build_assured(cfg, ens, ood, tu, to, keep_log=log_maps > 0, seed=k, acfg=_rep(cfg.assurance, **VARIANTS[variant]))
+     dest = out / "eval" / split / preset
+     off = SPLIT_OFFSET[split]
+     cfg_path = ROOT / f"configs/sim32_{preset}.yaml"
+@@ -199,8 +203,9 @@ def cmd_eval(a):
+     tasks = []
+     for p in presets:
+         for k in seeds:
+-            tasks.append(("ens", k, 0, p, a.split, a.n_maps, str(out), a.ckpt, 0))
+-            tasks += [("assured", k, pc, p, a.split, a.n_maps, str(out), a.ckpt, a.log_maps if pc == pcts[0] else 0) for pc in pcts]
++            tasks.append(("ens", k, 0, p, a.split, a.n_maps, str(out), a.ckpt, 0, "full"))
++            tasks += [("assured", k, pc, p, a.split, a.n_maps, str(out), a.ckpt, a.log_maps if (pc == pcts[0] and v == "full") else 0, v)
++                      for v in a.variants.split(",") for pc in pcts]
+     print(f"{len(tasks)} evaluation tasks ({a.split} x {a.n_maps} maps, presets {presets}, percentiles {pcts})")
+     with ProcessPoolExecutor(a.jobs, mp_context=multiprocessing.get_context("spawn")) as ex:
+         for tag, preset, msg in ex.map(_eval_one, tasks):
+@@ -255,14 +260,15 @@ def cmd_report(a):
+         lines = [f"\n### {pdir.name} — {a.split} maps (mean ± 95% CI over system seeds)\n",
+                  "| Method | n seeds | Success | Collisions/ep | Unsafe attempts/ep | Safe-stop rate | Intervention rate | Fallback rate | Unc. alarms | OOD alarms | Energy/optimal |",
+                  "|---|---|---|---|---|---|---|---|---|---|---|"]
+-        kinds = ["ens"] + sorted({re.sub(r"_s\d+\.csv$", "", f.name) for f in pdir.glob("assured_p*_s*.csv")},
+-                                 key=lambda s: int(re.search(r"p(\d+)", s).group(1)))
++        kinds = ["ens"] + sorted({re.sub(r"_s\d+\.csv$", "", f.name) for f in pdir.glob("assured*_p*_s*.csv")},
++                                 key=lambda s: (s.split("_p")[0] != "assured", s.split("_p")[0], int(s.split("_p")[1])))
+         for kind in kinds:
+             files = sorted(f for f in pdir.glob("*.csv") if re.fullmatch(rf"{kind}_s\d+\.csv", f.name))
+             if not files:
+                 continue
+             s = _per_seed(files)
+-            label = "ensemble (no assurance)" if kind == "ens" else f"assured (percentile {kind.split('_p')[1]})"
++            variant = kind.split("_p")[0].replace("assured", "").lstrip("-") or "full"
++            label = "ensemble (no assurance)" if kind == "ens" else f"assured {variant} (percentile {kind.split('_p')[1]})"
+             lines.append(f"| {label} | {len(files)} | {_stat(s['sr'])} | {_stat(s['col'])} | {_stat(s['unsafe'])} | {_stat(s['stop'])} | "
+                          f"{_stat(s['interv'])} | {_stat(s['fb'])} | {_stat(s['unc'])} | {_stat(s['ood'])} | {_stat(s['energy'])} |")
+         print("\n".join(lines))
+@@ -290,6 +296,7 @@ def main():
+             p.add_argument("--pcts", default="95,99,90")
+             p.add_argument("--ckpt", default="best_val")
+             p.add_argument("--log-maps", type=int, default=5)
++            p.add_argument("--variants", default="full", help="comma list of: " + ",".join(VARIANTS))
+         if name == "report":
+             p.add_argument("--split", choices=("val", "test"), default="test")
+     a = ap.parse_args()
+diff --git a/src/assurance/controller.py b/src/assurance/controller.py
+index 8b1e1a0..a183c55 100644
+--- a/src/assurance/controller.py
++++ b/src/assurance/controller.py
+@@ -69,7 +69,7 @@ class RuntimeAssuranceController:
+             st["interventions"] += 1
+             for r in reasons:
+                 st["by_rule"][r] += 1
+-            final, source, cause, est = self._fallback(obs, m)
++            final, source, cause, est = self._fallback(obs, m, a)
+             st["fallback" if source == "fallback" else "stops"] += 1
+             st["no_safe_action"] += source == "stop"
+         self.last_decision = {"t": self._t, "policy_action": a, "action": final, "source": source, "reasons": reasons,
+@@ -81,11 +81,13 @@ class RuntimeAssuranceController:
+         self._t += 1
+         return final
+ 
+-    def _fallback(self, obs, m):
++    def _fallback(self, obs, m, policy_action):
+         info = self.fb.analyse(obs, m)
+-        if not info["feasible"]:
++        if not info["feasible"] and self.cfg.allow_stop:
+             return STOP_ACTION, "stop", "infeasible_route", info
+         for a in info["ranked"]:
+             if not self.monitor.check(obs, a, m, hard_only=True):
+                 return a, "fallback", None, info
++        if not self.cfg.allow_stop:      # ablation only: keep the best-ranked move (or the policy's) instead of halting
++            return (info["ranked"][0] if info["ranked"] else policy_action), "fallback", None, info
+         return STOP_ACTION, "stop", "all_moves_vetoed", info
+diff --git a/src/config.py b/src/config.py
+index ae3a900..69198ca 100644
+--- a/src/config.py
++++ b/src/config.py
+@@ -90,6 +90,7 @@ class AssuranceConfig:
+     use_uncertainty: bool = True
+     use_ood: bool = True
+     use_monitor: bool = True
++    allow_stop: bool = True      # False = ablation: never end the episode; keep driving on the best ranked move
+ 
+ 
+ @dataclass
+diff --git a/tests/test_assurance.py b/tests/test_assurance.py
+index df4537e..4670da6 100644
+--- a/tests/test_assurance.py
++++ b/tests/test_assurance.py
+@@ -264,6 +264,16 @@ class TestController(unittest.TestCase):
+         self.assertEqual(c.act(o), L.STOP_ACTION)
+         self.assertEqual(c.last_decision["source"], "stop")
+ 
++    def test_allow_stop_false_never_halts_and_keeps_driving(self):
++        nostop = replace(ACFG, allow_stop=False)
++        c, o = controller(self.GOOD, ood_score=9.0, battery=100 / 250, pos=(0, 0), goal=(31, 31), grid=flat(fill=T.ROCK),
++                          window=np.full((5, 5), 0.6), cfg=nostop)
++        self.assertIn(c.act(o), (1, 3))
++        self.assertEqual((c.last_decision["source"], c.stats["stops"]), ("fallback", 0))
++        g = flat(); g[9, 10] = g[11, 10] = g[10, 9] = g[10, 11] = T.OBSTACLE
++        c, o = controller(self.GOOD, grid=g, ood_score=9.0, cfg=nostop)
++        self.assertNotEqual(c.act(o), L.STOP_ACTION)
++
+     def test_stop_when_every_move_is_vetoed(self):
+         g = flat(); g[9, 10] = g[11, 10] = g[10, 9] = g[10, 11] = T.OBSTACLE
+         c, o = controller(self.GOOD, grid=g, ood_score=9.0)

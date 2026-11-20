@@ -49,6 +49,10 @@ class DQNConfig:
     target_update_freq: int = 500
     grad_clip: float = 1.0
     hidden: tuple[int, ...] = (256, 256, 128)
+    # ---- Task 4 ensemble members (defaults = plain Double DQN, i.e. unchanged Task-3 behaviour) ----
+    prior_scale: float = 0.0            # randomized prior function: Q = f_theta(s) + prior_scale * p(s), p fixed & random
+    prior_hidden: tuple[int, ...] = (64, 64)
+    bootstrap: bool = False             # online bootstrap: each stored transition gets weight ~ Poisson(1) for this member
 
 
 @dataclass
@@ -71,6 +75,24 @@ class PPOConfig:
 
 
 @dataclass
+class AssuranceConfig:
+    """Task 4 runtime-assurance settings. Thresholds are NOT stored here: they are calibrated on in-distribution
+    VALIDATION maps (scripts/run_task4.py calibrate) and frozen in results/task4/assurance/*/thresholds.json."""
+    n_members: int = 5
+    unc_percentile: float = 95.0        # uncertainty gate threshold = this percentile of ID-validation scores
+    ood_percentile: float = 99.0        # OOD gate threshold = this percentile of ID-validation (windowed) scores
+    ood_window: int = 10                # OOD score = mean Mahalanobis distance of the last `ood_window` observations
+    ood_shrinkage: float = 0.1          # covariance shrinkage toward its diagonal (numerical stability)
+    fit_episodes: int = 200             # training-stream episodes used to fit the OOD detector
+    slip_threshold: float = 0.15        # monitor rule `uncertain_movement`: slip_estimate at/above this ...
+    hold_steps: int = 0                 # keep the fallback in control for this many steps after a trip (0 = per-step)
+    feasibility_margin: float = 1.0     # stop if (min estimated energy to goal) * margin > battery
+    use_uncertainty: bool = True
+    use_ood: bool = True
+    use_monitor: bool = True
+
+
+@dataclass
 class RunConfig:
     seed: int = 0
     episodes: int = 1500
@@ -88,6 +110,7 @@ class Config:
     env: EnvConfig = field(default_factory=EnvConfig)
     dqn: DQNConfig = field(default_factory=DQNConfig)
     ppo: PPOConfig = field(default_factory=PPOConfig)
+    assurance: AssuranceConfig = field(default_factory=AssuranceConfig)
     run: RunConfig = field(default_factory=RunConfig)
 
     def to_dict(self) -> dict[str, Any]:
@@ -100,20 +123,22 @@ def _fill(cls, data: dict | None):
     unknown = set(data) - names
     if unknown:
         raise KeyError(f"Unknown keys for {cls.__name__}: {sorted(unknown)}")
-    if "hidden" in data:
-        data["hidden"] = tuple(data["hidden"])
+    for k in ("hidden", "prior_hidden"):
+        if k in data:
+            data[k] = tuple(data[k])
     return cls(**data)
 
 
 def load_config(path: str | Path, overrides: dict[str, Any] | None = None) -> Config:
     raw = yaml.safe_load(Path(path).read_text()) or {}
-    unknown = set(raw) - {"env", "dqn", "ppo", "run"}
+    unknown = set(raw) - {"env", "dqn", "ppo", "assurance", "run"}
     if unknown:
         raise KeyError(f"Unknown top-level config sections: {sorted(unknown)}")
     cfg = Config(
         env=_fill(EnvConfig, raw.get("env")),
         dqn=_fill(DQNConfig, raw.get("dqn")),
         ppo=_fill(PPOConfig, raw.get("ppo")),
+        assurance=_fill(AssuranceConfig, raw.get("assurance")),
         run=_fill(RunConfig, raw.get("run")),
     )
     for dotted, value in (overrides or {}).items():  # e.g. {"run.seed": 3}

@@ -19,6 +19,6 @@
   "min_battery_seen": 0,
   "attempted_unsafe_per_episode": 0.72,
   "mean_energy_used": 94.66,
-  "mean_plan_ms": 0.2725716836705873,
+  "mean_plan_ms": 0.2374773618921035,
   "intervention_rate": 0.0
 }

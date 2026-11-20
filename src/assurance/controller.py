@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from collections import Counter
 
-from src.assurance.layout import IDX_STEPS, STOP_ACTION
+from src.assurance.layout import IDX_BATT, IDX_STEPS, STOP_ACTION
 from src.assurance.monitor import SafetyMonitor
 from src.assurance.ood import WindowedScore
 
@@ -64,26 +64,30 @@ class RuntimeAssuranceController:
         st["decisions"] += 1
         st["unc_alarms"] += unc_alarm; st["ood_alarms"] += ood_alarm
         st["monitor_rejects"] += any(r not in ("uncertainty", "ood", "hold") for r in reasons)
-        source, final = "policy", a
+        source, final, cause, est = "policy", a, None, {}
         if reasons:
             st["interventions"] += 1
             for r in reasons:
                 st["by_rule"][r] += 1
-            final, source = self._fallback(obs, m)
+            final, source, cause, est = self._fallback(obs, m, a)
             st["fallback" if source == "fallback" else "stops"] += 1
             st["no_safe_action"] += source == "stop"
         self.last_decision = {"t": self._t, "policy_action": a, "action": final, "source": source, "reasons": reasons,
-                              "unc": round(unc, 5), "margin": round(margin, 5), "ood": round(score, 4)}
+                              "unc": round(unc, 5), "margin": round(margin, 5), "ood": round(score, 4),
+                              "battery": round(float(obs[IDX_BATT]) * self.monitor._capacity, 1), "stop_cause": cause,
+                              "route_energy_est": None if "energy_to_goal" not in est else round(est["energy_to_goal"], 1)}
         if self.keep_log:
             self.log.append(self.last_decision)
         self._t += 1
         return final
 
-    def _fallback(self, obs, m):
+    def _fallback(self, obs, m, policy_action):
         info = self.fb.analyse(obs, m)
-        if not info["feasible"]:
-            return STOP_ACTION, "stop"
+        if not info["feasible"] and self.cfg.allow_stop:
+            return STOP_ACTION, "stop", "infeasible_route", info
         for a in info["ranked"]:
             if not self.monitor.check(obs, a, m, hard_only=True):
-                return a, "fallback"
-        return STOP_ACTION, "stop"
+                return a, "fallback", None, info
+        if not self.cfg.allow_stop:      # ablation only: keep the best-ranked move (or the policy's) instead of halting
+            return (info["ranked"][0] if info["ranked"] else policy_action), "fallback", None, info
+        return STOP_ACTION, "stop", "all_moves_vetoed", info

@@ -254,6 +254,7 @@ class TestController(unittest.TestCase):
         c, o = controller(self.GOOD, ood_score=9.0, battery=45 / 250, pos=(0, 0), goal=(30, 30))
         self.assertEqual(c.act(o), L.STOP_ACTION)
         self.assertEqual(c.last_decision["source"], "stop"); self.assertEqual(c.stats["stops"], 1)
+        self.assertEqual(c.last_decision["stop_cause"], "infeasible_route")
 
     def test_stop_on_energy_infeasible_route_that_passes_every_local_rule(self):
         # all rock (5 energy/cell): Manhattan bound is fine (100 left, 62 to go) but the real route costs ~310
@@ -263,10 +264,21 @@ class TestController(unittest.TestCase):
         self.assertEqual(c.act(o), L.STOP_ACTION)
         self.assertEqual(c.last_decision["source"], "stop")
 
+    def test_allow_stop_false_never_halts_and_keeps_driving(self):
+        nostop = replace(ACFG, allow_stop=False)
+        c, o = controller(self.GOOD, ood_score=9.0, battery=100 / 250, pos=(0, 0), goal=(31, 31), grid=flat(fill=T.ROCK),
+                          window=np.full((5, 5), 0.6), cfg=nostop)
+        self.assertIn(c.act(o), (1, 3))
+        self.assertEqual((c.last_decision["source"], c.stats["stops"]), ("fallback", 0))
+        g = flat(); g[9, 10] = g[11, 10] = g[10, 9] = g[10, 11] = T.OBSTACLE
+        c, o = controller(self.GOOD, grid=g, ood_score=9.0, cfg=nostop)
+        self.assertNotEqual(c.act(o), L.STOP_ACTION)
+
     def test_stop_when_every_move_is_vetoed(self):
         g = flat(); g[9, 10] = g[11, 10] = g[10, 9] = g[10, 11] = T.OBSTACLE
         c, o = controller(self.GOOD, grid=g, ood_score=9.0)
         self.assertEqual(c.act(o), L.STOP_ACTION)
+        self.assertEqual(c.last_decision["stop_cause"], "all_moves_vetoed")
 
     def test_ablation_switches_and_hold(self):
         c, o = controller(self.GOOD, ood_score=9.0, cfg=replace(ACFG, use_ood=False))
@@ -279,7 +291,7 @@ class TestController(unittest.TestCase):
         c, o = controller(self.GOOD, ood_score=9.0)
         c.act(o); c.act(o)
         self.assertEqual(len(c.log), 2)
-        self.assertEqual(set(c.log[0]), {"t", "policy_action", "action", "source", "reasons", "unc", "margin", "ood"})
+        self.assertEqual(set(c.log[0]), {"t", "policy_action", "action", "source", "reasons", "unc", "margin", "ood", "battery", "stop_cause", "route_energy_est"})
         self.assertEqual(c.stats["decisions"], 2)
 
     def test_per_episode_state_resets_from_the_observation(self):

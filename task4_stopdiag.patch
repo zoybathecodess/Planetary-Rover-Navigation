@@ -1,0 +1,131 @@
+diff --git a/scripts/diagnose_stops.py b/scripts/diagnose_stops.py
+new file mode 100644
+index 0000000..7f7b036
+--- /dev/null
++++ b/scripts/diagnose_stops.py
+@@ -0,0 +1,49 @@
++"""Why does the assured controller stop? Joins decision logs with the plain-ensemble outcome on the same map/seed.
++  python3 scripts/run_task4.py eval --split val --presets combined_shift --pcts 95 --log-maps 100 --jobs 4
++  python3 scripts/diagnose_stops.py --preset combined_shift --pct 95"""
++from _common import ROOT  # noqa: F401
++
++import argparse
++import collections
++import csv
++import glob
++import json
++import re
++import statistics as st
++
++
++def main():
++    ap = argparse.ArgumentParser()
++    ap.add_argument("--out", default="results/task4"); ap.add_argument("--split", default="val")
++    ap.add_argument("--preset", default="combined_shift"); ap.add_argument("--pct", default="95")
++    a = ap.parse_args()
++    d = (ROOT / a.out) / "eval" / a.split / a.preset
++    cause = collections.Counter(); ratio = collections.defaultdict(list); left = collections.defaultdict(list)
++    first = collections.defaultdict(list)
++    for f in sorted(glob.glob(str(d / "logs" / f"assured_p{a.pct}_s*.jsonl"))):
++        s = re.search(r"_s(\d+)\.jsonl", f).group(1)
++        ens = {r["map"]: r for r in csv.DictReader(open(d / f"ens_s{s}.csv"))}   # map column is "seed(<n>)"
++        for line in open(f):
++            e = json.loads(line)
++            if e["reason"] != "safe_stop":
++                continue
++            last = e["decisions"][-1]
++            en = ens[f"seed({e['map_seed']})"]
++            key = (last["stop_cause"], "ens_goal" if en["success"] == "1" else "ens_fail")
++            cause[key] += 1
++            if last["route_energy_est"] is not None and last["battery"]:
++                ratio[key].append(last["route_energy_est"] / last["battery"])
++            if en["success"] == "1":
++                left[key].append(float(en["battery_left"]))
++            first[key].append(len(e["decisions"]))
++    if not cause:
++        print("no safe stops in logs: run eval with --log-maps 100 first"); return
++    print(f"{a.preset} p{a.pct}: stop cause x what the plain ensemble did on the same map/seed")
++    for k, v in sorted(cause.items(), key=lambda kv: -kv[1]):
++        r = f"route_est/battery median {st.median(ratio[k]):.2f}" if ratio[k] else "route_est n/a"
++        b = f"ensemble battery left at goal median {st.median(left[k]):.0f}" if left[k] else ""
++        print(f"  {k[0]:17} {k[1]:9} n={v:4}  stop after median {st.median(first[k]):.0f} decisions  {r}  {b}")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/src/assurance/controller.py b/src/assurance/controller.py
+index f9ccf12..8b1e1a0 100644
+--- a/src/assurance/controller.py
++++ b/src/assurance/controller.py
+@@ -13,7 +13,7 @@ from __future__ import annotations
+ 
+ from collections import Counter
+ 
+-from src.assurance.layout import IDX_STEPS, STOP_ACTION
++from src.assurance.layout import IDX_BATT, IDX_STEPS, STOP_ACTION
+ from src.assurance.monitor import SafetyMonitor
+ from src.assurance.ood import WindowedScore
+ 
+@@ -64,16 +64,18 @@ class RuntimeAssuranceController:
+         st["decisions"] += 1
+         st["unc_alarms"] += unc_alarm; st["ood_alarms"] += ood_alarm
+         st["monitor_rejects"] += any(r not in ("uncertainty", "ood", "hold") for r in reasons)
+-        source, final = "policy", a
++        source, final, cause, est = "policy", a, None, {}
+         if reasons:
+             st["interventions"] += 1
+             for r in reasons:
+                 st["by_rule"][r] += 1
+-            final, source = self._fallback(obs, m)
++            final, source, cause, est = self._fallback(obs, m)
+             st["fallback" if source == "fallback" else "stops"] += 1
+             st["no_safe_action"] += source == "stop"
+         self.last_decision = {"t": self._t, "policy_action": a, "action": final, "source": source, "reasons": reasons,
+-                              "unc": round(unc, 5), "margin": round(margin, 5), "ood": round(score, 4)}
++                              "unc": round(unc, 5), "margin": round(margin, 5), "ood": round(score, 4),
++                              "battery": round(float(obs[IDX_BATT]) * self.monitor._capacity, 1), "stop_cause": cause,
++                              "route_energy_est": None if "energy_to_goal" not in est else round(est["energy_to_goal"], 1)}
+         if self.keep_log:
+             self.log.append(self.last_decision)
+         self._t += 1
+@@ -82,8 +84,8 @@ class RuntimeAssuranceController:
+     def _fallback(self, obs, m):
+         info = self.fb.analyse(obs, m)
+         if not info["feasible"]:
+-            return STOP_ACTION, "stop"
++            return STOP_ACTION, "stop", "infeasible_route", info
+         for a in info["ranked"]:
+             if not self.monitor.check(obs, a, m, hard_only=True):
+-                return a, "fallback"
+-        return STOP_ACTION, "stop"
++                return a, "fallback", None, info
++        return STOP_ACTION, "stop", "all_moves_vetoed", info
+diff --git a/tests/test_assurance.py b/tests/test_assurance.py
+index 4fe7489..df4537e 100644
+--- a/tests/test_assurance.py
++++ b/tests/test_assurance.py
+@@ -254,6 +254,7 @@ class TestController(unittest.TestCase):
+         c, o = controller(self.GOOD, ood_score=9.0, battery=45 / 250, pos=(0, 0), goal=(30, 30))
+         self.assertEqual(c.act(o), L.STOP_ACTION)
+         self.assertEqual(c.last_decision["source"], "stop"); self.assertEqual(c.stats["stops"], 1)
++        self.assertEqual(c.last_decision["stop_cause"], "infeasible_route")
+ 
+     def test_stop_on_energy_infeasible_route_that_passes_every_local_rule(self):
+         # all rock (5 energy/cell): Manhattan bound is fine (100 left, 62 to go) but the real route costs ~310
+@@ -267,6 +268,7 @@ class TestController(unittest.TestCase):
+         g = flat(); g[9, 10] = g[11, 10] = g[10, 9] = g[10, 11] = T.OBSTACLE
+         c, o = controller(self.GOOD, grid=g, ood_score=9.0)
+         self.assertEqual(c.act(o), L.STOP_ACTION)
++        self.assertEqual(c.last_decision["stop_cause"], "all_moves_vetoed")
+ 
+     def test_ablation_switches_and_hold(self):
+         c, o = controller(self.GOOD, ood_score=9.0, cfg=replace(ACFG, use_ood=False))
+@@ -279,7 +281,7 @@ class TestController(unittest.TestCase):
+         c, o = controller(self.GOOD, ood_score=9.0)
+         c.act(o); c.act(o)
+         self.assertEqual(len(c.log), 2)
+-        self.assertEqual(set(c.log[0]), {"t", "policy_action", "action", "source", "reasons", "unc", "margin", "ood"})
++        self.assertEqual(set(c.log[0]), {"t", "policy_action", "action", "source", "reasons", "unc", "margin", "ood", "battery", "stop_cause", "route_energy_est"})
+         self.assertEqual(c.stats["decisions"], 2)
+ 
+     def test_per_episode_state_resets_from_the_observation(self):

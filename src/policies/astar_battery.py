@@ -82,6 +82,45 @@ class BatteryAwareAStar:
                         heapq.heappush(heap, (ng + h(nxt), ng, nxt))
         return None, np.inf
 
+    @staticmethod
+    def _cost_to_goal(cost, goal):
+        """Reverse Dijkstra: cheapest total entering-cost from every cell to `goal` (inf where unreachable)."""
+        n = cost.shape[0]
+        togo = np.full((n, n), np.inf)
+        togo[goal] = 0.0
+        heap = [(0.0, goal)]
+        while heap:
+            c, cur = heapq.heappop(heap)
+            if c > togo[cur]:
+                continue
+            for dr, dc in _DELTAS:
+                p = (cur[0] + dr, cur[1] + dc)       # p -> cur costs cost[cur]
+                if 0 <= p[0] < n and 0 <= p[1] < n and np.isfinite(cost[cur]):
+                    nc = c + cost[cur]
+                    if nc < togo[p]:
+                        togo[p] = nc
+                        heapq.heappush(heap, (nc, p))
+        return togo
+
+    def analyse(self, obs, m) -> dict:
+        """For the runtime-assurance fallback: every first move ranked by (cost of entering the neighbour + cost-to-go),
+        plus whether an ENERGY-feasible route exists (cheapest estimated route energy * margin <= battery)."""
+        n = m.seen.shape[0]
+        pos = (int(round(obs[0] * (n - 1))), int(round(obs[1] * (n - 1))))
+        goal = (pos[0] + int(round(obs[2] * (n - 1))), pos[1] + int(round(obs[3] * (n - 1))))
+        cost, energy, unknown = self._grids(m, float(obs[4]))
+        togo = self._cost_to_goal(cost, goal)
+        etogo = self._cost_to_goal(np.where(m.bumped, np.inf, energy), goal)
+        scores = {}
+        for a, (dr, dc) in enumerate(_DELTAS):
+            nb = (pos[0] + dr, pos[1] + dc)
+            if 0 <= nb[0] < n and 0 <= nb[1] < n and np.isfinite(cost[nb]) and np.isfinite(togo[nb]):
+                scores[a] = float(cost[nb] + togo[nb])
+        battery = float(obs[4]) * self._capacity
+        e_min = float(etogo[pos])
+        return {"ranked": sorted(scores, key=lambda a: (scores[a], a)), "scores": scores, "energy_to_goal": e_min,
+                "battery": battery, "feasible": bool(np.isfinite(e_min) and e_min * self.margin <= battery)}
+
     # ------------------------------------------------------------------ policy
     def act(self, obs) -> int:
         if self._get_map is None:

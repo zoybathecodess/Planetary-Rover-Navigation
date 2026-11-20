@@ -263,6 +263,16 @@ class AdvancedRoverEnv:
         reward = (old_d - new_d) * 0.5 - 0.05 - 0.025 * (cost - 1)
         return self._continue(reward, info)
 
+    def safe_stop(self):
+        """Runtime-assurance terminal action: the rover halts. Ends the episode with reason "safe_stop" (NOT a goal, NOT a
+        failure of the vehicle): zero energy, zero reward, no step counted. Returns the same tuple as step()."""
+        if self._done:
+            raise RuntimeError("safe_stop() called on a finished episode; call reset()")
+        info = {"event": "safe_stop", "reason": "safe_stop", "terminated": True, "truncated": False,
+                "energy_used": 0, "slipped": False}
+        self._done = True
+        return self._observe(), 0.0, True, self._stamp(info)
+
     def _continue(self, reward, info):
         if self.steps >= self.max_steps:
             info["truncated"], info["reason"] = True, "timeout"

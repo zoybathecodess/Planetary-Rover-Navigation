@@ -17,12 +17,13 @@ from pathlib import Path
 
 import numpy as np
 
+from src.assurance.layout import STOP_ACTION
 from src.config import Config, load_config
 from src.evaluation.evaluator import make_env
 from src.evaluation.runner import summarise
 
 ROW_FIELDS = ["method", "preset", "map", "success", "reason", "steps", "reward", "battery_left", "energy_used", "collisions",
-              "attempted_unsafe", "interventions", "decisions", "no_safe_action", "optimal_cost", "energy_ratio", "plan_ms"]
+              "attempted_unsafe", "interventions", "decisions", "no_safe_action", "fallback_steps", "unc_alarms", "ood_alarms", "monitor_rejects", "optimal_cost", "energy_ratio", "plan_ms"]
 SPLIT_OFFSET = {"val": 10_000, "test": 20_000}
 
 
@@ -45,9 +46,12 @@ def _attach(policy, env) -> None:
             p.attach(env.explored_map, env.max_battery)  # the env's PUBLIC onboard API only
 
 
-def _stat_snapshot(policy) -> tuple[int, int, int]:
+def _stat_snapshot(policy) -> tuple[int, ...]:
     s = getattr(policy, "stats", None)
-    return (s["decisions"], s["interventions"], s["no_safe_action"]) if s else (0, 0, 0)
+    if not s:
+        return (0,) * 7
+    return (s["decisions"], s["interventions"], s["no_safe_action"], s.get("fallback", 0), s.get("unc_alarms", 0),
+            s.get("ood_alarms", 0), s.get("monitor_rejects", 0))
 
 
 def run_episode_ext(env, ev, policy, seed: int, method: str = "", preset: str = "") -> dict:
@@ -59,6 +63,10 @@ def run_episode_ext(env, ev, policy, seed: int, method: str = "", preset: str = 
         t0 = time.perf_counter()
         a = int(policy.act(obs))
         t_dec += time.perf_counter() - t0
+        if a == STOP_ACTION:                       # runtime-assurance halt: ends the episode as a "safe_stop"
+            obs, r, done, info = env.safe_stop()
+            total_r += r
+            continue
         unsafe += ev.commanded_cell_unsafe(a)
         obs, r, done, info = env.step(a)
         total_r += r
@@ -69,7 +77,8 @@ def run_episode_ext(env, ev, policy, seed: int, method: str = "", preset: str = 
     return {"method": method, "preset": preset, "map": env.map_id, "success": int(ok), "reason": info["reason"],
             "steps": info["steps"], "reward": round(total_r, 3), "battery_left": env.battery, "energy_used": energy,
             "collisions": int(collisions), "attempted_unsafe": int(unsafe), "interventions": d1[1] - d0[1],
-            "decisions": d1[0] - d0[0], "no_safe_action": d1[2] - d0[2], "optimal_cost": ev.optimal_cost,
+            "decisions": d1[0] - d0[0], "no_safe_action": d1[2] - d0[2], "fallback_steps": d1[3] - d0[3],
+            "unc_alarms": d1[4] - d0[4], "ood_alarms": d1[5] - d0[5], "monitor_rejects": d1[6] - d0[6], "optimal_cost": ev.optimal_cost,
             "energy_ratio": (energy / ev.optimal_cost) if ok else float("nan"),
             "plan_ms": 1000.0 * t_dec / max(info["steps"], 1)}
 
@@ -82,6 +91,7 @@ def evaluate_method(policy, cfg_path, seeds, method: str, preset: str, out_csv=N
     rows = [run_episode_ext(env, ev, policy, s, method, preset) for s in seeds]
     summ = summarise(rows)
     n = len(rows)
+    summ["reasons"]["safe_stop"] = sum(r["reason"] == "safe_stop" for r in rows)
     summ.update({"attempted_unsafe_per_episode": sum(r["attempted_unsafe"] for r in rows) / n,
                  "mean_energy_used": float(np.mean([r["energy_used"] for r in rows])),
                  "mean_plan_ms": float(np.mean([r["plan_ms"] for r in rows])),

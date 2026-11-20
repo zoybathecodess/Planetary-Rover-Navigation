@@ -1,0 +1,1446 @@
+diff --git a/configs/sim32_id_ensemble.yaml b/configs/sim32_id_ensemble.yaml
+new file mode 100644
+index 0000000..362d098
+--- /dev/null
++++ b/configs/sim32_id_ensemble.yaml
+@@ -0,0 +1,20 @@
++# Task 4: in-distribution env + ensemble-member settings (randomized prior + Poisson bootstrap) + assurance defaults.
++env:
++  kind: advanced
++  size: 32
++  battery: 250
++  p_normal: 0.6
++  p_sand: 0.15
++  p_rock: 0.1
++  gen_corr: 2
++  energy_cost: [1, 3, 5]
++  slip_prob: [0.02, 0.1, 0.05]
++  sensor_miss: 0.05
++  sensor_false: 0.02
++  sensor_sigma: 0.05
++dqn:
++  prior_scale: 10.0
++  prior_hidden: [64, 64]
++  bootstrap: true
++assurance: {n_members: 5, unc_percentile: 95.0, ood_percentile: 99.0}
++run: {seed: 0, episodes: 1500, out_dir: results/sim32_id_ensemble}
+diff --git a/docs/TASK4_ASSURANCE.md b/docs/TASK4_ASSURANCE.md
+new file mode 100644
+index 0000000..8cbfa8a
+--- /dev/null
++++ b/docs/TASK4_ASSURANCE.md
+@@ -0,0 +1,90 @@
++# Task 4 — Runtime-assurance system
++
++Pipeline per decision (onboard information only: the 59-d observation + `env.explored_map()`):
++
++    ensemble (5 DQN members) ──► proposed action a, uncertainty u
++    Mahalanobis OOD score s (windowed) ─┐
++    safety monitor rules on a ──────────┼─► any alarm? ──no──► ACCEPT a
++    uncertainty gate u > τ_u ───────────┘          │yes
++                                                   ▼
++                       FALLBACK: battery-aware A* ranks moves; take the best that passes the hard monitor rules
++                       no energy-feasible route, or no ranked move passes ──► SAFE STOP (episode ends, reason `safe_stop`)
++
++## Components (all in `src/assurance/`, onboard)
++| File | Role |
++|---|---|
++| `src/agents/ensemble_member.py` | One member: Double DQN + **randomised prior** + **bootstrapped replay** |
++| `ensemble.py` | Mean-Q action; `u` = std across members of the chosen action's Q (raw, not normalised) |
++| `ood.py` | Mahalanobis detector (`MahalanobisOOD`) + `WindowedScore` |
++| `monitor.py` | Rule monitor: `invalid_action`, `obstacle_proximity`, `battery_feasibility`, `uncertain_movement` |
++| `controller.py` | Accept / fallback / stop logic, counters (`stats`), per-decision records (`log`) |
++| `layout.py` | Observation indices + `STOP_ACTION=-1` (checked against `FEATURES` by a test) |
++| `src/policies/astar_battery.py` | `analyse()`: ranked first moves (reverse Dijkstra) + energy feasibility, used as fallback |
++| `src/evaluation/assurance_factory.py` | Builds ensemble / controller from checkpoints (orchestration, not onboard) |
++
++## Ensemble diversity (both methods, as requested)
++1. **Randomised prior functions** (Osband et al. 2018): `Q_k(s) = f_k(s) + β·p_k(s)`, `p_k` a frozen random MLP
++   (64-64, Tanh, orthogonal init, seed-determined), `β = prior_scale = 10`. The prior is part of the checkpoint, so
++   a loaded member reproduces the trained one exactly (tested). Only `f_k` is trained.
++2. **Bootstrapped replay**: each stored transition gets a Poisson(1) weight (own RNG per member) multiplying its
++   Huber loss — the online-bootstrap approximation of resampling the data with replacement (tested: mean 1, P(0)=e⁻¹).
++Members differ in network init, prior, replay sampling, exploration stream (seed `1000·(system_seed+1)+j`).
++Config: `configs/sim32_id_ensemble.yaml` (`dqn.prior_scale`, `dqn.prior_hidden`, `dqn.bootstrap`). Setting
++`prior_scale: 0, bootstrap: false` gives a plain independent-seeds ensemble for an ablation.
++
++## OOD detector
++Features (`layout.OOD_FEATURES`, 29-d): the 25 noisy window readings, slip estimate, sensor confidence, battery and
++step ratios — evidence about terrain statistics, sensor noise and dynamics/energy, **not** about where the rover is
++(position, goal offset, coverage, visit counts excluded; tested). Score = Mahalanobis² / d, covariance shrunk 10 %
++towards its diagonal. Fit on the ensemble's own trajectories over 200 fresh ID maps from the training generator
++(seeds 30000+). The gate uses the mean of the last `ood_window=10` scores.
++
++## Thresholds (in-distribution validation only)
++τ_u and τ_s are percentiles of the per-step score distributions of the plain ensemble on the ID validation maps
++(seeds 10000–10099). **No shifted data is used anywhere in calibration.** Defaults: 95th (u), 99th (s). The
++evaluation sweeps `--pcts 95,99,90` (applied to both gates) and the report has one row per percentile = the
++**sensitivity analysis**. The percentile is the target per-step false-alarm rate on ID data (tested with held-out data).
++Calibration arrays, the fitted detector and a SHA-256 are stored in `results/task4/calib/` (`frozen.json`).
++
++## Monitor rules
++| Rule | Fires when | Applies to |
++|---|---|---|
++| `invalid_action` | move leaves the map | all |
++| `obstacle_proximity` | target believed blocked (window ≥ .999, majority of past readings, or bumped) | all |
++| `battery_feasibility` | entry energy > battery, or battery after move < Manhattan distance left | all |
++| `uncertain_movement` | slip estimate ≥ 0.15 and a perpendicular neighbour is a believed obstacle / edge | policy action only |
++
++## Fallback and safe stop
++Fallback = battery-aware A* (Task 3). Moves are ranked by cost-of-entering + cost-to-goal; the first one passing the
++hard rules is used. **Safe stop** is a new terminal reason `safe_stop`: `env.safe_stop()` ends the episode with zero
++energy and zero reward. It is **not a success** (success = reason `goal`) and is reported as its own rate, so it can
++never hide inside the success rate. It happens when (a) the cheapest estimated route energy exceeds the battery, or
++(b) every ranked move is vetoed. Energy-infeasibility is judged from the *believed* map (unknown cells carry the
++A* risk premium), so a stop can be conservative — the stop rate quantifies that cost.
++
++## Information boundary
++No module in `src/assurance/` imports the evaluator, generator or terrain, nor touches private env state (AST test).
++`act(obs)` gets only the observation; the explored map arrives via `attach(env.explored_map, capacity)`.
++Ground truth is used only by the evaluator for scoring (`attempted_unsafe`, optimal cost).
++
++## Intervention logs
++`eval --log-maps 5` re-runs the first maps of the first percentile and writes `eval/<split>/<preset>/logs/*.jsonl`:
++per decision `{t, policy_action, action, source (policy|fallback|stop), reasons, unc, margin, ood}`.
++Counters per episode go into the CSVs (`interventions, fallback_steps, unc_alarms, ood_alarms, monitor_rejects`).
++
++## Running it
++    python3 scripts/run_task4.py train     --jobs 4
++    python3 scripts/run_task4.py calibrate --jobs 4
++    python3 scripts/run_task4.py eval      --split val  --jobs 4
++    python3 scripts/run_task4.py report    --split val
++    (after the design is frozen)  eval --split test ; report --split test
++
++## Known limits / things to check in the results
++* `prior_scale=10` was fixed a priori, not tuned. Check in the `val` report that the **uncertainty alarm rate on shifted
++  presets exceeds the ID rate**; if it does not, the uncertainty gate adds little and that is a finding to report, not
++  something to fix on test. If you change `prior_scale`, change it once, on validation, and document it.
++* Calibration maps (ID val) are also the maps used for `best_val` checkpoint selection; the thresholds are therefore
++  slightly optimistic for ID. A fresh calibration split would remove this (use `--cal-maps` on other seeds) if needed.
++* Under strong shift the OOD gate may fire almost every step, making the system behave like A* (it is then a
++  detector + fallback, not a learned-policy system). The fallback/alarm columns show this directly.
++* The fallback is not collision-free under noisy sensors/slip; the report gives collisions for it.
+diff --git a/scripts/run_task4.py b/scripts/run_task4.py
+new file mode 100644
+index 0000000..582731c
+--- /dev/null
++++ b/scripts/run_task4.py
+@@ -0,0 +1,300 @@
++"""Task 4 pipeline: ensembles -> OOD fit + threshold calibration (in-distribution validation only) -> evaluation -> report.
++
++  python scripts/run_task4.py train     --jobs 4                  # 10 system seeds x 5 members (skips finished; --force)
++  python scripts/run_task4.py calibrate                           # fit Mahalanobis, freeze thresholds (ID validation only)
++  python scripts/run_task4.py eval --split val  --jobs 4          # look at validation first
++  python scripts/run_task4.py eval --split test --jobs 4          # once, after the design is frozen
++  python scripts/run_task4.py report --split test
++Information boundary: fit/calibration/evaluation use only observations + the env's public explored map. Evaluation scoring
++(ground truth) lives in src/evaluation/*. Fit maps are seeds 30000+ (training generator), calibration maps are the
++ID VALIDATION maps (10000+), evaluation maps are val (10000+) / test (20000+). Shifted data is never used for calibration.
++"""
++from _common import ROOT  # noqa: F401
++
++import argparse
++import csv
++import hashlib
++import json
++import math
++import multiprocessing
++import re
++import subprocess
++import sys
++import time
++from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
++from pathlib import Path
++
++import numpy as np
++
++FIT_OFFSET = 30_000
++CONFIG = "configs/sim32_id_ensemble.yaml"
++
++
++def parse_seeds(s):
++    out = []
++    for part in s.split(","):
++        a, _, b = part.partition("-")
++        out += list(range(int(a), int(b) + 1)) if b else [int(a)]
++    return out
++
++
++def member_dir(out, k, j):
++    return out / "train" / f"ens_s{k}" / f"m{j}"
++
++
++def ckpt_path(out, k, j, name="best_val"):
++    return member_dir(out, k, j) / "checkpoints" / f"{name}.pt"
++
++
++# ------------------------------------------------------------------ train
++def _train_member(args):
++    cfg, k, j, out, force = args
++    from src.evaluation.assurance_factory import member_seed
++    d = member_dir(out, k, j)
++    if (d / "summary.json").exists() and not force:
++        return k, j, "skipped (done)", 0.0
++    t0 = time.time()
++    import os
++    env = {**os.environ, "OMP_NUM_THREADS": "1", "MKL_NUM_THREADS": "1"}
++    r = subprocess.run([sys.executable, str(ROOT / "scripts/train_member.py"), "--config", cfg, "--seed", str(member_seed(k, j)),
++                        "--out", str(d)], capture_output=True, text=True, env=env)
++    return k, j, (r.stdout.strip().splitlines() or [""])[-1] if r.returncode == 0 else f"FAILED: {r.stderr[-400:]}", time.time() - t0
++
++
++def cmd_train(a):
++    out = ROOT / a.out
++    out.mkdir(parents=True, exist_ok=True)
++    from src.config import load_config
++    nm = load_config(ROOT / a.config).assurance.n_members
++    tasks = [(a.config, k, j, out, a.force) for k in parse_seeds(a.seeds) for j in range(nm)]
++    print(f"training {len(tasks)} ensemble members with {a.jobs} job(s), config {a.config}")
++    with ThreadPoolExecutor(a.jobs) as ex:
++        for k, j, msg, dt in ex.map(_train_member, tasks):
++            print(f"  system seed {k} member {j}: {msg}  ({dt / 60:.1f} min)")
++
++
++# ------------------------------------------------------------------ calibrate
++def _load_system(cfg, out, k, name="best_val"):
++    from src.evaluation.assurance_factory import build_ensemble
++    return build_ensemble(cfg, lambda j: ckpt_path(out, k, j, name), k)
++
++
++def _rollout_logs(cfg, ens, ood, seeds, keep_obs=False):
++    """Run the PLAIN ensemble (no gates/monitor/fallback) on the seeds; return per-step (unc, windowed score[, obs])."""
++    from dataclasses import replace
++    from src.evaluation.assurance_factory import build_assured
++    from src.evaluation.evaluator import make_env
++    from src.evaluation.harness import run_episode_ext
++    env, ev = make_env(cfg.env, 0)
++    acfg = replace(cfg.assurance, use_monitor=False, use_uncertainty=False, use_ood=False)
++    pol = build_assured(cfg, ens, ood, np.inf, np.inf, keep_log=True, acfg=acfg)
++    pol.attach(env.explored_map, env.max_battery)
++    obs_all = []
++    if keep_obs:
++        inner = pol.ens.q_matrix
++
++        def spy(o):
++            obs_all.append(np.array(o, dtype=float))
++            return inner(o)
++        pol.ens.q_matrix = spy
++    for s in seeds:
++        run_episode_ext(env, ev, pol, s)
++    unc = np.array([d["unc"] for d in pol.log]); sc = np.array([d["ood"] for d in pol.log])
++    return unc, sc, (np.stack(obs_all) if keep_obs else None)
++
++
++def _calibrate_one(task):
++    k, out, n_fit, n_cal, name = task
++    import torch
++    torch.set_num_threads(1)
++    from src.assurance.ood import MahalanobisOOD
++    from src.config import load_config
++    from src.evaluation.harness import SPLIT_OFFSET
++    cfg = load_config(ROOT / CONFIG)
++    out = Path(out)
++    ens = _load_system(cfg, out, k, name)
++    # 1) fit the OOD detector on fresh ID maps from the training generator (ensemble's own trajectories)
++    _, _, X = _rollout_logs(cfg, ens, MahalanobisOOD().fit(np.random.default_rng(0).normal(size=(500, 59))), range(FIT_OFFSET, FIT_OFFSET + n_fit), keep_obs=True)
++    ood = MahalanobisOOD(shrinkage=cfg.assurance.ood_shrinkage).fit(X)
++    # 2) per-step scores on ID VALIDATION maps -> percentile thresholds
++    off = SPLIT_OFFSET["val"]
++    unc, sc, _ = _rollout_logs(cfg, ens, ood, range(off, off + n_cal))
++    d = out / "calib" / f"ens_s{k}"
++    d.mkdir(parents=True, exist_ok=True)
++    ood.save(d / "ood.npz")
++    np.savez(d / "id_val_scores.npz", unc=unc, ood=sc)
++    return k, len(X), len(unc), float(np.percentile(unc, 95)), float(np.percentile(sc, 99))
++
++
++def thresholds(out, k, unc_pct, ood_pct):
++    z = np.load(out / "calib" / f"ens_s{k}" / "id_val_scores.npz")
++    return float(np.percentile(z["unc"], unc_pct)), float(np.percentile(z["ood"], ood_pct))
++
++
++def cmd_calibrate(a):
++    out = ROOT / a.out
++    tasks = [(k, str(out), a.fit_maps, a.cal_maps, a.ckpt) for k in parse_seeds(a.seeds)]
++    frozen = {}
++    with ProcessPoolExecutor(a.jobs, mp_context=multiprocessing.get_context("spawn")) as ex:
++        for k, nfit, ncal, tu, to in ex.map(_calibrate_one, tasks):
++            print(f"  system seed {k}: OOD fit on {nfit} obs, calibration on {ncal} ID-val steps  "
++                  f"tau_unc(p95)={tu:.4f} tau_ood(p99)={to:.3f}")
++    for k in parse_seeds(a.seeds):
++        h = hashlib.sha256()
++        for f in ("ood.npz", "id_val_scores.npz"):
++            h.update((out / "calib" / f"ens_s{k}" / f).read_bytes())
++        frozen[str(k)] = {"sha256": h.hexdigest(), "fit_maps": a.fit_maps, "cal_maps": a.cal_maps, "ckpt": a.ckpt}
++    (out / "calib" / "frozen.json").write_text(json.dumps(frozen, indent=2))
++    print("calibration artefacts written + hashed ->", out / "calib" / "frozen.json")
++
++
++# ------------------------------------------------------------------ eval
++def _eval_one(task):
++    kind, k, pct, preset, split, n_maps, out, ckpt_name, log_maps = task
++    import torch
++    torch.set_num_threads(1)
++    from src.evaluation.assurance_factory import build_assured
++    from src.assurance.ood import MahalanobisOOD
++    from src.config import load_config
++    from src.evaluation.harness import SPLIT_OFFSET, evaluate_method
++    cfg = load_config(ROOT / CONFIG)
++    out = Path(out)
++    ens = _load_system(cfg, out, k, ckpt_name)
++    tag = f"{kind}_p{int(pct)}_s{k}" if kind == "assured" else f"{kind}_s{k}"
++    if kind == "ens":
++        from dataclasses import replace
++        pol = build_assured(cfg, ens, MahalanobisOOD().fit(np.random.default_rng(0).normal(size=(500, 59))), np.inf, np.inf,
++                            acfg=replace(cfg.assurance, use_monitor=False, use_uncertainty=False, use_ood=False))
++        pol.name = "ens"
++    else:
++        ood = MahalanobisOOD.load(out / "calib" / f"ens_s{k}" / "ood.npz")
++        tu, to = thresholds(out, k, pct, pct)
++        pol = build_assured(cfg, ens, ood, tu, to, keep_log=log_maps > 0, seed=k)
++    dest = out / "eval" / split / preset
++    off = SPLIT_OFFSET[split]
++    cfg_path = ROOT / f"configs/sim32_{preset}.yaml"
++    seeds = list(range(off, off + n_maps))
++    rows, summ = evaluate_method(pol, cfg_path, seeds, tag, preset, dest / f"{tag}.csv")
++    if kind == "assured" and log_maps:
++        # intervention logs for the first maps: re-run those episodes with logging on (same seeds -> same episodes)
++        import json as _j
++        from src.evaluation.evaluator import make_env
++        from src.evaluation.harness import run_episode_ext
++        env, ev = make_env(load_config(cfg_path).env, 0)
++        pol.attach(env.explored_map, env.max_battery)
++        (dest / "logs").mkdir(parents=True, exist_ok=True)
++        with open(dest / "logs" / f"{tag}.jsonl", "w") as f:
++            for s in seeds[:log_maps]:
++                pol.log.clear()
++                r = run_episode_ext(env, ev, pol, s, tag, preset)
++                f.write(_j.dumps({"map_seed": s, "reason": r["reason"], "success": r["success"], "decisions": pol.log}) + "\n")
++    (dest / f"{tag}.json").write_text(json.dumps(summ, indent=2, default=float))
++    return tag, preset, f"SR {summ['success_rate']:.2f}  stops {summ['reasons'].get('safe_stop', 0)}"
++
++
++def cmd_eval(a):
++    out = ROOT / a.out
++    seeds, presets = parse_seeds(a.seeds), a.presets.split(",")
++    pcts = [float(p) for p in a.pcts.split(",")]
++    tasks = []
++    for p in presets:
++        for k in seeds:
++            tasks.append(("ens", k, 0, p, a.split, a.n_maps, str(out), a.ckpt, 0))
++            tasks += [("assured", k, pc, p, a.split, a.n_maps, str(out), a.ckpt, a.log_maps if pc == pcts[0] else 0) for pc in pcts]
++    print(f"{len(tasks)} evaluation tasks ({a.split} x {a.n_maps} maps, presets {presets}, percentiles {pcts})")
++    with ProcessPoolExecutor(a.jobs, mp_context=multiprocessing.get_context("spawn")) as ex:
++        for tag, preset, msg in ex.map(_eval_one, tasks):
++            print(f"  {preset:15} {tag:20} {msg}")
++
++
++# ------------------------------------------------------------------ report
++T975 = {1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447, 7: 2.365, 8: 2.306, 9: 2.262, 10: 2.228}
++
++
++def _rows(path):
++    with open(path) as f:
++        return list(csv.DictReader(f))
++
++
++def _stat(vals):
++    v = [x for x in vals if not math.isnan(x)]
++    if not v:
++        return "—"
++    m = float(np.mean(v))
++    if len(v) < 2:
++        return f"{m:.3f}"
++    return f"{m:.3f} ± {T975.get(len(v) - 1, 1.96) * float(np.std(v, ddof=1)) / math.sqrt(len(v)):.3f}"
++
++
++def _per_seed(files):
++    out = {"sr": [], "col": [], "unsafe": [], "stop": [], "interv": [], "fb": [], "energy": [], "unc": [], "ood": []}
++    for f in files:
++        r = _rows(f)
++        n = len(r)
++        dec = sum(float(x["decisions"]) for x in r) or float("nan")
++        out["sr"].append(sum(int(x["success"]) for x in r) / n)
++        out["col"].append(np.mean([float(x["collisions"]) for x in r]))
++        out["unsafe"].append(np.mean([float(x["attempted_unsafe"]) for x in r]))
++        out["stop"].append(sum(x["reason"] == "safe_stop" for x in r) / n)
++        out["interv"].append(sum(float(x["interventions"]) for x in r) / dec)
++        out["fb"].append(sum(float(x["fallback_steps"]) for x in r) / dec)
++        out["unc"].append(sum(float(x["unc_alarms"]) for x in r) / dec)
++        out["ood"].append(sum(float(x["ood_alarms"]) for x in r) / dec)
++        e = [float(x["energy_ratio"]) for x in r if x["success"] == "1" and x["energy_ratio"] not in ("", "nan")]
++        out["energy"].append(float(np.mean(e)) if e else float("nan"))
++    return out
++
++
++def cmd_report(a):
++    out = ROOT / a.out
++    base = out / "eval" / a.split
++    if not base.exists():
++        print(f"no {a.split} results under {base}: run `eval --split {a.split}` first")
++        return
++    for pdir in sorted(base.glob("*")):
++        lines = [f"\n### {pdir.name} — {a.split} maps (mean ± 95% CI over system seeds)\n",
++                 "| Method | n seeds | Success | Collisions/ep | Unsafe attempts/ep | Safe-stop rate | Intervention rate | Fallback rate | Unc. alarms | OOD alarms | Energy/optimal |",
++                 "|---|---|---|---|---|---|---|---|---|---|---|"]
++        kinds = ["ens"] + sorted({re.sub(r"_s\d+\.csv$", "", f.name) for f in pdir.glob("assured_p*_s*.csv")},
++                                 key=lambda s: int(re.search(r"p(\d+)", s).group(1)))
++        for kind in kinds:
++            files = sorted(f for f in pdir.glob("*.csv") if re.fullmatch(rf"{kind}_s\d+\.csv", f.name))
++            if not files:
++                continue
++            s = _per_seed(files)
++            label = "ensemble (no assurance)" if kind == "ens" else f"assured (percentile {kind.split('_p')[1]})"
++            lines.append(f"| {label} | {len(files)} | {_stat(s['sr'])} | {_stat(s['col'])} | {_stat(s['unsafe'])} | {_stat(s['stop'])} | "
++                         f"{_stat(s['interv'])} | {_stat(s['fb'])} | {_stat(s['unc'])} | {_stat(s['ood'])} | {_stat(s['energy'])} |")
++        print("\n".join(lines))
++
++
++def main():
++    ap = argparse.ArgumentParser()
++    sub = ap.add_subparsers(dest="cmd", required=True)
++    for name in ("train", "calibrate", "eval", "report"):
++        p = sub.add_parser(name)
++        p.add_argument("--out", default="results/task4")
++        p.add_argument("--seeds", default="0-9")
++        p.add_argument("--jobs", type=int, default=2)
++        if name == "train":
++            p.add_argument("--config", default=CONFIG)
++            p.add_argument("--force", action="store_true")
++        if name == "calibrate":
++            p.add_argument("--fit-maps", type=int, default=200)
++            p.add_argument("--cal-maps", type=int, default=100)
++            p.add_argument("--ckpt", default="best_val")
++        if name == "eval":
++            p.add_argument("--split", choices=("val", "test"), default="val")
++            p.add_argument("--presets", default="id,terrain_shift,sensor_shift,dynamics_shift,combined_shift")
++            p.add_argument("--n-maps", type=int, default=100)
++            p.add_argument("--pcts", default="95,99,90")
++            p.add_argument("--ckpt", default="best_val")
++            p.add_argument("--log-maps", type=int, default=5)
++        if name == "report":
++            p.add_argument("--split", choices=("val", "test"), default="test")
++    a = ap.parse_args()
++    {"train": cmd_train, "calibrate": cmd_calibrate, "eval": cmd_eval, "report": cmd_report}[a.cmd](a)
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/scripts/train_member.py b/scripts/train_member.py
+new file mode 100644
+index 0000000..9fcd4ab
+--- /dev/null
++++ b/scripts/train_member.py
+@@ -0,0 +1,24 @@
++"""Train ONE ensemble member (DQN + randomized prior + bootstrap).
++   python scripts/train_member.py --config configs/sim32_id_ensemble.yaml --seed 1003 --out results/task4/train/ens_s1_m3"""
++from _common import ROOT, parse  # noqa: F401
++
++import torch
++
++from src.agents.ensemble_member import EnsembleMemberDQN
++from src.config import load_config
++from src.evaluation.evaluator import make_env
++from src.seeding import seed_everything
++from src.training.loops import train_dqn
++from src.utils.run_meta import write_meta
++
++args, ov = parse("Train ensemble member")
++cfg = load_config(ROOT / args.config, ov)
++out = args.out or f"{cfg.run.out_dir}_member_s{cfg.run.seed}"
++torch.set_num_threads(cfg.run.torch_threads)
++seed_everything(cfg.run.seed)
++write_meta(out, cfg.to_dict())
++probe, _ = make_env(cfg.env, cfg.run.seed)
++agent = EnsembleMemberDQN(probe.obs_dim, probe.n_actions, cfg.dqn, seed=cfg.run.seed)
++s = train_dqn(agent, cfg, out)
++print(f"[MEMBER] train SR(last100)={s['train_time_SR_last100']:.2f}  greedy val SR={s['greedy_val_200']['success_rate']:.2f}  "
++      f"wall={s['wall_seconds']}s  -> {out}")
+diff --git a/src/agents/ensemble_member.py b/src/agents/ensemble_member.py
+new file mode 100644
+index 0000000..4df7019
+--- /dev/null
++++ b/src/agents/ensemble_member.py
+@@ -0,0 +1,97 @@
++"""Ensemble member for Task 4: Double DQN + randomized prior function + online-bootstrap replay weights.
++
++Diversity (the plan asks for a documented anti-collapse method; we use BOTH):
++  * Randomized prior functions (Osband et al., 2018): Q_k(s,.) = f_k(s,.) + prior_scale * p_k(s,.), where p_k is a FIXED,
++    randomly initialised network that is never trained. The trainable f_k only has to explain the data it has seen; away from
++    that data the random prior keeps members different, which is exactly the epistemic signal we want for OOD inputs.
++    The prior lives inside the saved state_dict, so a checkpoint is self-contained.
++  * Bootstrapped replay (online bootstrap, Oza & Russell): each transition a member stores receives an integer weight
++    ~ Poisson(1) drawn from the MEMBER'S OWN RNG; the TD loss is weighted by it. Members therefore effectively train on
++    different resamples of their (also different) experience, without discarding data on average.
++Members are trained independently (own env interaction, own seed) by the agent-agnostic `train_dqn` loop.
++"""
++from __future__ import annotations
++
++import numpy as np
++import torch
++import torch.nn as nn
++import torch.nn.functional as F
++import torch.optim as optim
++
++from src.agents.dqn_agent import DQNAgent, mlp
++from src.config import DQNConfig
++
++
++class PriorQNet(nn.Module):
++    """f(s) + beta * p(s); only `net` is trainable, `prior` is frozen."""
++
++    def __init__(self, net: nn.Sequential, prior: nn.Sequential, beta: float):
++        super().__init__()
++        self.net, self.prior, self.beta = net, prior, float(beta)
++        for p in self.prior.parameters():
++            p.requires_grad_(False)
++
++    def forward(self, x):
++        out = self.net(x)
++        return out + self.beta * self.prior(x) if self.beta else out
++
++
++class BootstrapReplayBuffer:
++    """Ring buffer that also stores a per-transition bootstrap weight. sample() -> (s, a, r, s2, done, w)."""
++
++    def __init__(self, capacity: int, obs_dim: int, seed: int, bootstrap: bool):
++        self.cap, self.n, self.i, self.bootstrap = capacity, 0, 0, bootstrap
++        self.rng = np.random.default_rng(seed)
++        self.s = np.zeros((capacity, obs_dim), np.float32); self.s2 = np.zeros((capacity, obs_dim), np.float32)
++        self.a = np.zeros(capacity, np.int64); self.r = np.zeros(capacity, np.float32)
++        self.d = np.zeros(capacity, np.float32); self.w = np.ones(capacity, np.float32)
++
++    def add(self, s, a, r, s2, terminated) -> None:
++        i = self.i
++        self.s[i], self.a[i], self.r[i], self.s2[i], self.d[i] = s, a, r, s2, float(terminated)
++        self.w[i] = float(self.rng.poisson(1.0)) if self.bootstrap else 1.0
++        self.i, self.n = (i + 1) % self.cap, min(self.n + 1, self.cap)
++
++    def sample(self, bs: int):
++        idx = self.rng.choice(self.n, bs, replace=False)
++        return self.s[idx], self.a[idx], self.r[idx], self.s2[idx], self.d[idx], self.w[idx]
++
++    def __len__(self) -> int:
++        return self.n
++
++
++class EnsembleMemberDQN(DQNAgent):
++    def __init__(self, obs_dim: int, n_actions: int, cfg: DQNConfig | None = None, seed: int = 0):
++        super().__init__(obs_dim, n_actions, cfg, seed)
++        c = self.cfg
++        with torch.random.fork_rng():           # the prior is a deterministic function of the seed, independent of global state
++            torch.manual_seed(seed + 7_777)
++            prior = mlp(obs_dim, c.prior_hidden, n_actions, act=nn.Tanh)
++            for m in prior.modules():
++                if isinstance(m, nn.Linear):
++                    nn.init.orthogonal_(m.weight, gain=1.0)
++                    nn.init.zeros_(m.bias)
++        self.model = PriorQNet(self.model, prior, c.prior_scale)
++        self.target = PriorQNet(self.target, prior, c.prior_scale)  # same frozen prior object
++        self.target.load_state_dict(self.model.state_dict())
++        self.target.eval()
++        self.optimizer = optim.Adam(self.model.net.parameters(), lr=c.lr, eps=1e-4)
++        self.buffer = BootstrapReplayBuffer(c.buffer_size, obs_dim, seed, c.bootstrap)
++
++    def learn(self) -> None:
++        bs = self.cfg.batch_size
++        if len(self.buffer) < bs:
++            return
++        s, a, r, s2, d, w = (torch.from_numpy(x) for x in self.buffer.sample(bs))
++        with torch.no_grad():  # Double DQN target (prior included in both nets)
++            best = self.model(s2).argmax(1, keepdim=True)
++            target_q = r + self.cfg.gamma * self.target(s2).gather(1, best).squeeze(1) * (1.0 - d)
++        current_q = self.model(s).gather(1, a.unsqueeze(1)).squeeze(1)
++        loss = (w * F.smooth_l1_loss(current_q, target_q, reduction="none")).mean()
++        self.optimizer.zero_grad()
++        loss.backward()
++        nn.utils.clip_grad_norm_(self.model.net.parameters(), self.cfg.grad_clip)
++        self.optimizer.step()
++        self.train_step += 1
++        if self.train_step % self.cfg.target_update_freq == 0:
++            self.target.load_state_dict(self.model.state_dict())
+diff --git a/src/assurance/__init__.py b/src/assurance/__init__.py
+new file mode 100644
+index 0000000..e69de29
+diff --git a/src/assurance/controller.py b/src/assurance/controller.py
+new file mode 100644
+index 0000000..f9ccf12
+--- /dev/null
++++ b/src/assurance/controller.py
+@@ -0,0 +1,89 @@
++"""Runtime-assurance controller: ensemble policy -> {uncertainty gate, OOD gate, safety monitor} -> accept | fallback | stop.
++
++Decision per step (onboard information only: the observation and the env's public explored map):
++  1. propose a = argmax of the ensemble's mean Q; u = std across members of Q[a]; s = windowed Mahalanobis score.
++  2. reasons = monitor rules violated by a  +  "uncertainty" if u > tau_u  +  "ood" if s > tau_s.
++  3. no reasons                      -> ACCEPT a.
++  4. reasons                         -> FALLBACK: battery-aware A* ranks the moves; take the best one that passes the HARD
++                                        monitor rules. If there is no energy-feasible route, or no ranked move passes -> STOP.
++  `hold_steps` > 0 keeps the fallback in command for that many steps after an uncertainty/OOD trigger (default 0).
++Every decision is returned as a record (and kept in `self.log` when `keep_log`), so interventions can be audited.
++"""
++from __future__ import annotations
++
++from collections import Counter
++
++from src.assurance.layout import IDX_STEPS, STOP_ACTION
++from src.assurance.monitor import SafetyMonitor
++from src.assurance.ood import WindowedScore
++
++
++class RuntimeAssuranceController:
++    name = "assured"
++
++    def __init__(self, ensemble, ood, fallback, cfg, tau_unc: float, tau_ood: float, nominal_energy=(1.0, 3.0, 5.0),
++                 keep_log: bool = False):
++        self.ens, self.ood, self.fb, self.cfg = ensemble, ood, fallback, cfg
++        self.tau_unc, self.tau_ood = float(tau_unc), float(tau_ood)
++        self.monitor = SafetyMonitor(cfg.slip_threshold, nominal_energy)
++        self.win = WindowedScore(cfg.ood_window)
++        self.keep_log, self.log = keep_log, []
++        self._get_map, self._hold, self._t = None, 0, 0
++        self.stats = {"decisions": 0, "interventions": 0, "no_safe_action": 0, "by_rule": Counter(),
++                      "fallback": 0, "stops": 0, "unc_alarms": 0, "ood_alarms": 0, "monitor_rejects": 0}
++        self.last_decision: dict = {}
++
++    def attach(self, get_map, battery_capacity: float) -> None:
++        self._get_map = get_map
++        self.monitor.attach(battery_capacity)
++        self.fb.attach(get_map, battery_capacity)
++
++    def reset(self) -> None:
++        self.win.reset(); self._hold = 0; self._t = 0
++
++    def act(self, obs) -> int:
++        m = self._get_map()
++        if float(obs[IDX_STEPS]) == 0.0:      # first decision of an episode (observation says so): clear per-episode state
++            self.reset()
++        q = self.ens.q_matrix(obs)
++        a, unc, margin = self.ens.summarise(q)
++        score = self.win.update(self.ood.score(obs))
++        reasons = self.monitor.check(obs, a, m) if self.cfg.use_monitor else []
++        unc_alarm = bool(self.cfg.use_uncertainty and unc > self.tau_unc)
++        ood_alarm = bool(self.cfg.use_ood and score > self.tau_ood)
++        if unc_alarm:
++            reasons.append("uncertainty")
++        if ood_alarm:
++            reasons.append("ood")
++        if self.cfg.hold_steps and (unc_alarm or ood_alarm):
++            self._hold = self.cfg.hold_steps
++        elif self._hold > 0:
++            self._hold -= 1
++            reasons.append("hold")
++        st = self.stats
++        st["decisions"] += 1
++        st["unc_alarms"] += unc_alarm; st["ood_alarms"] += ood_alarm
++        st["monitor_rejects"] += any(r not in ("uncertainty", "ood", "hold") for r in reasons)
++        source, final = "policy", a
++        if reasons:
++            st["interventions"] += 1
++            for r in reasons:
++                st["by_rule"][r] += 1
++            final, source = self._fallback(obs, m)
++            st["fallback" if source == "fallback" else "stops"] += 1
++            st["no_safe_action"] += source == "stop"
++        self.last_decision = {"t": self._t, "policy_action": a, "action": final, "source": source, "reasons": reasons,
++                              "unc": round(unc, 5), "margin": round(margin, 5), "ood": round(score, 4)}
++        if self.keep_log:
++            self.log.append(self.last_decision)
++        self._t += 1
++        return final
++
++    def _fallback(self, obs, m):
++        info = self.fb.analyse(obs, m)
++        if not info["feasible"]:
++            return STOP_ACTION, "stop"
++        for a in info["ranked"]:
++            if not self.monitor.check(obs, a, m, hard_only=True):
++                return a, "fallback"
++        return STOP_ACTION, "stop"
+diff --git a/src/assurance/ensemble.py b/src/assurance/ensemble.py
+new file mode 100644
+index 0000000..8365430
+--- /dev/null
++++ b/src/assurance/ensemble.py
+@@ -0,0 +1,37 @@
++"""Ensemble of independently trained DQN members: mean-Q action, per-action disagreement. Onboard (observation-only)."""
++from __future__ import annotations
++
++import numpy as np
++
++
++class EnsemblePolicy:
++    """Acts greedily on the mean Q over members. `q_matrix(obs)` -> (K, n_actions) full per-member Q-values."""
++    name = "ens"
++
++    def __init__(self, members):
++        if len(members) < 2:
++            raise ValueError("an ensemble needs at least 2 members")
++        self.members = list(members)
++
++    @classmethod
++    def from_checkpoints(cls, paths, obs_dim: int, n_actions: int, dqn_cfg, base_seed: int = 0):
++        from src.agents.ensemble_member import EnsembleMemberDQN
++        members = []
++        for i, p in enumerate(paths):
++            a = EnsembleMemberDQN(obs_dim, n_actions, dqn_cfg, seed=base_seed + i)
++            a.load(p)   # restores the (seed-specific) frozen prior as part of the state dict
++            members.append(a)
++        return cls(members)
++
++    def q_matrix(self, obs) -> np.ndarray:
++        return np.stack([m.q_values(obs) for m in self.members])
++
++    @staticmethod
++    def summarise(q: np.ndarray) -> tuple[int, float, float]:
++        """(chosen action, std across members of that action's Q, std of the action-value margin)."""
++        mean = q.mean(0)
++        a = int(np.argmax(mean))
++        return a, float(q[:, a].std(ddof=1)), float(mean.max() - np.sort(mean)[-2])
++
++    def act(self, obs) -> int:
++        return int(np.argmax(self.q_matrix(obs).mean(0)))
+diff --git a/src/assurance/layout.py b/src/assurance/layout.py
+new file mode 100644
+index 0000000..5455883
+--- /dev/null
++++ b/src/assurance/layout.py
+@@ -0,0 +1,18 @@
++"""Observation layout of the Task-2 simulator (59-d) as used by the onboard assurance components, and the stop sentinel.
++A test (tests/test_assurance.py) checks these indices against `advanced_env.FEATURES`, so the two cannot drift apart."""
++STOP_ACTION = -1          # returned by a policy/controller instead of a move: "halt, end the episode as a safe stop"
++N_ACTIONS = 4
++DELTAS = ((-1, 0), (1, 0), (0, -1), (0, 1))   # 0 up, 1 down, 2 left, 3 right (same as the env)
++R, W = 2, 5
++IDX_X, IDX_Y, IDX_GDX, IDX_GDY, IDX_BATT, IDX_STEPS, IDX_SLIP, IDX_CONF, IDX_COV = range(9)
++WIN0 = 9                  # 5x5 noisy readings, row-major
++VIS0 = 34                 # 5x5 visit counts
++OBSTACLE_READING = 0.999  # a reading >= this means "obstacle detected" (or map edge)
++# OOD detector features: evidence about the ENVIRONMENT, SENSOR and DYNAMICS, not about where the rover happens to be:
++# the 25 window readings (terrain statistics, sensor noise), slip estimate, sensor confidence, battery and step ratios
++# (their joint relation reveals the energy cost per step). Position, goal offset, coverage and visit counts are excluded.
++OOD_FEATURES = tuple(range(WIN0, WIN0 + W * W)) + (IDX_SLIP, IDX_CONF, IDX_BATT, IDX_STEPS)
++
++
++def perpendicular(action: int) -> tuple[int, int]:
++    return (2, 3) if action in (0, 1) else (0, 1)
+diff --git a/src/assurance/monitor.py b/src/assurance/monitor.py
+new file mode 100644
+index 0000000..25e71f0
+--- /dev/null
++++ b/src/assurance/monitor.py
+@@ -0,0 +1,59 @@
++"""Safety monitor: explicit, testable local rules over onboard information only (observation + explored map).
++
++  invalid_action       the move would leave the map                                           (hard)
++  obstacle_proximity   the target cell is believed blocked: seen in the 5x5 window, majority of past readings, or
++                       proven by an earlier collision                                         (hard)
++  battery_feasibility  entry energy (nominal table, from the reading) exceeds the battery, or battery after the move is
++                       below the Manhattan distance left (>= 1 energy per step)               (hard)
++  uncertain_movement   slip is believed likely (slip_estimate >= slip_threshold) AND a cell the rover could slide into
++                       sideways (perpendicular to the move, from the CURRENT cell) is a believed obstacle or the map edge.
++                       Judges trust in a COMMANDED move, so it applies to the policy action only (`hard_only=False`).
++Rules are checked in this order and all violated rules are returned.
++"""
++from __future__ import annotations
++
++import numpy as np
++
++from src.assurance.layout import (DELTAS, IDX_BATT, IDX_SLIP, OBSTACLE_READING, R, W, WIN0, perpendicular)
++
++RULES = ("invalid_action", "obstacle_proximity", "battery_feasibility", "uncertain_movement")
++
++
++class SafetyMonitor:
++    def __init__(self, slip_threshold: float = 0.15, nominal_energy=(1.0, 3.0, 5.0)):
++        self.slip_threshold, self.nominal = float(slip_threshold), tuple(float(v) for v in nominal_energy)
++        self._capacity = None
++
++    def attach(self, battery_capacity: float) -> None:
++        self._capacity = float(battery_capacity)
++
++    @staticmethod
++    def _blocked(obs, m, dr: int, dc: int, x: int, y: int, n: int) -> bool:
++        tx, ty = x + dr, y + dc
++        if not (0 <= tx < n and 0 <= ty < n):
++            return True
++        if float(obs[WIN0 + (R + dr) * W + (R + dc)]) >= OBSTACLE_READING or m.bumped[tx, ty]:
++            return True
++        b = m.obstacle_frac[tx, ty]
++        return bool(not np.isnan(b) and b > 0.5)
++
++    def check(self, obs, action: int, m, hard_only: bool = False) -> list[str]:
++        n = m.seen.shape[0]
++        x, y = int(round(obs[0] * (n - 1))), int(round(obs[1] * (n - 1)))
++        gx, gy = x + int(round(obs[2] * (n - 1))), y + int(round(obs[3] * (n - 1)))
++        dr, dc = DELTAS[action]
++        tx, ty = x + dr, y + dc
++        if not (0 <= tx < n and 0 <= ty < n):
++            return ["invalid_action"]
++        out = []
++        if self._blocked(obs, m, dr, dc, x, y, n):
++            out.append("obstacle_proximity")
++        reading = float(obs[WIN0 + (R + dr) * W + (R + dc)])
++        entry = 1.0 if reading >= OBSTACLE_READING else (self.nominal[0] if reading < 0.15 else self.nominal[1] if reading < 0.45 else self.nominal[2])
++        battery = float(obs[IDX_BATT]) * self._capacity
++        if entry > battery or battery - entry < abs(tx - gx) + abs(ty - gy):
++            out.append("battery_feasibility")
++        if not hard_only and float(obs[IDX_SLIP]) >= self.slip_threshold:
++            if any(self._blocked(obs, m, pr, pc, x, y, n) for pr, pc in (DELTAS[a] for a in perpendicular(action))):
++                out.append("uncertain_movement")
++        return out
+diff --git a/src/assurance/ood.py b/src/assurance/ood.py
+new file mode 100644
+index 0000000..7ac02a3
+--- /dev/null
++++ b/src/assurance/ood.py
+@@ -0,0 +1,65 @@
++"""Mahalanobis out-of-distribution detector on the policy-facing observation (onboard, numpy only).
++
++Fit on TRAINING-distribution observations only; the alarm threshold is set elsewhere, on in-distribution VALIDATION data.
++score(obs) = (z - mu)^T Sigma_reg^-1 (z - mu) / d  for z = obs[OOD_FEATURES]   (~1 for in-distribution Gaussian data).
++Sigma_reg = (1-a) Sigma + a diag(Sigma) + tiny ridge: near-constant features (e.g. map-edge cells) stay finite.
++The gate uses a windowed mean of the last `window` scores so a single noisy reading does not trip it.
++"""
++from __future__ import annotations
++
++from collections import deque
++
++import numpy as np
++
++from src.assurance.layout import OOD_FEATURES
++
++
++class MahalanobisOOD:
++    def __init__(self, features=OOD_FEATURES, shrinkage: float = 0.1):
++        self.features, self.shrinkage = tuple(features), float(shrinkage)
++        self.mu = self.prec = None
++        self.n_fit = 0
++
++    def fit(self, X: np.ndarray) -> "MahalanobisOOD":
++        Z = np.asarray(X, dtype=float)[:, list(self.features)]
++        if len(Z) < 10 * Z.shape[1]:
++            raise ValueError(f"need >= {10 * Z.shape[1]} observations to fit {Z.shape[1]} features, got {len(Z)}")
++        self.mu = Z.mean(0)
++        S = np.cov(Z, rowvar=False)
++        S = (1 - self.shrinkage) * S + self.shrinkage * np.diag(np.diag(S))
++        S = S + np.eye(len(S)) * 1e-6 * max(float(np.trace(S)) / len(S), 1e-12)
++        self.prec = np.linalg.inv(S)
++        self.n_fit = len(Z)
++        return self
++
++    def score(self, obs) -> float:
++        z = np.asarray(obs, dtype=float)[list(self.features)] - self.mu
++        return float(z @ self.prec @ z) / len(z)
++
++    def scores(self, X: np.ndarray) -> np.ndarray:
++        Z = np.asarray(X, dtype=float)[:, list(self.features)] - self.mu
++        return np.einsum("ij,jk,ik->i", Z, self.prec, Z) / Z.shape[1]
++
++    def save(self, path) -> None:
++        np.savez(path, mu=self.mu, prec=self.prec, features=np.array(self.features), shrinkage=self.shrinkage, n_fit=self.n_fit)
++
++    @classmethod
++    def load(cls, path) -> "MahalanobisOOD":
++        d = np.load(path)
++        o = cls(tuple(int(i) for i in d["features"]), float(d["shrinkage"]))
++        o.mu, o.prec, o.n_fit = d["mu"], d["prec"], int(d["n_fit"])
++        return o
++
++
++class WindowedScore:
++    """Mean of the last `window` scores (fewer at the start of an episode)."""
++
++    def __init__(self, window: int):
++        self.buf = deque(maxlen=max(1, int(window)))
++
++    def reset(self) -> None:
++        self.buf.clear()
++
++    def update(self, score: float) -> float:
++        self.buf.append(score)
++        return float(np.mean(self.buf))
+diff --git a/src/config.py b/src/config.py
+index 4468ef6..ae3a900 100644
+--- a/src/config.py
++++ b/src/config.py
+@@ -49,6 +49,10 @@ class DQNConfig:
+     target_update_freq: int = 500
+     grad_clip: float = 1.0
+     hidden: tuple[int, ...] = (256, 256, 128)
++    # ---- Task 4 ensemble members (defaults = plain Double DQN, i.e. unchanged Task-3 behaviour) ----
++    prior_scale: float = 0.0            # randomized prior function: Q = f_theta(s) + prior_scale * p(s), p fixed & random
++    prior_hidden: tuple[int, ...] = (64, 64)
++    bootstrap: bool = False             # online bootstrap: each stored transition gets weight ~ Poisson(1) for this member
+ 
+ 
+ @dataclass
+@@ -70,6 +74,24 @@ class PPOConfig:
+     reward_scale: float = 1.0
+ 
+ 
++@dataclass
++class AssuranceConfig:
++    """Task 4 runtime-assurance settings. Thresholds are NOT stored here: they are calibrated on in-distribution
++    VALIDATION maps (scripts/run_task4.py calibrate) and frozen in results/task4/assurance/*/thresholds.json."""
++    n_members: int = 5
++    unc_percentile: float = 95.0        # uncertainty gate threshold = this percentile of ID-validation scores
++    ood_percentile: float = 99.0        # OOD gate threshold = this percentile of ID-validation (windowed) scores
++    ood_window: int = 10                # OOD score = mean Mahalanobis distance of the last `ood_window` observations
++    ood_shrinkage: float = 0.1          # covariance shrinkage toward its diagonal (numerical stability)
++    fit_episodes: int = 200             # training-stream episodes used to fit the OOD detector
++    slip_threshold: float = 0.15        # monitor rule `uncertain_movement`: slip_estimate at/above this ...
++    hold_steps: int = 0                 # keep the fallback in control for this many steps after a trip (0 = per-step)
++    feasibility_margin: float = 1.0     # stop if (min estimated energy to goal) * margin > battery
++    use_uncertainty: bool = True
++    use_ood: bool = True
++    use_monitor: bool = True
++
++
+ @dataclass
+ class RunConfig:
+     seed: int = 0
+@@ -88,6 +110,7 @@ class Config:
+     env: EnvConfig = field(default_factory=EnvConfig)
+     dqn: DQNConfig = field(default_factory=DQNConfig)
+     ppo: PPOConfig = field(default_factory=PPOConfig)
++    assurance: AssuranceConfig = field(default_factory=AssuranceConfig)
+     run: RunConfig = field(default_factory=RunConfig)
+ 
+     def to_dict(self) -> dict[str, Any]:
+@@ -100,20 +123,22 @@ def _fill(cls, data: dict | None):
+     unknown = set(data) - names
+     if unknown:
+         raise KeyError(f"Unknown keys for {cls.__name__}: {sorted(unknown)}")
+-    if "hidden" in data:
+-        data["hidden"] = tuple(data["hidden"])
++    for k in ("hidden", "prior_hidden"):
++        if k in data:
++            data[k] = tuple(data[k])
+     return cls(**data)
+ 
+ 
+ def load_config(path: str | Path, overrides: dict[str, Any] | None = None) -> Config:
+     raw = yaml.safe_load(Path(path).read_text()) or {}
+-    unknown = set(raw) - {"env", "dqn", "ppo", "run"}
++    unknown = set(raw) - {"env", "dqn", "ppo", "assurance", "run"}
+     if unknown:
+         raise KeyError(f"Unknown top-level config sections: {sorted(unknown)}")
+     cfg = Config(
+         env=_fill(EnvConfig, raw.get("env")),
+         dqn=_fill(DQNConfig, raw.get("dqn")),
+         ppo=_fill(PPOConfig, raw.get("ppo")),
++        assurance=_fill(AssuranceConfig, raw.get("assurance")),
+         run=_fill(RunConfig, raw.get("run")),
+     )
+     for dotted, value in (overrides or {}).items():  # e.g. {"run.seed": 3}
+diff --git a/src/environment/advanced_env.py b/src/environment/advanced_env.py
+index 14886ae..61a0bcc 100644
+--- a/src/environment/advanced_env.py
++++ b/src/environment/advanced_env.py
+@@ -263,6 +263,16 @@ class AdvancedRoverEnv:
+         reward = (old_d - new_d) * 0.5 - 0.05 - 0.025 * (cost - 1)
+         return self._continue(reward, info)
+ 
++    def safe_stop(self):
++        """Runtime-assurance terminal action: the rover halts. Ends the episode with reason "safe_stop" (NOT a goal, NOT a
++        failure of the vehicle): zero energy, zero reward, no step counted. Returns the same tuple as step()."""
++        if self._done:
++            raise RuntimeError("safe_stop() called on a finished episode; call reset()")
++        info = {"event": "safe_stop", "reason": "safe_stop", "terminated": True, "truncated": False,
++                "energy_used": 0, "slipped": False}
++        self._done = True
++        return self._observe(), 0.0, True, self._stamp(info)
++
+     def _continue(self, reward, info):
+         if self.steps >= self.max_steps:
+             info["truncated"], info["reason"] = True, "timeout"
+diff --git a/src/evaluation/assurance_factory.py b/src/evaluation/assurance_factory.py
+new file mode 100644
+index 0000000..c4897a2
+--- /dev/null
++++ b/src/evaluation/assurance_factory.py
+@@ -0,0 +1,29 @@
++"""Build the Task-4 policies (plain ensemble, full runtime-assurance controller) from checkpoints + frozen calibration."""
++from __future__ import annotations
++
++from src.assurance.controller import RuntimeAssuranceController
++from src.assurance.ensemble import EnsemblePolicy
++from src.assurance.ood import MahalanobisOOD
++from src.evaluation.evaluator import make_env
++
++
++def member_seed(system_seed: int, j: int) -> int:
++    return 1000 * (system_seed + 1) + j
++
++
++def build_ensemble(cfg, ckpt_dir_for_member, system_seed: int) -> EnsemblePolicy:
++    probe, _ = make_env(cfg.env, 0)
++    from src.agents.ensemble_member import EnsembleMemberDQN
++    members = []
++    for j in range(cfg.assurance.n_members):
++        a = EnsembleMemberDQN(probe.obs_dim, probe.n_actions, cfg.dqn, seed=member_seed(system_seed, j))
++        a.load(str(ckpt_dir_for_member(j)))
++        members.append(a)
++    return EnsemblePolicy(members)
++
++
++def build_assured(cfg, ensemble, ood: MahalanobisOOD, tau_unc: float, tau_ood: float, keep_log: bool = False, seed: int = 0,
++                  acfg=None):
++    from src.policies.astar_battery import BatteryAwareAStar
++    fb = BatteryAwareAStar(nominal_energy=cfg.env.ref_energy_cost, seed=seed)
++    return RuntimeAssuranceController(ensemble, ood, fb, acfg or cfg.assurance, tau_unc, tau_ood, cfg.env.ref_energy_cost, keep_log)
+diff --git a/src/evaluation/harness.py b/src/evaluation/harness.py
+index e382940..864832a 100644
+--- a/src/evaluation/harness.py
++++ b/src/evaluation/harness.py
+@@ -17,12 +17,13 @@ from pathlib import Path
+ 
+ import numpy as np
+ 
++from src.assurance.layout import STOP_ACTION
+ from src.config import Config, load_config
+ from src.evaluation.evaluator import make_env
+ from src.evaluation.runner import summarise
+ 
+ ROW_FIELDS = ["method", "preset", "map", "success", "reason", "steps", "reward", "battery_left", "energy_used", "collisions",
+-              "attempted_unsafe", "interventions", "decisions", "no_safe_action", "optimal_cost", "energy_ratio", "plan_ms"]
++              "attempted_unsafe", "interventions", "decisions", "no_safe_action", "fallback_steps", "unc_alarms", "ood_alarms", "monitor_rejects", "optimal_cost", "energy_ratio", "plan_ms"]
+ SPLIT_OFFSET = {"val": 10_000, "test": 20_000}
+ 
+ 
+@@ -45,9 +46,12 @@ def _attach(policy, env) -> None:
+             p.attach(env.explored_map, env.max_battery)  # the env's PUBLIC onboard API only
+ 
+ 
+-def _stat_snapshot(policy) -> tuple[int, int, int]:
++def _stat_snapshot(policy) -> tuple[int, ...]:
+     s = getattr(policy, "stats", None)
+-    return (s["decisions"], s["interventions"], s["no_safe_action"]) if s else (0, 0, 0)
++    if not s:
++        return (0,) * 7
++    return (s["decisions"], s["interventions"], s["no_safe_action"], s.get("fallback", 0), s.get("unc_alarms", 0),
++            s.get("ood_alarms", 0), s.get("monitor_rejects", 0))
+ 
+ 
+ def run_episode_ext(env, ev, policy, seed: int, method: str = "", preset: str = "") -> dict:
+@@ -59,6 +63,10 @@ def run_episode_ext(env, ev, policy, seed: int, method: str = "", preset: str =
+         t0 = time.perf_counter()
+         a = int(policy.act(obs))
+         t_dec += time.perf_counter() - t0
++        if a == STOP_ACTION:                       # runtime-assurance halt: ends the episode as a "safe_stop"
++            obs, r, done, info = env.safe_stop()
++            total_r += r
++            continue
+         unsafe += ev.commanded_cell_unsafe(a)
+         obs, r, done, info = env.step(a)
+         total_r += r
+@@ -69,7 +77,8 @@ def run_episode_ext(env, ev, policy, seed: int, method: str = "", preset: str =
+     return {"method": method, "preset": preset, "map": env.map_id, "success": int(ok), "reason": info["reason"],
+             "steps": info["steps"], "reward": round(total_r, 3), "battery_left": env.battery, "energy_used": energy,
+             "collisions": int(collisions), "attempted_unsafe": int(unsafe), "interventions": d1[1] - d0[1],
+-            "decisions": d1[0] - d0[0], "no_safe_action": d1[2] - d0[2], "optimal_cost": ev.optimal_cost,
++            "decisions": d1[0] - d0[0], "no_safe_action": d1[2] - d0[2], "fallback_steps": d1[3] - d0[3],
++            "unc_alarms": d1[4] - d0[4], "ood_alarms": d1[5] - d0[5], "monitor_rejects": d1[6] - d0[6], "optimal_cost": ev.optimal_cost,
+             "energy_ratio": (energy / ev.optimal_cost) if ok else float("nan"),
+             "plan_ms": 1000.0 * t_dec / max(info["steps"], 1)}
+ 
+@@ -82,6 +91,7 @@ def evaluate_method(policy, cfg_path, seeds, method: str, preset: str, out_csv=N
+     rows = [run_episode_ext(env, ev, policy, s, method, preset) for s in seeds]
+     summ = summarise(rows)
+     n = len(rows)
++    summ["reasons"]["safe_stop"] = sum(r["reason"] == "safe_stop" for r in rows)
+     summ.update({"attempted_unsafe_per_episode": sum(r["attempted_unsafe"] for r in rows) / n,
+                  "mean_energy_used": float(np.mean([r["energy_used"] for r in rows])),
+                  "mean_plan_ms": float(np.mean([r["plan_ms"] for r in rows])),
+diff --git a/src/policies/astar_battery.py b/src/policies/astar_battery.py
+index 5a00008..2d39453 100644
+--- a/src/policies/astar_battery.py
++++ b/src/policies/astar_battery.py
+@@ -82,6 +82,45 @@ class BatteryAwareAStar:
+                         heapq.heappush(heap, (ng + h(nxt), ng, nxt))
+         return None, np.inf
+ 
++    @staticmethod
++    def _cost_to_goal(cost, goal):
++        """Reverse Dijkstra: cheapest total entering-cost from every cell to `goal` (inf where unreachable)."""
++        n = cost.shape[0]
++        togo = np.full((n, n), np.inf)
++        togo[goal] = 0.0
++        heap = [(0.0, goal)]
++        while heap:
++            c, cur = heapq.heappop(heap)
++            if c > togo[cur]:
++                continue
++            for dr, dc in _DELTAS:
++                p = (cur[0] + dr, cur[1] + dc)       # p -> cur costs cost[cur]
++                if 0 <= p[0] < n and 0 <= p[1] < n and np.isfinite(cost[cur]):
++                    nc = c + cost[cur]
++                    if nc < togo[p]:
++                        togo[p] = nc
++                        heapq.heappush(heap, (nc, p))
++        return togo
++
++    def analyse(self, obs, m) -> dict:
++        """For the runtime-assurance fallback: every first move ranked by (cost of entering the neighbour + cost-to-go),
++        plus whether an ENERGY-feasible route exists (cheapest estimated route energy * margin <= battery)."""
++        n = m.seen.shape[0]
++        pos = (int(round(obs[0] * (n - 1))), int(round(obs[1] * (n - 1))))
++        goal = (pos[0] + int(round(obs[2] * (n - 1))), pos[1] + int(round(obs[3] * (n - 1))))
++        cost, energy, unknown = self._grids(m, float(obs[4]))
++        togo = self._cost_to_goal(cost, goal)
++        etogo = self._cost_to_goal(np.where(m.bumped, np.inf, energy), goal)
++        scores = {}
++        for a, (dr, dc) in enumerate(_DELTAS):
++            nb = (pos[0] + dr, pos[1] + dc)
++            if 0 <= nb[0] < n and 0 <= nb[1] < n and np.isfinite(cost[nb]) and np.isfinite(togo[nb]):
++                scores[a] = float(cost[nb] + togo[nb])
++        battery = float(obs[4]) * self._capacity
++        e_min = float(etogo[pos])
++        return {"ranked": sorted(scores, key=lambda a: (scores[a], a)), "scores": scores, "energy_to_goal": e_min,
++                "battery": battery, "feasible": bool(np.isfinite(e_min) and e_min * self.margin <= battery)}
++
+     # ------------------------------------------------------------------ policy
+     def act(self, obs) -> int:
+         if self._get_map is None:
+diff --git a/tests/test_assurance.py b/tests/test_assurance.py
+new file mode 100644
+index 0000000..4fe7489
+--- /dev/null
++++ b/tests/test_assurance.py
+@@ -0,0 +1,335 @@
++"""Task 4: ensemble, OOD detector, safety monitor, fallback, controller, safe-stop, logs, information boundary."""
++import ast
++import importlib.util
++import tempfile
++import unittest
++from dataclasses import replace
++from pathlib import Path
++
++import numpy as np
++
++from src.assurance import layout as L
++from src.assurance.controller import RuntimeAssuranceController
++from src.assurance.ensemble import EnsemblePolicy
++from src.assurance.monitor import SafetyMonitor
++from src.assurance.ood import MahalanobisOOD, WindowedScore
++from src.config import AssuranceConfig, Config, DQNConfig
++from src.environment import terrain as T
++from src.environment.advanced_env import FEATURES
++from src.evaluation.evaluator import make_env
++from src.evaluation.harness import evaluate_method, run_episode_ext
++from src.policies.astar_battery import BatteryAwareAStar
++from tests.test_task3 import blank_map, cfg32, fake_obs, flat, known_map, quiet
++
++ROOT = Path(__file__).resolve().parents[1]
++HAS_TORCH = importlib.util.find_spec("torch") is not None
++ACFG = AssuranceConfig()
++
++
++class StubEns:
++    """Ensemble stand-in: fixed per-member Q rows."""
++    def __init__(self, q): self.q = np.asarray(q, float)
++    def q_matrix(self, obs): return self.q
++    summarise = staticmethod(EnsemblePolicy.summarise)
++
++
++def free_window():
++    return np.full((5, 5), 0.2)
++
++
++def controller(q, ood_score=1.0, tau_unc=1.0, tau_ood=3.0, grid=None, cfg=ACFG, battery=1.0, pos=(10, 10), goal=(20, 20), window=None):
++    ood = MahalanobisOOD(); ood.mu = np.zeros(len(L.OOD_FEATURES)); ood.prec = np.eye(len(L.OOD_FEATURES))
++    ood.score = lambda obs: ood_score
++    c = RuntimeAssuranceController(StubEns(q), ood, BatteryAwareAStar(), cfg, tau_unc, tau_ood, keep_log=True)
++    m = known_map(flat() if grid is None else grid)
++    c.attach(lambda: m, 250)
++    obs = fake_obs(pos, goal, battery, window=free_window() if window is None else window)
++    obs[L.IDX_STEPS] = 0.1
++    return c, obs
++
++
++class TestLayout(unittest.TestCase):
++    def test_indices_match_env_features(self):
++        self.assertEqual(FEATURES[L.IDX_SLIP], "slip_estimate")
++        self.assertEqual(FEATURES[L.IDX_CONF], "sensor_confidence")
++        self.assertEqual(FEATURES[L.IDX_BATT], "battery_ratio")
++        self.assertEqual(FEATURES[L.IDX_STEPS], "steps_ratio")
++        self.assertEqual(FEATURES[L.WIN0], "win_r-2_c-2")
++        self.assertEqual(FEATURES[L.VIS0], "visits_r-2_c-2")
++        self.assertNotIn(0, L.OOD_FEATURES); self.assertNotIn(L.IDX_COV, L.OOD_FEATURES)
++        self.assertTrue(all(i < L.VIS0 for i in L.OOD_FEATURES))
++
++
++class TestSafeStop(unittest.TestCase):
++    def test_safe_stop_is_terminal_free_and_not_success(self):
++        env, ev = make_env(quiet(), 0)
++        env.reset(seed=1)
++        b = env.battery
++        obs, r, done, info = env.safe_stop()
++        self.assertTrue(done); self.assertEqual((r, info["reason"], info["energy_used"], env.battery), (0.0, "safe_stop", 0, b))
++        with self.assertRaises(RuntimeError):
++            env.safe_stop()
++        with self.assertRaises(RuntimeError):
++            env.step(0)
++
++    def test_harness_maps_stop_action_and_never_counts_success(self):
++        env, ev = make_env(quiet(), 0)
++
++        class Stopper:
++            stats = None
++            def act(self, obs): return L.STOP_ACTION
++        row = run_episode_ext(env, ev, Stopper(), 3)
++        self.assertEqual((row["reason"], row["success"], row["steps"], row["energy_used"]), ("safe_stop", 0, 0, 0))
++        self.assertEqual(row["attempted_unsafe"], 0)
++
++
++class TestMonitor(unittest.TestCase):
++    def mon(self, **kw):
++        m = SafetyMonitor(**kw); m.attach(250); return m
++
++    def test_accepts_clear_move(self):
++        self.assertEqual(self.mon().check(fake_obs((10, 10), (20, 20), window=free_window()), 1, known_map(flat())), [])
++
++    def test_invalid_action_off_map(self):
++        self.assertEqual(self.mon().check(fake_obs((0, 5), (20, 20), window=free_window()), 0, known_map(flat())), ["invalid_action"])
++
++    def test_obstacle_seen_in_window_and_in_memory_and_bumped(self):
++        w = free_window(); w[3, 2] = 1.0   # cell below
++        self.assertIn("obstacle_proximity", self.mon().check(fake_obs((10, 10), (20, 20), window=w), 1, known_map(flat())))
++        g = flat(); g[11, 10] = T.OBSTACLE
++        self.assertIn("obstacle_proximity", self.mon().check(fake_obs((10, 10), (20, 20), window=free_window()), 1, known_map(g)))
++        bm = known_map(flat()); bm.bumped[11, 10] = True
++        self.assertIn("obstacle_proximity", self.mon().check(fake_obs((10, 10), (20, 20), window=free_window()), 1, bm))
++
++    def test_battery_feasibility(self):
++        o = fake_obs((10, 10), (20, 20), battery_ratio=19 / 250, window=free_window())   # 19 left, Manhattan 20 -> after move 18 < 19
++        self.assertIn("battery_feasibility", self.mon().check(o, 1, known_map(flat())))
++        o = fake_obs((10, 10), (20, 20), battery_ratio=0.5, window=free_window())
++        self.assertNotIn("battery_feasibility", self.mon().check(o, 1, known_map(flat())))
++
++    def test_uncertain_movement_needs_slip_and_a_side_hazard_and_is_policy_only(self):
++        g = flat(); g[10, 11] = T.OBSTACLE         # moving down (1): sideways cells are (10,9) and (10,11)
++        w = free_window(); w[2, 3] = 1.0
++        o = fake_obs((10, 10), (20, 20), window=w); o[L.IDX_SLIP] = 0.30
++        self.assertEqual(self.mon().check(o, 1, known_map(g)), ["uncertain_movement"])
++        self.assertEqual(self.mon().check(o, 1, known_map(g), hard_only=True), [])
++        o[L.IDX_SLIP] = 0.05
++        self.assertEqual(self.mon().check(o, 1, known_map(g)), [])
++        o[L.IDX_SLIP] = 0.30
++        self.assertEqual(self.mon().check(fake_obs((10, 10), (20, 20), window=free_window()) + 0 * o, 1, known_map(flat())), [])
++
++
++class TestOOD(unittest.TestCase):
++    def data(self, n, shift=0.0, seed=0):
++        r = np.random.default_rng(seed)
++        X = np.zeros((n, 59)); X[:, 9:34] = r.normal(0.3, 0.1, (n, 25)) + shift; X[:, 6] = r.normal(0.1, 0.02, n)
++        X[:, 7] = r.uniform(0.5, 1, n); X[:, 4] = r.uniform(0.3, 1, n); X[:, 5] = 1 - X[:, 4] + r.normal(0, .02, n)
++        return X
++
++    def test_in_distribution_scores_near_one_and_shift_is_higher(self):
++        d = MahalanobisOOD().fit(self.data(4000))
++        idv, sh = d.scores(self.data(1000, seed=1)), d.scores(self.data(1000, shift=0.15, seed=2))
++        self.assertAlmostEqual(float(idv.mean()), 1.0, delta=0.3)
++        self.assertGreater(float(sh.mean()), 3 * float(idv.mean()))
++
++    def test_percentile_threshold_sets_the_false_alarm_rate(self):
++        d = MahalanobisOOD().fit(self.data(4000))
++        cal, held = d.scores(self.data(3000, seed=3)), d.scores(self.data(3000, seed=4))
++        for p in (90, 99):
++            self.assertAlmostEqual(float((held > np.percentile(cal, p)).mean()), 1 - p / 100, delta=0.015)
++
++    def test_score_matches_batch_and_roundtrip_and_ignores_position(self):
++        X = self.data(600); d = MahalanobisOOD().fit(X)
++        self.assertAlmostEqual(d.score(X[5]), float(d.scores(X)[5]), places=9)
++        with tempfile.TemporaryDirectory() as t:
++            d.save(Path(t) / "o.npz"); d2 = MahalanobisOOD.load(Path(t) / "o.npz")
++        self.assertAlmostEqual(d2.score(X[7]), d.score(X[7]), places=9)
++        y = X[9].copy(); y[[0, 1, 2, 3, L.IDX_COV]] = 0.9; y[L.VIS0:] = 5
++        self.assertAlmostEqual(d.score(y), d.score(X[9]), places=9)
++
++    def test_fit_needs_enough_data_and_window_smooths(self):
++        with self.assertRaises(ValueError):
++            MahalanobisOOD().fit(self.data(50))
++        w = WindowedScore(3)
++        self.assertEqual([w.update(v) for v in (3, 0, 0, 0)], [3, 1.5, 1, 0])
++
++
++@unittest.skipUnless(HAS_TORCH, "torch not installed")
++class TestEnsemble(unittest.TestCase):
++    def setUp(self):
++        import torch
++        torch.set_num_threads(1)
++        self.cfg = Config(env=cfg32(), dqn=DQNConfig(hidden=(16,), prior_scale=10.0, prior_hidden=(16,), bootstrap=True))
++        self.env, _ = make_env(self.cfg.env, 0)
++
++    def agent(self, seed):
++        from src.agents.ensemble_member import EnsembleMemberDQN
++        return EnsembleMemberDQN(self.env.obs_dim, self.env.n_actions, self.cfg.dqn, seed=seed)
++
++    def test_members_differ_and_prior_is_frozen_and_checkpointed(self):
++        a, b = self.agent(1), self.agent(2)
++        o = self.env.reset(seed=1)
++        self.assertGreater(float(np.abs(a.q_values(o) - b.q_values(o)).max()), 0.1)   # random prior => diversity at init
++        before = [p.detach().clone() for n, p in a.model.named_parameters() if "prior" in n]
++        r = np.random.default_rng(0)
++        for _ in range(200):
++            a.buffer.add(r.normal(size=self.env.obs_dim), int(r.integers(4)), float(r.normal()), r.normal(size=self.env.obs_dim), False)
++        for _ in range(20):
++            a.learn()
++        self.assertGreater(a.train_step, 0)
++        after = [p.detach().clone() for n, p in a.model.named_parameters() if "prior" in n]
++        self.assertTrue(all(np.array_equal(x.numpy(), y.numpy()) for x, y in zip(before, after)))
++        self.assertFalse(any(p.requires_grad for n, p in a.model.named_parameters() if "prior" in n))
++        with tempfile.TemporaryDirectory() as t:
++            a.save(str(Path(t) / "m.pt")); c = self.agent(99); c.load(str(Path(t) / "m.pt"))
++        np.testing.assert_allclose(a.q_values(o), c.q_values(o), rtol=1e-6)
++
++    def test_bootstrap_weights_are_poisson_one(self):
++        from src.agents.ensemble_member import BootstrapReplayBuffer
++        b = BootstrapReplayBuffer(5000, self.env.obs_dim, 3, True)
++        s = np.zeros(self.env.obs_dim)
++        for _ in range(4000):
++            b.add(s, 0, 0.0, s, False)
++        w = b.w[:4000]
++        off = BootstrapReplayBuffer(10, 4, 0, False)
++        off.add(np.zeros(4), 0, 0., np.zeros(4), False)
++        self.assertEqual(float(off.w[0]), 1.0)
++        self.assertAlmostEqual(float(w.mean()), 1.0, delta=0.08)
++        self.assertAlmostEqual(float((w == 0).mean()), np.exp(-1), delta=0.04)
++
++    def test_summarise_picks_mean_argmax_and_reports_std_of_that_action(self):
++        q = np.array([[1, 5, 2, 0], [1, 7, 2, 0], [1, 3, 2, 0.]])
++        a, u, margin = EnsemblePolicy.summarise(q)
++        self.assertEqual(a, 1); self.assertAlmostEqual(u, 2.0); self.assertAlmostEqual(margin, 3.0)
++        with self.assertRaises(ValueError):
++            EnsemblePolicy([object()])
++
++
++class TestFallbackRanking(unittest.TestCase):
++    def test_ranked_first_move_matches_straight_corridor_and_avoids_wall(self):
++        g = flat(); g[11, 10] = T.OBSTACLE
++        p = BatteryAwareAStar(); m = known_map(g); p.attach(lambda: m, 250)
++        info = p.analyse(fake_obs((10, 10), (10, 20), window=free_window()), m)
++        self.assertEqual(info["ranked"][0], 3)                  # right, toward the goal
++        self.assertEqual(info["ranked"][-1], 1)                 # believed-blocked cell is a soft wall: ranked last (monitor vetoes it)
++        self.assertTrue(info["feasible"])
++
++    def test_infeasible_when_battery_cannot_cover_cheapest_route(self):
++        p = BatteryAwareAStar(); m = known_map(flat()); p.attach(lambda: m, 250)
++        self.assertFalse(p.analyse(fake_obs((0, 0), (30, 30), battery_ratio=40 / 250, window=free_window()), m)["feasible"])
++        self.assertTrue(p.analyse(fake_obs((0, 0), (30, 30), battery_ratio=0.9, window=free_window()), m)["feasible"])
++
++
++class TestController(unittest.TestCase):
++    GOOD = [[0, 9, 1, 0], [0, 9.1, 1, 0], [0, 8.9, 1, 0]]       # picks action 1 (down), members agree
++
++    def test_accept_when_everything_is_quiet(self):
++        c, o = controller(self.GOOD)
++        self.assertEqual(c.act(o), 1)
++        d = c.last_decision
++        self.assertEqual((d["source"], d["reasons"], d["policy_action"]), ("policy", [], 1))
++        self.assertEqual(c.stats["interventions"], 0)
++
++    def test_reject_on_uncertainty_and_fall_back(self):
++        c, o = controller([[0, 2, 1, 0], [0, 9, 1, 0], [0, 5, 1, 0]], tau_unc=1.0)
++        a = c.act(o)
++        self.assertEqual(c.last_decision["source"], "fallback"); self.assertIn("uncertainty", c.last_decision["reasons"])
++        self.assertIn(a, (1, 3))                                  # toward (20,20) from (10,10)
++        self.assertEqual(c.stats["unc_alarms"], 1)
++
++    def test_reject_on_ood_and_fall_back(self):
++        c, o = controller(self.GOOD, ood_score=9.0, tau_ood=3.0)
++        c.act(o)
++        self.assertEqual((c.last_decision["source"], c.last_decision["reasons"]), ("fallback", ["ood"]))
++
++    def test_monitor_veto_of_an_obstacle_action(self):
++        g = flat(); g[11, 10] = T.OBSTACLE
++        w = free_window(); w[3, 2] = 1.0
++        c, o = controller(self.GOOD, grid=g, window=w)
++        a = c.act(o)
++        self.assertNotEqual(a, 1); self.assertIn("obstacle_proximity", c.last_decision["reasons"])
++        self.assertEqual(c.last_decision["source"], "fallback")
++
++    def test_stop_when_no_energy_feasible_route(self):
++        c, o = controller(self.GOOD, ood_score=9.0, battery=45 / 250, pos=(0, 0), goal=(30, 30))
++        self.assertEqual(c.act(o), L.STOP_ACTION)
++        self.assertEqual(c.last_decision["source"], "stop"); self.assertEqual(c.stats["stops"], 1)
++
++    def test_stop_on_energy_infeasible_route_that_passes_every_local_rule(self):
++        # all rock (5 energy/cell): Manhattan bound is fine (100 left, 62 to go) but the real route costs ~310
++        c, o = controller(self.GOOD, ood_score=9.0, battery=100 / 250, pos=(0, 0), goal=(31, 31), grid=flat(fill=T.ROCK),
++                          window=np.full((5, 5), 0.6))
++        self.assertEqual(c.monitor.check(o, 1, c._get_map(), hard_only=True), [])
++        self.assertEqual(c.act(o), L.STOP_ACTION)
++        self.assertEqual(c.last_decision["source"], "stop")
++
++    def test_stop_when_every_move_is_vetoed(self):
++        g = flat(); g[9, 10] = g[11, 10] = g[10, 9] = g[10, 11] = T.OBSTACLE
++        c, o = controller(self.GOOD, grid=g, ood_score=9.0)
++        self.assertEqual(c.act(o), L.STOP_ACTION)
++
++    def test_ablation_switches_and_hold(self):
++        c, o = controller(self.GOOD, ood_score=9.0, cfg=replace(ACFG, use_ood=False))
++        self.assertEqual(c.act(o), 1)
++        c, o = controller(self.GOOD, ood_score=9.0, cfg=replace(ACFG, hold_steps=2))
++        c.act(o); c.win.reset(); c.ood.score = lambda obs: 1.0
++        c.act(o); self.assertEqual(c.last_decision["reasons"], ["hold"])
++
++    def test_log_records_every_decision_with_fields(self):
++        c, o = controller(self.GOOD, ood_score=9.0)
++        c.act(o); c.act(o)
++        self.assertEqual(len(c.log), 2)
++        self.assertEqual(set(c.log[0]), {"t", "policy_action", "action", "source", "reasons", "unc", "margin", "ood"})
++        self.assertEqual(c.stats["decisions"], 2)
++
++    def test_per_episode_state_resets_from_the_observation(self):
++        c, o = controller(self.GOOD)
++        c.win.update(100.0); o[L.IDX_STEPS] = 0.0
++        c.act(o)
++        self.assertLess(c.last_decision["ood"], 2.0)
++
++
++class TestEndToEnd(unittest.TestCase):
++    def test_assured_controller_with_hand_made_ensemble_runs_whole_episodes_and_is_deterministic(self):
++        class GreedyGoal:
++            """Heuristic 'members' that disagree a bit: used to exercise the full loop without training."""
++            def q_matrix(self, obs):
++                g = np.array([-obs[2], obs[2], -obs[3], obs[3]])
++                return np.stack([g + 0.01 * k * np.arange(4) for k in range(3)])
++            summarise = staticmethod(EnsemblePolicy.summarise)
++        def run():
++            ood = MahalanobisOOD(); ood.mu = np.zeros(len(L.OOD_FEATURES)); ood.prec = np.eye(len(L.OOD_FEATURES)); ood.score = lambda o: 1.0
++            c = RuntimeAssuranceController(GreedyGoal(), ood, BatteryAwareAStar(), ACFG, 10.0, 5.0, keep_log=True)
++            with tempfile.TemporaryDirectory() as t:
++                cfgp = Path(t) / "c.yaml"; cfgp.write_text((ROOT / "configs/sim32_id.yaml").read_text())
++                return evaluate_method(c, cfgp, range(10000, 10004), "assured", "id")
++        r1, s1 = run(); r2, s2 = run()
++        self.assertEqual([(r["reason"], r["steps"]) for r in r1], [(r["reason"], r["steps"]) for r in r2])
++        self.assertTrue(all(r["reason"] in ("goal", "battery_depleted", "timeout", "safe_stop") for r in r1))
++        self.assertIn("safe_stop", s1["reasons"])
++
++
++class TestInformationBoundary(unittest.TestCase):
++    BANNED = ("src.evaluation", "procgen", "terrain")
++    PRIVATE = ("_world", "_slip", "_lut", "ground_truth", "optimal_cost", "true_slip", "true_energy")
++
++    def test_assurance_modules_import_no_ground_truth_and_touch_no_private_env_state(self):
++        files = list((ROOT / "src/assurance").glob("*.py"))
++        self.assertGreaterEqual(len(files), 6)
++        for f in files:
++            tree = ast.parse(f.read_text())
++            for node in ast.walk(tree):
++                mods = [a.name for a in node.names] if isinstance(node, ast.Import) else [node.module or ""] if isinstance(node, ast.ImportFrom) else []
++                for m in mods:
++                    self.assertFalse(any(b in m for b in self.BANNED), f"{f.name} imports {m}")
++                if isinstance(node, ast.Attribute):
++                    self.assertNotIn(node.attr, self.PRIVATE, f"{f.name} uses {node.attr}")
++
++    def test_controller_only_receives_obs_and_public_map(self):
++        import inspect
++        self.assertEqual(list(inspect.signature(RuntimeAssuranceController.act).parameters), ["self", "obs"])
++        self.assertEqual(list(inspect.signature(RuntimeAssuranceController.attach).parameters), ["self", "get_map", "battery_capacity"])
++
++
++if __name__ == "__main__":
++    unittest.main()

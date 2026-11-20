@@ -1,0 +1,20 @@
+# Task 4: in-distribution env + ensemble-member settings (randomized prior + Poisson bootstrap) + assurance defaults.
+env:
+  kind: advanced
+  size: 32
+  battery: 250
+  p_normal: 0.6
+  p_sand: 0.15
+  p_rock: 0.1
+  gen_corr: 2
+  energy_cost: [1, 3, 5]
+  slip_prob: [0.02, 0.1, 0.05]
+  sensor_miss: 0.05
+  sensor_false: 0.02
+  sensor_sigma: 0.05
+dqn:
+  prior_scale: 10.0
+  prior_hidden: [64, 64]
+  bootstrap: true
+assurance: {n_members: 5, unc_percentile: 95.0, ood_percentile: 99.0}
+run: {seed: 0, episodes: 1500, out_dir: results/sim32_id_ensemble}

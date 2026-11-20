@@ -1,0 +1,47 @@
+{
+  "episodes": 1500,
+  "env_steps": 176427,
+  "wall_seconds": 262.5,
+  "train_time_SR_last100": 0.93,
+  "train_time_battery_last100": 134.2,
+  "train_time_min_battery": 0,
+  "greedy_val_200": {
+    "episodes": 200,
+    "success_rate": 0.965,
+    "success_ci95": [
+      0.9295285391333187,
+      0.9829446753626429
+    ],
+    "reasons": {
+      "goal": 193,
+      "battery_depleted": 7,
+      "timeout": 0
+    },
+    "mean_battery_left": 141.415,
+    "mean_battery_left_success": 146.5440414507772,
+    "mean_steps": 78.645,
+    "collisions_per_episode": 2.6,
+    "mean_energy_ratio_success": 1.5520352465447984,
+    "min_battery_seen": 0
+  },
+  "greedy_test_200": {
+    "episodes": 200,
+    "success_rate": 0.97,
+    "success_ci95": [
+      0.9361048802675267,
+      0.9861798741692518
+    ],
+    "reasons": {
+      "goal": 194,
+      "battery_depleted": 6,
+      "timeout": 0
+    },
+    "mean_battery_left": 146.48,
+    "mean_battery_left_success": 151.01030927835052,
+    "mean_steps": 77.255,
+    "collisions_per_episode": 3.04,
+    "mean_energy_ratio_success": 1.4951618647844773,
+    "min_battery_seen": 0
+  },
+  "note": "train_time_* include exploration (DQN eps>=eps_min, PPO sampling); greedy_* are the deployable policy"
+}

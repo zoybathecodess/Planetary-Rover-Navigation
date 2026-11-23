@@ -1,0 +1,11 @@
+method,preset,map,success,reason,steps,reward,battery_left,energy_used,collisions,attempted_unsafe,interventions,decisions,no_safe_action,fallback_steps,unc_alarms,ood_alarms,monitor_rejects,optimal_cost,energy_ratio,plan_ms
+assured-monitor_only_p95_s1,terrain_shift,seed(60000),1,goal,62,157.4,154,96,0,0,0,62,0,0,0,0,0,68,1.411764705882353,0.2125154516129845
+assured-monitor_only_p95_s1,terrain_shift,seed(60001),1,goal,76,153.45,138,112,0,0,0,76,0,0,0,0,0,82,1.3658536585365855,0.22153119736837598
+assured-monitor_only_p95_s1,terrain_shift,seed(60002),1,goal,64,152.4,132,118,0,0,0,64,0,0,0,0,0,86,1.372093023255814,0.22565101562443957
+assured-monitor_only_p95_s1,terrain_shift,seed(60003),1,goal,66,146.5,106,144,0,0,0,66,0,0,0,0,0,98,1.469387755102041,0.22501448484918588
+assured-monitor_only_p95_s1,terrain_shift,seed(60004),1,goal,67,153.3,145,105,1,0,0,67,0,0,0,0,0,88,1.1931818181818181,0.22504601492630966
+assured-monitor_only_p95_s1,terrain_shift,seed(60005),1,goal,66,146.05,104,146,0,0,0,66,0,0,0,0,0,84,1.7380952380952381,0.22317045454591586
+assured-monitor_only_p95_s1,terrain_shift,seed(60006),1,goal,62,154.7,142,108,0,0,0,62,0,0,0,0,0,90,1.2,0.21957117741846427
+assured-monitor_only_p95_s1,terrain_shift,seed(60007),1,goal,68,158.15,158,92,0,0,0,68,0,0,0,0,0,78,1.1794871794871795,0.20972732352888937
+assured-monitor_only_p95_s1,terrain_shift,seed(60008),1,goal,72,139.6,76,174,0,0,1,72,0,1,0,0,1,100,1.74,0.27419797222213066
+assured-monitor_only_p95_s1,terrain_shift,seed(60009),1,goal,106,136.05,64,186,0,0,1,106,0,1,0,0,1,78,2.3846153846153846,0.2632527452839331

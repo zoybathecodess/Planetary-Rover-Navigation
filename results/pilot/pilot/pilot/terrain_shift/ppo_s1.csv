@@ -1,0 +1,11 @@
+method,preset,map,success,reason,steps,reward,battery_left,energy_used,collisions,attempted_unsafe,interventions,decisions,no_safe_action,fallback_steps,unc_alarms,ood_alarms,monitor_rejects,optimal_cost,energy_ratio,plan_ms
+ppo_s1,terrain_shift,seed(60000),1,goal,62,153.35,136,114,0,0,0,0,0,0,0,0,0,68,1.6764705882352942,0.02330446774189179
+ppo_s1,terrain_shift,seed(60001),1,goal,130,126.15,40,210,2,2,0,0,0,0,0,0,0,82,2.5609756097560976,0.024482700000414928
+ppo_s1,terrain_shift,seed(60002),1,goal,78,149.5,138,112,2,1,0,0,0,0,0,0,0,86,1.302325581395349,0.02289420512915705
+ppo_s1,terrain_shift,seed(60003),1,goal,66,143.8,94,156,0,0,0,0,0,0,0,0,0,98,1.5918367346938775,0.023364893940099177
+ppo_s1,terrain_shift,seed(60004),1,goal,64,152.4,132,118,0,0,0,0,0,0,0,0,0,88,1.3409090909090908,0.022782578125601916
+ppo_s1,terrain_shift,seed(60005),1,goal,66,151.45,128,122,0,0,0,0,0,0,0,0,0,84,1.4523809523809523,0.022895257574854593
+ppo_s1,terrain_shift,seed(60006),1,goal,87,103.0,97,153,21,20,0,0,0,0,0,0,0,90,1.7,0.02329408045988589
+ppo_s1,terrain_shift,seed(60007),1,goal,68,153.65,138,112,0,0,0,0,0,0,0,0,0,78,1.435897435897436,0.022876882352813467
+ppo_s1,terrain_shift,seed(60008),0,battery_depleted,105,-10.25,0,250,1,1,0,0,0,0,0,0,0,100,nan,0.022788114285633907
+ppo_s1,terrain_shift,seed(60009),1,goal,64,159.15,162,88,0,0,0,0,0,0,0,0,0,78,1.1282051282051282,0.022863265624728513

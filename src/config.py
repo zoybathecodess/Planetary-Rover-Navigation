@@ -103,6 +103,7 @@ class RunConfig:
     test_seed_offset: int = 20_000  # test maps: seeds 20_000... (never used for selection)
     torch_threads: int = 1       # tiny MLPs are fastest on 1 thread; avoids oversubscription
     log_margin: bool = False     # evaluator-side budget margin each step (costs one Dijkstra/step)
+    final_test_eval: bool = False  # Phase-2 hygiene: training must not touch test maps. True only to reproduce Task-1/3 summaries
     out_dir: str = "results/run"
 
 

@@ -13,6 +13,8 @@ from __future__ import annotations
 
 from collections import Counter
 
+import numpy as np
+
 from src.assurance.layout import IDX_BATT, IDX_STEPS, STOP_ACTION
 from src.assurance.monitor import SafetyMonitor
 from src.assurance.ood import WindowedScore
@@ -42,6 +44,16 @@ class RuntimeAssuranceController:
         self.win.reset(); self._hold = 0; self._t = 0
 
     def act(self, obs) -> int:
+        if not np.all(np.isfinite(obs)):          # corrupted observation: no component can be trusted -> halt
+            self.stats["decisions"] += 1; self.stats["interventions"] += 1; self.stats["stops"] += 1
+            self.stats["no_safe_action"] += 1; self.stats["by_rule"]["invalid_observation"] += 1
+            self.last_decision = {"t": self._t, "policy_action": None, "action": STOP_ACTION, "source": "stop",
+                                  "reasons": ["invalid_observation"], "unc": None, "margin": None, "ood": None,
+                                  "battery": None, "stop_cause": "invalid_observation", "route_energy_est": None}
+            if self.keep_log:
+                self.log.append(self.last_decision)
+            self._t += 1
+            return STOP_ACTION
         m = self._get_map()
         if float(obs[IDX_STEPS]) == 0.0:      # first decision of an episode (observation says so): clear per-episode state
             self.reset()

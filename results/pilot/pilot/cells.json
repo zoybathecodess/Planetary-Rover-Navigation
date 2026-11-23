@@ -1,0 +1,1002 @@
+[
+  {
+    "tag": "astar",
+    "preset": "id",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 1.140000791999995,
+    "spe": 0.11400007919999951,
+    "problems": []
+  },
+  {
+    "tag": "reactive",
+    "preset": "id",
+    "status": "ok",
+    "sr": 0.9,
+    "stops": 0,
+    "wall": 0.07416066700000101,
+    "spe": 0.007416066700000101,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s0",
+    "preset": "id",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.09338029199999198,
+    "spe": 0.009338029199999199,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s1",
+    "preset": "id",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.08929579200000148,
+    "spe": 0.008929579200000148,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s0",
+    "preset": "id",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.10144175000000644,
+    "spe": 0.010144175000000644,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s1",
+    "preset": "id",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.09250399999999104,
+    "spe": 0.009250399999999104,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s0",
+    "preset": "id",
+    "status": "ok",
+    "sr": 0.8,
+    "stops": 0,
+    "wall": 0.1178331250000042,
+    "spe": 0.01178331250000042,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s1",
+    "preset": "id",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.10003866699999264,
+    "spe": 0.010003866699999264,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s0",
+    "preset": "id",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.10404024999999706,
+    "spe": 0.010404024999999706,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s1",
+    "preset": "id",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.10906533300000376,
+    "spe": 0.010906533300000376,
+    "problems": []
+  },
+  {
+    "tag": "ens_s0",
+    "preset": "id",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.26969695799999727,
+    "spe": 0.026969695799999728,
+    "problems": []
+  },
+  {
+    "tag": "ens_s1",
+    "preset": "id",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.26332887499999913,
+    "spe": 0.026332887499999912,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s0",
+    "preset": "id",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.3135927080000016,
+    "spe": 0.03135927080000016,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s1",
+    "preset": "id",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.2636757500000044,
+    "spe": 0.02636757500000044,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s0",
+    "preset": "id",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.26500133399999015,
+    "spe": 0.026500133399999015,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s1",
+    "preset": "id",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.2435334580000017,
+    "spe": 0.02435334580000017,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s0",
+    "preset": "id",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.23253245899999797,
+    "spe": 0.023253245899999796,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s1",
+    "preset": "id",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.25067083400000456,
+    "spe": 0.025067083400000457,
+    "problems": []
+  },
+  {
+    "tag": "assured-ood_only_p95_s0",
+    "preset": "id",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.2690918330000045,
+    "spe": 0.02690918330000045,
+    "problems": []
+  },
+  {
+    "tag": "assured-ood_only_p95_s1",
+    "preset": "id",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.23748454200000424,
+    "spe": 0.023748454200000425,
+    "problems": []
+  },
+  {
+    "tag": "astar",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 1.28542195899999,
+    "spe": 0.128542195899999,
+    "problems": []
+  },
+  {
+    "tag": "reactive",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 0.9,
+    "stops": 0,
+    "wall": 0.08691224999999747,
+    "spe": 0.008691224999999747,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s0",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 0.8,
+    "stops": 0,
+    "wall": 0.09277679100000569,
+    "spe": 0.009277679100000569,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s1",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.08727987500000722,
+    "spe": 0.008727987500000723,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s0",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 0.8,
+    "stops": 0,
+    "wall": 0.10698270899999329,
+    "spe": 0.01069827089999933,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s1",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 0.9,
+    "stops": 0,
+    "wall": 0.10371483299999795,
+    "spe": 0.010371483299999795,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s0",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 0.9,
+    "stops": 0,
+    "wall": 0.09826841699999989,
+    "spe": 0.009826841699999988,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s1",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 0.9,
+    "stops": 0,
+    "wall": 0.09363812499999824,
+    "spe": 0.009363812499999824,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s0",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 0.8,
+    "stops": 0,
+    "wall": 0.11462974999999176,
+    "spe": 0.011462974999999176,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s1",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 0.9,
+    "stops": 0,
+    "wall": 0.11004504200001008,
+    "spe": 0.011004504200001009,
+    "problems": []
+  },
+  {
+    "tag": "ens_s0",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.25269720800000073,
+    "spe": 0.025269720800000072,
+    "problems": []
+  },
+  {
+    "tag": "ens_s1",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.25897712500000125,
+    "spe": 0.025897712500000124,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s0",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.36284145800000545,
+    "spe": 0.03628414580000054,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s1",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.37300887499999646,
+    "spe": 0.037300887499999644,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s0",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.2577031659999989,
+    "spe": 0.025770316599999888,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s1",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.244790375000008,
+    "spe": 0.0244790375000008,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s0",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.23529333400000496,
+    "spe": 0.023529333400000498,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s1",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.2853461659999965,
+    "spe": 0.028534616599999653,
+    "problems": []
+  },
+  {
+    "tag": "assured-ood_only_p95_s0",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.27011495899999716,
+    "spe": 0.027011495899999717,
+    "problems": []
+  },
+  {
+    "tag": "assured-ood_only_p95_s1",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.29986212499999,
+    "spe": 0.029986212499999,
+    "problems": []
+  },
+  {
+    "tag": "astar",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 1.1928186249999868,
+    "spe": 0.11928186249999868,
+    "problems": []
+  },
+  {
+    "tag": "reactive",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 0.9,
+    "stops": 0,
+    "wall": 0.08129387500000007,
+    "spe": 0.008129387500000007,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s0",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 0.9,
+    "stops": 0,
+    "wall": 0.10163745799999901,
+    "spe": 0.010163745799999901,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s1",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.09217816700000014,
+    "spe": 0.009217816700000015,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s0",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.09485349999999926,
+    "spe": 0.009485349999999925,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s1",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 0.9,
+    "stops": 0,
+    "wall": 0.09807708299999263,
+    "spe": 0.009807708299999263,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s0",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.09026662499999816,
+    "spe": 0.009026662499999815,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s1",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.1047605830000009,
+    "spe": 0.01047605830000009,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s0",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.10362349999999765,
+    "spe": 0.010362349999999765,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s1",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 0.9,
+    "stops": 0,
+    "wall": 0.12117395799999997,
+    "spe": 0.012117395799999996,
+    "problems": []
+  },
+  {
+    "tag": "ens_s0",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.2075850829999979,
+    "spe": 0.02075850829999979,
+    "problems": []
+  },
+  {
+    "tag": "ens_s1",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.21435141599999952,
+    "spe": 0.02143514159999995,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s0",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 3.762574166999997,
+    "spe": 0.3762574166999997,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s1",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 3.8075364999999977,
+    "spe": 0.3807536499999998,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s0",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.31227866700000106,
+    "spe": 0.031227866700000106,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s1",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.2980741669999958,
+    "spe": 0.02980741669999958,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s0",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.22638937499999656,
+    "spe": 0.022638937499999658,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s1",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.23671454200000142,
+    "spe": 0.023671454200000143,
+    "problems": []
+  },
+  {
+    "tag": "assured-ood_only_p95_s0",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 3.8995429159999873,
+    "spe": 0.3899542915999987,
+    "problems": []
+  },
+  {
+    "tag": "assured-ood_only_p95_s1",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 3.8561590420000016,
+    "spe": 0.38561590420000014,
+    "problems": []
+  },
+  {
+    "tag": "astar",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 1.3036888749999918,
+    "spe": 0.13036888749999917,
+    "problems": []
+  },
+  {
+    "tag": "reactive",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 0.8,
+    "stops": 0,
+    "wall": 0.09184208300000307,
+    "spe": 0.009184208300000307,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s0",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.09186687500000801,
+    "spe": 0.0091866875000008,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s1",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.09129516600000898,
+    "spe": 0.009129516600000897,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s0",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.10106733300000315,
+    "spe": 0.010106733300000314,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s1",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.10054225000000372,
+    "spe": 0.010054225000000371,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s0",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 0.9,
+    "stops": 0,
+    "wall": 0.1071678750000018,
+    "spe": 0.01071678750000018,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s1",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.09609595800000648,
+    "spe": 0.009609595800000648,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s0",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.10452200000000289,
+    "spe": 0.01045220000000029,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s1",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.10999787499999059,
+    "spe": 0.010999787499999058,
+    "problems": []
+  },
+  {
+    "tag": "ens_s0",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.23626933299999564,
+    "spe": 0.023626933299999563,
+    "problems": []
+  },
+  {
+    "tag": "ens_s1",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.23843420800000104,
+    "spe": 0.023843420800000105,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s0",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.3262647500000071,
+    "spe": 0.03262647500000071,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s1",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.42395170800000415,
+    "spe": 0.042395170800000416,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s0",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.26081766700001197,
+    "spe": 0.026081766700001195,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s1",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.2648812080000056,
+    "spe": 0.02648812080000056,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s0",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.23759775000000616,
+    "spe": 0.023759775000000614,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s1",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.2466584160000025,
+    "spe": 0.024665841600000248,
+    "problems": []
+  },
+  {
+    "tag": "assured-ood_only_p95_s0",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.2692622090000043,
+    "spe": 0.02692622090000043,
+    "problems": []
+  },
+  {
+    "tag": "assured-ood_only_p95_s1",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.3074012089999911,
+    "spe": 0.030740120899999113,
+    "problems": []
+  },
+  {
+    "tag": "astar",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 1.4564449160000095,
+    "spe": 0.14564449160000095,
+    "problems": []
+  },
+  {
+    "tag": "reactive",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 0.7,
+    "stops": 0,
+    "wall": 0.09521837500000174,
+    "spe": 0.009521837500000175,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s0",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 0.7,
+    "stops": 0,
+    "wall": 0.10830087499999763,
+    "spe": 0.010830087499999762,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s1",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 0.7,
+    "stops": 0,
+    "wall": 0.11753704199999504,
+    "spe": 0.011753704199999503,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s0",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 0.9,
+    "stops": 0,
+    "wall": 0.12547504200000503,
+    "spe": 0.012547504200000503,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s1",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 0.8,
+    "stops": 0,
+    "wall": 0.12553079199999218,
+    "spe": 0.012553079199999217,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s0",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 0.9,
+    "stops": 0,
+    "wall": 0.10502091600000085,
+    "spe": 0.010502091600000086,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s1",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 0.7,
+    "stops": 0,
+    "wall": 0.10243637499999636,
+    "spe": 0.010243637499999635,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s0",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 0.9,
+    "stops": 0,
+    "wall": 0.12161433299999658,
+    "spe": 0.012161433299999658,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s1",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 0.6,
+    "stops": 0,
+    "wall": 0.12306429200000935,
+    "spe": 0.012306429200000935,
+    "problems": []
+  },
+  {
+    "tag": "ens_s0",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 0.7,
+    "stops": 0,
+    "wall": 0.258894374999997,
+    "spe": 0.025889437499999703,
+    "problems": []
+  },
+  {
+    "tag": "ens_s1",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 0.9,
+    "stops": 0,
+    "wall": 0.24940508400000283,
+    "spe": 0.024940508400000283,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s0",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 0.9,
+    "stops": 1,
+    "wall": 3.8634759170000024,
+    "spe": 0.3863475917000002,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s1",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 0.9,
+    "stops": 1,
+    "wall": 3.948459249999999,
+    "spe": 0.39484592499999993,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s0",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 0.8,
+    "stops": 2,
+    "wall": 0.47126904200000297,
+    "spe": 0.0471269042000003,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s1",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 1.0,
+    "stops": 0,
+    "wall": 0.4223891660000021,
+    "spe": 0.04223891660000021,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s0",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 0.8,
+    "stops": 2,
+    "wall": 0.5108687089999933,
+    "spe": 0.051086870899999325,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s1",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 0.9,
+    "stops": 1,
+    "wall": 0.46755025000000217,
+    "spe": 0.046755025000000214,
+    "problems": []
+  },
+  {
+    "tag": "assured-ood_only_p95_s0",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 0.9,
+    "stops": 1,
+    "wall": 3.8844524999999948,
+    "spe": 0.38844524999999946,
+    "problems": []
+  },
+  {
+    "tag": "assured-ood_only_p95_s1",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 0.9,
+    "stops": 1,
+    "wall": 3.8939272500000044,
+    "spe": 0.38939272500000044,
+    "problems": []
+  }
+]

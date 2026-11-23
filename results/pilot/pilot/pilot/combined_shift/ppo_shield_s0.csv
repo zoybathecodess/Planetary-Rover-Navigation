@@ -1,0 +1,11 @@
+method,preset,map,success,reason,steps,reward,battery_left,energy_used,collisions,attempted_unsafe,interventions,decisions,no_safe_action,fallback_steps,unc_alarms,ood_alarms,monitor_rejects,optimal_cost,energy_ratio,plan_ms
+ppo_shield_s0,combined_shift,seed(60000),1,goal,72,152.425,133,117,0,0,1,72,0,0,0,0,0,71,1.647887323943662,0.03925636111152326
+ppo_shield_s0,combined_shift,seed(60001),1,goal,89,141.725,96,154,1,0,6,89,0,0,0,0,0,91,1.6923076923076923,0.0414484831465229
+ppo_shield_s0,combined_shift,seed(60002),1,goal,64,150.375,123,127,0,0,3,64,0,0,0,0,0,95,1.3368421052631578,0.04015110937460875
+ppo_shield_s0,combined_shift,seed(60003),1,goal,83,127.925,34,216,1,0,1,83,0,0,0,0,0,112,1.9285714285714286,0.039550204818342316
+ppo_shield_s0,combined_shift,seed(60004),1,goal,117,115.75,1,249,3,0,6,117,1,0,0,0,0,97,2.5670103092783507,0.040182290598619906
+ppo_shield_s0,combined_shift,seed(60005),1,goal,79,137.475,76,174,1,1,1,79,0,0,0,0,0,94,1.851063829787234,0.03901744303943901
+ppo_shield_s0,combined_shift,seed(60006),1,goal,72,139.15,74,176,0,0,3,72,0,0,0,0,0,102,1.7254901960784315,0.040742500000905894
+ppo_shield_s0,combined_shift,seed(60007),1,goal,82,138.675,73,177,0,0,1,82,0,0,0,0,0,85,2.0823529411764707,0.038985792682198525
+ppo_shield_s0,combined_shift,seed(60008),1,goal,80,130.4,36,214,0,0,2,80,0,0,0,0,0,115,1.8608695652173912,0.03945941250034224
+ppo_shield_s0,combined_shift,seed(60009),0,battery_depleted,125,-6.775,0,250,1,0,17,125,13,0,0,0,0,86,nan,0.04316029599988269

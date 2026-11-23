@@ -1,0 +1,11 @@
+method,preset,map,success,reason,steps,reward,battery_left,energy_used,collisions,attempted_unsafe,interventions,decisions,no_safe_action,fallback_steps,unc_alarms,ood_alarms,monitor_rejects,optimal_cost,energy_ratio,plan_ms
+ens_s1,dynamics_shift,seed(60000),1,goal,64,159.15,162,88,0,0,0,64,0,0,0,0,0,64,1.375,0.22856901562584575
+ens_s1,dynamics_shift,seed(60001),1,goal,82,158.7,162,88,0,0,0,82,0,0,0,0,0,62,1.4193548387096775,0.22449745122140408
+ens_s1,dynamics_shift,seed(60002),1,goal,64,161.175,171,79,0,0,0,64,0,0,0,0,0,62,1.2741935483870968,0.2242206718741091
+ens_s1,dynamics_shift,seed(60003),1,goal,65,145.25,109,141,1,0,0,65,0,0,0,0,0,77,1.8311688311688312,0.22446472307776205
+ens_s1,dynamics_shift,seed(60004),1,goal,67,158.025,166,84,1,0,0,67,0,0,0,0,0,73,1.1506849315068493,0.22615850746345967
+ens_s1,dynamics_shift,seed(60005),1,goal,72,160.075,167,83,0,0,0,72,0,0,0,0,0,62,1.3387096774193548,0.2180775694448695
+ens_s1,dynamics_shift,seed(60006),1,goal,66,160.225,167,83,0,0,0,66,0,0,0,0,0,62,1.3387096774193548,0.21357519696973634
+ens_s1,dynamics_shift,seed(60007),1,goal,68,156.8,152,98,0,0,0,68,0,0,0,0,0,70,1.4,0.2112639852939387
+ens_s1,dynamics_shift,seed(60008),1,goal,83,136.85,91,159,3,3,0,83,0,0,0,0,0,62,2.564516129032258,0.21092219277082233
+ens_s1,dynamics_shift,seed(60009),1,goal,80,154.7,144,106,0,0,0,80,0,0,0,0,0,62,1.7096774193548387,0.21891247500001043

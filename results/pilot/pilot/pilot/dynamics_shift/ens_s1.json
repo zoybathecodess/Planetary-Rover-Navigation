@@ -1,0 +1,27 @@
+{
+  "episodes": 10,
+  "success_rate": 1.0,
+  "success_ci95": [
+    0.7224598312333834,
+    1.0
+  ],
+  "reasons": {
+    "goal": 10,
+    "battery_depleted": 0,
+    "timeout": 0,
+    "safe_stop": 0
+  },
+  "mean_battery_left": 149.1,
+  "mean_battery_left_success": 149.1,
+  "mean_steps": 71.1,
+  "collisions_per_episode": 0.5,
+  "mean_energy_ratio_success": 1.5402015052998261,
+  "min_battery_seen": 91,
+  "attempted_unsafe_per_episode": 0.3,
+  "mean_energy_used": 100.9,
+  "mean_plan_ms": 0.22006617887419577,
+  "intervention_rate": 0.0,
+  "wall_seconds": 0.238,
+  "seconds_per_episode": 0.0238,
+  "consistency_problems": []
+}

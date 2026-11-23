@@ -30,7 +30,8 @@ FIT_OFFSET = 30_000
 CONFIG = "configs/sim32_id_ensemble.yaml"
 # ablation variants (Task 7 uses these too); "full" is the system
 VARIANTS = {"full": {}, "no_ood": {"use_ood": False}, "no_unc": {"use_uncertainty": False}, "no_monitor": {"use_monitor": False},
-            "no_stop": {"allow_stop": False}, "monitor_only": {"use_ood": False, "use_uncertainty": False}}
+            "no_stop": {"allow_stop": False}, "monitor_only": {"use_ood": False, "use_uncertainty": False},
+            "unc_only": {"use_ood": False, "use_monitor": False}, "ood_only": {"use_uncertainty": False, "use_monitor": False}}
 
 
 def parse_seeds(s):
@@ -197,6 +198,8 @@ def _eval_one(task):
 
 
 def cmd_eval(a):
+    from src.evaluation.reproducibility import claim_split
+    claim_split(ROOT, a.split, "run_task4 eval")
     out = ROOT / a.out
     seeds, presets = parse_seeds(a.seeds), a.presets.split(",")
     pcts = [float(p) for p in a.pcts.split(",")]

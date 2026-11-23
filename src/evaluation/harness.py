@@ -24,7 +24,7 @@ from src.evaluation.runner import summarise
 
 ROW_FIELDS = ["method", "preset", "map", "success", "reason", "steps", "reward", "battery_left", "energy_used", "collisions",
               "attempted_unsafe", "interventions", "decisions", "no_safe_action", "fallback_steps", "unc_alarms", "ood_alarms", "monitor_rejects", "optimal_cost", "energy_ratio", "plan_ms"]
-SPLIT_OFFSET = {"val": 10_000, "test": 20_000}
+from src.evaluation.reproducibility import SPLIT_OFFSET  # noqa: E402  (val/test/fit/final/pilot; single source of truth)
 
 
 class GreedyAgentPolicy:

@@ -64,17 +64,18 @@ def _eval_row(episode, s):
 def _finish(agent, cfg: Config, out_dir: Path, w: _Writers, success, battery, t0, n_steps, eval_env, eval_ev):
     w.close()
     val = _eval(agent, cfg, eval_env, eval_ev, cfg.run.val_seed_offset, 200)
-    test = _eval(agent, cfg, eval_env, eval_ev, cfg.run.test_seed_offset, 200)
+    test = _eval(agent, cfg, eval_env, eval_ev, cfg.run.test_seed_offset, 200) if cfg.run.final_test_eval else None
     # PPO-like agents: also report the sampled policy on the same maps (after the greedy runs, so greedy numbers
     # and RNG streams are unchanged). A large greedy-vs-sampled gap means the argmax policy is not the trained one.
     sampled = ({"sampled_val_200": evaluate(eval_env, eval_ev, _Sampled(agent), range(cfg.run.val_seed_offset, cfg.run.val_seed_offset + 200))[1],
-                "sampled_test_200": evaluate(eval_env, eval_ev, _Sampled(agent), range(cfg.run.test_seed_offset, cfg.run.test_seed_offset + 200))[1]}
+                **({"sampled_test_200": evaluate(eval_env, eval_ev, _Sampled(agent), range(cfg.run.test_seed_offset, cfg.run.test_seed_offset + 200))[1]}
+                  if cfg.run.final_test_eval else {})}
                if hasattr(agent, "sample") else {})
     summary = {
         "episodes": len(success), "env_steps": n_steps, "wall_seconds": round(time.time() - t0, 1),
         "train_time_SR_last100": float(np.mean(success[-100:])), "train_time_battery_last100": float(np.mean(battery[-100:])),
         "train_time_min_battery": int(min(battery)),
-        "greedy_val_200": val, "greedy_test_200": test, **sampled,
+        "greedy_val_200": val, **({"greedy_test_200": test} if test is not None else {}), **sampled,
         "note": "train_time_* include exploration (DQN eps>=eps_min, PPO sampling); greedy_* are the deployable policy",
     }
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2, default=float))

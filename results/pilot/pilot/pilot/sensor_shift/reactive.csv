@@ -1,0 +1,11 @@
+method,preset,map,success,reason,steps,reward,battery_left,energy_used,collisions,attempted_unsafe,interventions,decisions,no_safe_action,fallback_steps,unc_alarms,ood_alarms,monitor_rejects,optimal_cost,energy_ratio,plan_ms
+reactive,sensor_shift,seed(60000),1,goal,65,159.65,173,77,1,1,0,0,0,0,0,0,0,64,1.203125,0.0030839384615651746
+reactive,sensor_shift,seed(60001),0,battery_depleted,250,-126.35,0,250,52,52,0,0,0,0,0,0,0,62,nan,0.0024608200003513048
+reactive,sensor_shift,seed(60002),1,goal,89,133.55,129,121,9,8,0,0,0,0,0,0,0,62,1.9516129032258065,0.002748584270027473
+reactive,sensor_shift,seed(60003),1,goal,93,128.5,107,143,9,8,0,0,0,0,0,0,0,74,1.9324324324324325,0.0028314193550907094
+reactive,sensor_shift,seed(60004),1,goal,64,160.05,166,84,0,0,0,0,0,0,0,0,0,70,1.2,0.00295634375069298
+reactive,sensor_shift,seed(60005),1,goal,70,141.3,118,132,4,3,0,0,0,0,0,0,0,62,2.129032258064516,0.00294285714253257
+reactive,sensor_shift,seed(60006),1,goal,69,154.6,151,99,1,1,0,0,0,0,0,0,0,62,1.596774193548387,0.002922695651693465
+reactive,sensor_shift,seed(60007),1,goal,85,140.1,123,127,5,5,0,0,0,0,0,0,0,68,1.8676470588235294,0.00282502352888514
+reactive,sensor_shift,seed(60008),1,goal,75,139.3,101,149,3,3,0,0,0,0,0,0,0,62,2.403225806451613,0.003022200000373232
+reactive,sensor_shift,seed(60009),1,goal,67,160.05,175,75,1,1,0,0,0,0,0,0,0,62,1.2096774193548387,0.0028669402986418106

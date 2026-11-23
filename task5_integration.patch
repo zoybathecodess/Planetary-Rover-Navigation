@@ -1,0 +1,1138 @@
+diff --git a/docs/PHASE2_PROTOCOL.md b/docs/PHASE2_PROTOCOL.md
+new file mode 100644
+index 0000000..34056b3
+--- /dev/null
++++ b/docs/PHASE2_PROTOCOL.md
+@@ -0,0 +1,47 @@
++# Phase 2 experiment protocol (frozen defaults)
++
++The machine-readable version is `protocol/phase2_protocol.json`; its hash is part of `protocol/freeze.json`.
++Items under "Open for Task 6" may still be decided before the confirmatory run; nothing else changes after the freeze.
++
++## Design
++* **Simulator:** 32×32 partially observable rover world, battery 250, 59-d observation; five conditions: `id`, `terrain_shift`,
++  `sensor_shift`, `dynamics_shift`, `combined_shift` (parameters in `configs/sim32_<preset>.yaml`, hashed in the freeze).
++* **Training:** in-distribution only. DQN, PPO and a 5-member ensemble (randomised priors + bootstrapped replay) for each
++  of 10 system seeds (0–9). Checkpoint = best greedy success on validation maps.
++* **Maps / splits** (all deterministic, one map per seed):
++
++| Split | Seeds | Used for |
++|---|---|---|
++| train | env stream (`SeedSequence([seed, 0x5EED, i])`) | learning |
++| val | 10000+ | checkpoint selection; OOD/uncertainty threshold calibration (ID preset only) |
++| fit | 30000+ | OOD detector fitting (ID) |
++| test | 20000+ | **reserved/exploratory**: Task 1/3 training scripts printed its greedy success rate, never used for a decision |
++| **final** | **40000+** | **confirmatory evaluation**; untouched before the freeze, guarded and logged |
++| pilot | 60000+ | debugging and runtime only; never a result |
++
++  Disjointness is tested by hashing the generated terrain grids (train stream vs every split).
++* **Methods:** A*, reactive, DQN, DQN+rule shield, PPO, PPO+rule shield, plain ensemble, and the runtime-assurance system
++  `assured@95` (primary) with its sensitivity (`@90`, `@99`) and ablation variants (`monitor_only`, `unc_only`, `ood_only`,
++  `no_ood`, `no_unc`, `no_monitor`, `no_stop`). Two operating points are reported for the proposed system:
++  safe stop enabled (safety-first) and `no_stop` (mission-first).
++* **Thresholds:** percentiles (95 primary; 90, 99 sensitivity) of per-step scores of the plain ensemble on ID validation maps;
++  numerical values per system seed are stored in the freeze.
++* **Metrics:** success (terminal reason `goal`; a safe stop is a mission failure reported separately), collisions and
++  attempted unsafe moves per episode, steps, energy used, battery left, intervention/fallback/safe-stop rates, per-condition results.
++* **Statistics:** learned methods: mean ± 95 % t-interval over system seeds; paired differences over matched (map, seed) pairs;
++  deterministic methods: Wilson interval over maps. Every method sees the same maps in the same order.
++
++## Known limitations (recorded, not silently changed)
++1. The `test` split (20000+) was displayed by Task 1/3 training summaries, so it is not used for confirmatory claims.
++   (Those numbers were not used for any model or design decision; selection used validation maps only.)
++2. Ensemble `prior_scale=10` and the rule-monitor parameters (slip threshold 0.15, feasibility margin 1.0) were set a priori, not tuned.
++3. OOD thresholds are calibrated on the same ID validation maps used for checkpoint selection; slightly optimistic for ID.
++4. Under sensor and combined shift the OOD gate fires on ~95 % of steps; the system then behaves largely like the A* fallback
++   (see ablations: the rule monitor accounts for most of the collision reduction).
++5. Safe stop costs ~6 points of success in `combined_shift` (validation); it is a safety/mission trade-off, reported as two operating points.
++6. The A* fallback uses a nominal energy table and is not collision-free under noisy sensing; its collisions are reported.
++7. All findings are simulation results; nothing here supports claims about real planetary rovers.
++
++## Open for Task 6
++* Number of maps per preset (default 200), choice of paired test and multiplicity correction.
++* Whether `test` is dropped or reported as exploratory.
+diff --git a/docs/REPRODUCE.md b/docs/REPRODUCE.md
+new file mode 100644
+index 0000000..dfdbb63
+--- /dev/null
++++ b/docs/REPRODUCE.md
+@@ -0,0 +1,38 @@
++# Reproducing the study
++
++All commands are run from the repository root. Long commands are prefixed with `caffeinate -i` on macOS (keeps the Mac awake).
++
++## 0. Environment
++Python 3.10+ with `numpy`, `torch`, `pyyaml`, `pytest`. Versions actually used are recorded in every run manifest
++(`results/**/run_manifest.json`, key `software`) and in `protocol/freeze.json`.
++
++## 1. Clean-clone check (needs no trained models)
++    git clone <repo> rover_clean && cd rover_clean && git checkout <freeze tag>
++    python3 -m pytest -q tests
++    python3 scripts/run_experiment.py pilot --methods astar,reactive --seeds 0 --n-maps 5 --jobs 2
++
++The pilot writes `results/pilot/pilot/` with one CSV per (method, preset), `run_manifest.json`, and prints
++"consistency problems 0 / pairing problems 0" and a runtime estimate. Pilot runs use maps 60000+ and are never results.
++
++## 2. Training (in-distribution only; seeds 0–9)
++    caffeinate -i python3 scripts/run_task3.py train --jobs 4                    # DQN
++    caffeinate -i python3 scripts/run_task3.py train --algo ppo --jobs 4         # PPO
++    caffeinate -i python3 scripts/run_task4.py train --jobs 4                    # 10 ensembles x 5 members
++    caffeinate -i python3 scripts/run_task4.py calibrate --jobs 4                # OOD fit + thresholds (ID validation only)
++Training never evaluates on test maps (`run.final_test_eval: false`). Checkpoint = best greedy success on validation maps.
++
++## 3. Freeze
++    python3 scripts/freeze.py report         # runs all tests, writes docs/TEST_REPORT.md
++    git add -A && git commit -m "Phase 1 freeze"
++    python3 scripts/freeze.py freeze         # writes protocol/freeze.json (code, configs, checkpoint and calibration hashes, thresholds)
++    git add protocol/freeze.json && git commit -m "Freeze manifest" && git tag v5.0-freeze
++    python3 scripts/freeze.py verify         # must print CLEAN before any final evaluation
++
++## 4. Pilot (debugging and runtime only)
++    caffeinate -i python3 scripts/run_experiment.py pilot --jobs 4
++
++## 5. Confirmatory evaluation (Phase 2; refuses to run unless `freeze.py verify` is clean)
++    caffeinate -i python3 scripts/run_experiment.py run --name phase2 --split final --seeds 0-9 --n-maps 200 --jobs 4
++    python3 scripts/run_experiment.py validate --run results/phase2/phase2 --split final
++
++Every use of `test` or `final` maps is appended to `results/test_access.jsonl` (time, split, git commit, command line).
+diff --git a/protocol/phase2_protocol.json b/protocol/phase2_protocol.json
+new file mode 100644
+index 0000000..cf9fae7
+--- /dev/null
++++ b/protocol/phase2_protocol.json
+@@ -0,0 +1,26 @@
++{
++  "version": "1.0-draft-for-task6",
++  "status": "Frozen defaults. Task 6 may finalise the items listed under open_for_task6 BEFORE the final split is evaluated; afterwards nothing here changes.",
++  "simulator": {"size": 32, "battery": 250, "observation_dim": 59, "presets": ["id", "terrain_shift", "sensor_shift", "dynamics_shift", "combined_shift"],
++                "preset_configs": "configs/sim32_<preset>.yaml (hashed in protocol/freeze.json)"},
++  "training": {"algorithms": ["dqn", "ppo", "ensemble(5 x dqn, randomised prior + bootstrapped replay)"], "system_seeds": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
++               "member_seed_rule": "1000*(system_seed+1)+member_index", "distribution": "id only", "checkpoint_rule": "best_val (greedy SR on validation maps)",
++               "training_touches_test_maps": false},
++  "splits": {"train": "env map stream (SeedSequence [seed,0x5EED,i]); disjoint from the splits below by construction and verified by grid hashing",
++             "val": {"seeds_from": 10000, "use": "checkpoint selection, OOD/uncertainty threshold calibration (in-distribution preset only)"},
++             "fit": {"seeds_from": 30000, "use": "OOD detector fitting (in-distribution)"},
++             "test": {"seeds_from": 20000, "use": "reserved; its greedy SR was printed by Task-1/3 training scripts (never used for any decision) so it is NOT used for confirmatory claims"},
++             "final": {"seeds_from": 40000, "use": "confirmatory evaluation; never touched before the freeze; access logged in results/test_access.jsonl; requires a clean `freeze.py verify`"},
++             "pilot": {"seeds_from": 60000, "use": "debugging / runtime estimate only; never reported as a result"}},
++  "thresholds": {"calibration_data": "in-distribution validation maps only (seeds 10000-10099), plain-ensemble rollouts", "primary_percentile": 95,
++                 "sensitivity_percentiles": [90, 99], "frozen_values": "protocol/freeze.json -> thresholds"},
++  "methods": {"baselines": ["astar", "reactive", "dqn", "dqn_shield", "ppo", "ppo_shield"], "learned_no_assurance": ["ens"],
++              "proposed": ["assured@95"], "operating_points": ["assured@95 (safe stop enabled)", "assured-no_stop@95 (mission-first)"],
++              "ablations": ["assured-monitor_only", "assured-unc_only", "assured-ood_only", "assured-no_ood", "assured-no_unc", "assured-no_monitor", "assured-no_stop"]},
++  "evaluation": {"maps_per_preset": 200, "same_maps_for_all_methods": true, "unit_of_replication": "system seed (learned methods); map (deterministic methods)",
++                 "primary_metrics": ["success", "collisions_per_episode", "attempted_unsafe_per_episode", "steps", "energy_used", "battery_left", "intervention_rate",
++                                     "fallback_rate", "safe_stop_rate"],
++                 "success_definition": "terminal reason == goal; a safe stop is a mission failure reported separately",
++                 "statistics": "mean +/- 95% t-interval over seeds; paired differences over matched (map, seed) pairs; Wilson interval for single-policy proportions"},
++  "open_for_task6": ["number of maps per preset (default 200)", "which paired tests / multiplicity correction to use", "whether the 'test' split is dropped or reported as exploratory"]
++}
+diff --git a/scripts/freeze.py b/scripts/freeze.py
+new file mode 100644
+index 0000000..a659735
+--- /dev/null
++++ b/scripts/freeze.py
+@@ -0,0 +1,78 @@
++"""Freeze / verify the implementation and protocol (Task 5).
++
++  python3 scripts/freeze.py report            run the test suite, write docs/TEST_REPORT.md (JUnit-based)
++  python3 scripts/freeze.py freeze            write protocol/freeze.json (refuses on a dirty git tree unless --allow-dirty)
++  python3 scripts/freeze.py verify            compare the working tree + artefacts with protocol/freeze.json
++"""
++from _common import ROOT  # noqa: F401
++
++import argparse
++import json
++import subprocess
++import sys
++import time
++import xml.etree.ElementTree as ET
++from collections import defaultdict
++
++from src.evaluation.reproducibility import FREEZE_PATH, freeze_manifest, git_state, verify_freeze
++
++
++def cmd_report(a):
++    xml = ROOT / "results" / "junit.xml"
++    xml.parent.mkdir(parents=True, exist_ok=True)
++    r = subprocess.run([sys.executable, "-m", "pytest", "-q", f"--junitxml={xml}", "tests"], cwd=ROOT)
++    root = ET.parse(xml).getroot()
++    suite = root if root.tag == "testsuite" else root.find("testsuite")
++    per = defaultdict(lambda: [0, 0, 0, 0.0])
++    fails = []
++    for tc in suite.iter("testcase"):
++        f = tc.get("classname", "").split(".")[1] if "." in tc.get("classname", "") else tc.get("classname", "?")
++        row = per[f]; row[0] += 1; row[3] += float(tc.get("time", 0))
++        if tc.find("failure") is not None or tc.find("error") is not None:
++            row[1] += 1; fails.append(f"{tc.get('classname')}.{tc.get('name')}")
++        elif tc.find("skipped") is not None:
++            row[2] += 1
++    g = git_state(ROOT)
++    lines = ["# Test report", "", f"Generated {time.strftime('%Y-%m-%d %H:%M:%S %z')}  |  commit `{g['commit']}` (dirty: {g['dirty']})", "",
++             "| Test file | Tests | Failed | Skipped | Seconds |", "|---|---|---|---|---|"]
++    for f, (n, bad, sk, t) in sorted(per.items()):
++        lines.append(f"| {f} | {n} | {bad} | {sk} | {t:.1f} |")
++    tot = [sum(v[i] for v in per.values()) for i in range(4)]
++    lines += [f"| **total** | **{tot[0]}** | **{tot[1]}** | **{tot[2]}** | {tot[3]:.1f} |", ""]
++    lines += ["All critical tests pass." if not fails else "FAILURES:\n" + "\n".join(f"- {x}" for x in fails)]
++    (ROOT / "docs" / "TEST_REPORT.md").write_text("\n".join(lines) + "\n")
++    print("\n".join(lines))
++    sys.exit(r.returncode)
++
++
++def cmd_freeze(a):
++    g = git_state(ROOT)
++    if g["dirty"] and not a.allow_dirty:
++        raise SystemExit("git tree has uncommitted changes: commit first (or --allow-dirty for a dry run). A freeze must name a real commit.")
++    proto = json.loads((ROOT / "protocol" / "phase2_protocol.json").read_text())
++    m = freeze_manifest(ROOT, proto)
++    (ROOT / FREEZE_PATH).write_text(json.dumps(m, indent=2))
++    print(f"froze commit {m['git']['commit']}  code files {len(m['code'])}  artefacts {len(m['artefacts'])}  threshold sets {len(m['thresholds'])}")
++    print(f"-> {FREEZE_PATH}   now commit it and tag the commit, e.g.  git tag v5.0-freeze")
++
++
++def cmd_verify(a):
++    problems = verify_freeze(ROOT)
++    print("freeze verification:", "CLEAN" if not problems else f"{len(problems)} difference(s)")
++    for p in problems[:50]:
++        print("  ", p)
++    sys.exit(1 if problems else 0)
++
++
++def main():
++    ap = argparse.ArgumentParser()
++    sub = ap.add_subparsers(dest="cmd", required=True)
++    sub.add_parser("report")
++    f = sub.add_parser("freeze"); f.add_argument("--allow-dirty", action="store_true")
++    sub.add_parser("verify")
++    a = ap.parse_args()
++    {"report": cmd_report, "freeze": cmd_freeze, "verify": cmd_verify}[a.cmd](a)
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/scripts/run_experiment.py b/scripts/run_experiment.py
+new file mode 100644
+index 0000000..84a2a29
+--- /dev/null
++++ b/scripts/run_experiment.py
+@@ -0,0 +1,148 @@
++"""Unified experiment runner (Task 5): every method x preset x system seed through ONE code path, with a manifest per run.
++
++  python3 scripts/run_experiment.py pilot                              # small debugging run (never a paper result)
++  python3 scripts/run_experiment.py run --name phase2 --split final --methods astar,dqn,dqn_shield,ens,assured --seeds 0-9 --n-maps 200
++  python3 scripts/run_experiment.py validate --run results/phase2/phase2 --split final
++Method specs: see src/evaluation/experiment.py (e.g. assured-no_ood@95). Held-out splits are logged in results/test_access.jsonl;
++the confirmatory 'final' split refuses to run unless `python3 scripts/freeze.py verify` is clean.
++"""
++from _common import ROOT  # noqa: F401
++
++import argparse
++import csv
++import json
++import multiprocessing
++import time
++from concurrent.futures import ProcessPoolExecutor
++from pathlib import Path
++
++DEFAULT_METHODS = "astar,reactive,dqn,dqn_shield,ppo,ppo_shield,ens,assured,assured-monitor_only,assured-unc_only,assured-ood_only"
++
++
++def parse_seeds(s):
++    out = []
++    for part in s.split(","):
++        a, _, b = part.partition("-")
++        out += list(range(int(a), int(b) + 1)) if b else [int(a)]
++    return out
++
++
++def _tasks(a, out):
++    from src.evaluation.experiment import SEEDLESS, parse_method
++    tasks = []
++    for preset in a.presets.split(","):
++        for spec in a.methods.split(","):
++            kind = parse_method(spec)["kind"]
++            for k in ([0] if kind in SEEDLESS else parse_seeds(a.seeds)):
++                tasks.append({"root": str(ROOT), "out": str(out), "spec": spec, "seed": k, "preset": preset, "split": a.split,
++                              "n_maps": a.n_maps, "ckpt": a.ckpt, "log_maps": a.log_maps if spec == "assured" else 0})
++    return tasks
++
++
++def cmd_run(a, pilot=False):
++    from src.evaluation.experiment import run_cell
++    from src.evaluation.reproducibility import artefact_hashes, claim_split, run_manifest, write_manifest
++    claim_split(ROOT, a.split, f"run_experiment {'pilot' if pilot else a.name}", allow_unfrozen=a.allow_unfrozen)
++    out = ROOT / a.out / a.name
++    tasks = _tasks(a, out)
++    cfgs = sorted(str(p.relative_to(ROOT)) for p in (ROOT / "configs").glob("*.yaml"))
++    man = run_manifest(ROOT, kind="pilot" if pilot else "experiment", configs=cfgs, seeds=a.seeds,
++                       extra={"methods": a.methods.split(","), "presets": a.presets.split(","), "split": a.split, "n_maps": a.n_maps,
++                              "ckpt": a.ckpt, "map_seeds": [SPLIT_OFFSET_[a.split], SPLIT_OFFSET_[a.split] + a.n_maps - 1]},
++                       artefacts=artefact_hashes(ROOT))
++    write_manifest(out, man)
++    print(f"{len(tasks)} cells -> {out}  (split={a.split}, {a.n_maps} maps, jobs={a.jobs})")
++    t0, results = time.time(), []
++    with ProcessPoolExecutor(a.jobs, mp_context=multiprocessing.get_context("spawn")) as ex:
++        for r in ex.map(run_cell, tasks):
++            results.append(r)
++            if r["status"] == "ok":
++                flag = "" if not r["problems"] else f"  !! {len(r['problems'])} consistency problem(s)"
++                print(f"  {r['preset']:15} {r['tag']:30} SR {r['sr']:.2f}  stops {r['stops']:3}  {r['spe']:.2f} s/ep{flag}")
++            else:
++                print(f"  {r['preset']:15} {r['tag']:30} SKIPPED (missing {r['detail']})")
++    (out / "cells.json").write_text(json.dumps(results, indent=2, default=float))
++    problems = [p for r in results if r["status"] == "ok" for p in r["problems"]]
++    pair = _pairing(out, a.split)
++    print(f"\nwall {time.time() - t0:.0f}s   cells ok {sum(r['status'] == 'ok' for r in results)}/{len(results)}   "
++          f"consistency problems {len(problems)}   pairing problems {len(pair)}")
++    for p in (problems + pair)[:20]:
++        print("   ", p)
++    if pilot:
++        _runtime_estimate(results, a)
++
++
++def _pairing(out, split):
++    from src.evaluation.experiment import check_pairing
++    bad = []
++    for pdir in sorted((out / split).glob("*")):
++        by = {f.stem: list(csv.DictReader(open(f))) for f in sorted(pdir.glob("*.csv"))}
++        bad += [f"{pdir.name}: {p}" for p in check_pairing(by)]
++    return bad
++
++
++def _runtime_estimate(results, a, campaign_maps=200, campaign_seeds=10):
++    from src.evaluation.experiment import SEEDLESS
++    spe = {}
++    for r in results:
++        if r["status"] == "ok":
++            spe.setdefault(r["tag"].rsplit("_s", 1)[0] if r["tag"] not in SEEDLESS else r["tag"], []).append(r["spe"])
++    n_presets = 5      # a full campaign always covers all five presets
++    total = 0.0
++    print("\nruntime estimate for a full campaign (%d maps x %d seeds x %d presets), single core:" % (campaign_maps, campaign_seeds, n_presets))
++    for tag, v in sorted(spe.items()):
++        seeds = 1 if tag in SEEDLESS else campaign_seeds
++        t = sum(v) / len(v) * campaign_maps * seeds * n_presets
++        total += t
++        print(f"  {tag:28} {sum(v) / len(v):6.2f} s/episode  -> {t / 3600:6.2f} core-hours")
++    print(f"  TOTAL {total / 3600:.1f} core-hours  (~{total / 3600 / max(a.jobs, 1):.1f} h wall on {a.jobs} jobs)")
++
++
++def cmd_validate(a):
++    from src.evaluation.experiment import check_pairing, validate_rows
++    base = ROOT / a.run / a.split
++    n_bad = 0
++    for pdir in sorted(base.glob("*")):
++        by = {f.stem: list(csv.DictReader(open(f))) for f in sorted(pdir.glob("*.csv"))}
++        for name, rows in by.items():
++            for p in validate_rows(rows):
++                n_bad += 1; print(pdir.name, name, p)
++        for p in check_pairing(by):
++            n_bad += 1; print(pdir.name, p)
++    print("validation:", "CLEAN" if not n_bad else f"{n_bad} problem(s)")
++
++
++def main():
++    ap = argparse.ArgumentParser()
++    sub = ap.add_subparsers(dest="cmd", required=True)
++    for name in ("run", "pilot"):
++        p = sub.add_parser(name)
++        p.add_argument("--name", default="pilot" if name == "pilot" else "run")
++        p.add_argument("--out", default="results/phase2" if name == "run" else "results/pilot")
++        p.add_argument("--split", default="pilot" if name == "pilot" else "final")
++        p.add_argument("--methods", default=DEFAULT_METHODS)
++        p.add_argument("--presets", default="id,terrain_shift,sensor_shift,dynamics_shift,combined_shift")
++        p.add_argument("--seeds", default="0-1" if name == "pilot" else "0-9")
++        p.add_argument("--n-maps", type=int, default=10 if name == "pilot" else 200)
++        p.add_argument("--ckpt", default="best_val")
++        p.add_argument("--jobs", type=int, default=2)
++        p.add_argument("--log-maps", type=int, default=5)
++        p.add_argument("--allow-unfrozen", action="store_true", help="debugging only; the final split ignores a failed freeze check otherwise")
++    v = sub.add_parser("validate")
++    v.add_argument("--run", required=True)
++    v.add_argument("--split", default="final")
++    a = ap.parse_args()
++    if a.cmd == "pilot":
++        if a.split in ("test", "final"):
++            raise SystemExit("pilot runs must not use a held-out split")
++        cmd_run(a, pilot=True)
++    elif a.cmd == "run":
++        cmd_run(a)
++    else:
++        cmd_validate(a)
++
++
++from src.evaluation.reproducibility import SPLIT_OFFSET as SPLIT_OFFSET_  # noqa: E402
++
++if __name__ == "__main__":
++    main()
+diff --git a/scripts/run_task3.py b/scripts/run_task3.py
+index adbd329..dec028a 100644
+--- a/scripts/run_task3.py
++++ b/scripts/run_task3.py
+@@ -101,6 +101,8 @@ def _eval_one(task):
+ 
+ 
+ def cmd_eval(a):
++    from src.evaluation.reproducibility import claim_split
++    claim_split(ROOT, a.split, "run_task3 eval")
+     out = ROOT / a.out
+     seeds, presets = parse_seeds(a.seeds), a.presets.split(",")
+     tasks = []
+diff --git a/scripts/run_task4.py b/scripts/run_task4.py
+index 55028e4..bb6b308 100644
+--- a/scripts/run_task4.py
++++ b/scripts/run_task4.py
+@@ -30,7 +30,8 @@ FIT_OFFSET = 30_000
+ CONFIG = "configs/sim32_id_ensemble.yaml"
+ # ablation variants (Task 7 uses these too); "full" is the system
+ VARIANTS = {"full": {}, "no_ood": {"use_ood": False}, "no_unc": {"use_uncertainty": False}, "no_monitor": {"use_monitor": False},
+-            "no_stop": {"allow_stop": False}, "monitor_only": {"use_ood": False, "use_uncertainty": False}}
++            "no_stop": {"allow_stop": False}, "monitor_only": {"use_ood": False, "use_uncertainty": False},
++            "unc_only": {"use_ood": False, "use_monitor": False}, "ood_only": {"use_uncertainty": False, "use_monitor": False}}
+ 
+ 
+ def parse_seeds(s):
+@@ -197,6 +198,8 @@ def _eval_one(task):
+ 
+ 
+ def cmd_eval(a):
++    from src.evaluation.reproducibility import claim_split
++    claim_split(ROOT, a.split, "run_task4 eval")
+     out = ROOT / a.out
+     seeds, presets = parse_seeds(a.seeds), a.presets.split(",")
+     pcts = [float(p) for p in a.pcts.split(",")]
+diff --git a/scripts/train_dqn.py b/scripts/train_dqn.py
+index 77c9593..d601873 100644
+--- a/scripts/train_dqn.py
++++ b/scripts/train_dqn.py
+@@ -19,5 +19,6 @@ write_meta(out, cfg.to_dict())
+ probe, _ = make_env(cfg.env, cfg.run.seed)  # observation size comes from the env (basic 10x10 or advanced 32x32), never hard-coded
+ agent = DQNAgent(probe.obs_dim, probe.n_actions, cfg.dqn, seed=cfg.run.seed)
+ s = train_dqn(agent, cfg, out)
++test_txt = f"greedy test SR={s['greedy_test_200']['success_rate']:.2f}  " if "greedy_test_200" in s else ""
+ print(f"[DQN] train SR(last100)={s['train_time_SR_last100']:.2f}  greedy val SR={s['greedy_val_200']['success_rate']:.2f}  "
+-      f"greedy test SR={s['greedy_test_200']['success_rate']:.2f}  wall={s['wall_seconds']}s  -> {out}")
++      f"{test_txt}wall={s['wall_seconds']}s  -> {out}")
+diff --git a/scripts/train_ppo.py b/scripts/train_ppo.py
+index ff4164f..aeeb3d9 100644
+--- a/scripts/train_ppo.py
++++ b/scripts/train_ppo.py
+@@ -19,5 +19,6 @@ write_meta(out, cfg.to_dict())
+ probe, _ = make_env(cfg.env, cfg.run.seed)  # basic (10x10) or advanced (32x32) env, per cfg.env.kind
+ agent = PPOAgent(probe.obs_dim, probe.n_actions, cfg.ppo, seed=cfg.run.seed)
+ s = train_ppo(agent, cfg, out)
++test_txt = f"greedy test SR={s['greedy_test_200']['success_rate']:.2f}  " if "greedy_test_200" in s else ""
+ print(f"[PPO] train SR(last100)={s['train_time_SR_last100']:.2f}  greedy val SR={s['greedy_val_200']['success_rate']:.2f}  "
+-      f"greedy test SR={s['greedy_test_200']['success_rate']:.2f}  wall={s['wall_seconds']}s  -> {out}")
++      f"{test_txt}wall={s['wall_seconds']}s  -> {out}")
+diff --git a/src/assurance/controller.py b/src/assurance/controller.py
+index a183c55..f074214 100644
+--- a/src/assurance/controller.py
++++ b/src/assurance/controller.py
+@@ -13,6 +13,8 @@ from __future__ import annotations
+ 
+ from collections import Counter
+ 
++import numpy as np
++
+ from src.assurance.layout import IDX_BATT, IDX_STEPS, STOP_ACTION
+ from src.assurance.monitor import SafetyMonitor
+ from src.assurance.ood import WindowedScore
+@@ -42,6 +44,16 @@ class RuntimeAssuranceController:
+         self.win.reset(); self._hold = 0; self._t = 0
+ 
+     def act(self, obs) -> int:
++        if not np.all(np.isfinite(obs)):          # corrupted observation: no component can be trusted -> halt
++            self.stats["decisions"] += 1; self.stats["interventions"] += 1; self.stats["stops"] += 1
++            self.stats["no_safe_action"] += 1; self.stats["by_rule"]["invalid_observation"] += 1
++            self.last_decision = {"t": self._t, "policy_action": None, "action": STOP_ACTION, "source": "stop",
++                                  "reasons": ["invalid_observation"], "unc": None, "margin": None, "ood": None,
++                                  "battery": None, "stop_cause": "invalid_observation", "route_energy_est": None}
++            if self.keep_log:
++                self.log.append(self.last_decision)
++            self._t += 1
++            return STOP_ACTION
+         m = self._get_map()
+         if float(obs[IDX_STEPS]) == 0.0:      # first decision of an episode (observation says so): clear per-episode state
+             self.reset()
+diff --git a/src/config.py b/src/config.py
+index 69198ca..5b91614 100644
+--- a/src/config.py
++++ b/src/config.py
+@@ -103,6 +103,7 @@ class RunConfig:
+     test_seed_offset: int = 20_000  # test maps: seeds 20_000... (never used for selection)
+     torch_threads: int = 1       # tiny MLPs are fastest on 1 thread; avoids oversubscription
+     log_margin: bool = False     # evaluator-side budget margin each step (costs one Dijkstra/step)
++    final_test_eval: bool = False  # Phase-2 hygiene: training must not touch test maps. True only to reproduce Task-1/3 summaries
+     out_dir: str = "results/run"
+ 
+ 
+diff --git a/src/evaluation/experiment.py b/src/evaluation/experiment.py
+new file mode 100644
+index 0000000..139e745
+--- /dev/null
++++ b/src/evaluation/experiment.py
+@@ -0,0 +1,175 @@
++"""ONE experiment interface for every method of the study (Task 5): baselines, shielded DQN/PPO, ensemble, and the
++runtime-assurance system with its ablation variants. Orchestration side (loads checkpoints, uses the evaluator).
++
++Method spec grammar:   astar | reactive | random | dqn | dqn_shield | ppo | ppo_shield | ens
++                       assured[-<variant>][@<percentile>]      e.g.  assured   assured-no_ood@95   assured-monitor_only@90
++Artefact layout (written by run_task3.py / run_task4.py):
++   results/task3/train/{dqn,ppo}_s<k>/checkpoints/best_val.pt      results/task4/train/ens_s<k>/m<j>/checkpoints/best_val.pt
++   results/task4/calib/ens_s<k>/{ood.npz,id_val_scores.npz}
++"""
++from __future__ import annotations
++
++import csv
++import json
++import math
++import re
++import time
++from dataclasses import replace
++from pathlib import Path
++
++import numpy as np
++
++from src.evaluation.harness import ROW_FIELDS, evaluate_method, run_episode_ext
++from src.evaluation.reproducibility import SPLIT_OFFSET
++
++VARIANTS = {"full": {}, "no_ood": {"use_ood": False}, "no_unc": {"use_uncertainty": False}, "no_monitor": {"use_monitor": False},
++            "no_stop": {"allow_stop": False}, "monitor_only": {"use_ood": False, "use_uncertainty": False},
++            "unc_only": {"use_ood": False, "use_monitor": False}, "ood_only": {"use_uncertainty": False, "use_monitor": False}}
++SEEDLESS = ("astar", "reactive", "random")
++PRESETS = ("id", "terrain_shift", "sensor_shift", "dynamics_shift", "combined_shift")
++VALID_REASONS = ("goal", "battery_depleted", "timeout", "safe_stop")
++TRAIN_CONFIG = {"dqn": "configs/sim32_id.yaml", "ppo": "configs/sim32_id_ppo.yaml", "ens": "configs/sim32_id_ensemble.yaml"}
++_SPEC = re.compile(r"^(?P<kind>[a-z_]+?)(?:-(?P<variant>[a-z_]+))?(?:@(?P<pct>\d+(?:\.\d+)?))?$")
++
++
++def parse_method(spec: str) -> dict:
++    m = _SPEC.match(spec)
++    if not m:
++        raise ValueError(f"bad method spec {spec!r}")
++    kind, variant, pct = m["kind"], m["variant"], m["pct"]
++    if kind == "assured":
++        variant = variant or "full"
++        if variant not in VARIANTS:
++            raise ValueError(f"unknown assured variant {variant!r}; choose from {sorted(VARIANTS)}")
++        return {"kind": "assured", "variant": variant, "pct": float(pct or 95.0), "spec": spec}
++    if kind not in SEEDLESS + ("dqn", "dqn_shield", "ppo", "ppo_shield", "ens") or variant or pct:
++        raise ValueError(f"unknown method {spec!r}")
++    return {"kind": kind, "variant": None, "pct": None, "spec": spec}
++
++
++def method_tag(spec: str, seed: int) -> str:
++    m = parse_method(spec)
++    if m["kind"] in SEEDLESS:
++        return m["kind"]
++    if m["kind"] == "assured":
++        return f"assured{'' if m['variant'] == 'full' else '-' + m['variant']}_p{int(m['pct'])}_s{seed}"
++    return f"{m['kind']}_s{seed}"
++
++
++def checkpoint_paths(spec: str, seed: int, root: Path, ckpt: str = "best_val", n_members: int = 5) -> list[Path]:
++    m = parse_method(spec)
++    k = m["kind"]
++    if k in SEEDLESS:
++        return []
++    if k in ("dqn", "dqn_shield", "ppo", "ppo_shield"):
++        return [root / "results/task3/train" / f"{k.split('_')[0]}_s{seed}" / "checkpoints" / f"{ckpt}.pt"]
++    return [root / "results/task4/train" / f"ens_s{seed}" / f"m{j}" / "checkpoints" / f"{ckpt}.pt" for j in range(n_members)]
++
++
++def missing_artefacts(spec: str, seed: int, root: Path, ckpt: str = "best_val") -> list[Path]:
++    need = checkpoint_paths(spec, seed, root, ckpt)
++    if parse_method(spec)["kind"] == "assured":
++        need += [root / "results/task4/calib" / f"ens_s{seed}" / f for f in ("ood.npz", "id_val_scores.npz")]
++    return [p for p in need if not p.exists()]
++
++
++def build_method(spec: str, seed: int, root: Path, ckpt: str = "best_val", keep_log: bool = False):
++    from src.config import load_config
++    from src.evaluation.harness import build_policy
++    m, root = parse_method(spec), Path(root)
++    k = m["kind"]
++    if k in SEEDLESS or k in ("dqn", "dqn_shield", "ppo", "ppo_shield"):
++        base = "dqn" if k.startswith("dqn") else "ppo" if k.startswith("ppo") else None
++        cfg = load_config(root / TRAIN_CONFIG[base or "dqn"])
++        ck = str(checkpoint_paths(spec, seed, root, ckpt)[0]) if k not in SEEDLESS else None
++        return build_policy(k, cfg, ck, seed=seed)
++    cfg = load_config(root / TRAIN_CONFIG["ens"])
++    from src.assurance.ood import MahalanobisOOD
++    from src.evaluation.assurance_factory import build_assured, build_ensemble
++    ens = build_ensemble(cfg, lambda j: checkpoint_paths(spec, seed, root, ckpt)[j], seed)
++    calib = root / "results/task4/calib" / f"ens_s{seed}"
++    if k == "ens":
++        dummy = MahalanobisOOD().fit(np.random.default_rng(0).normal(size=(500, 59)))
++        pol = build_assured(cfg, ens, dummy, np.inf, np.inf, acfg=replace(cfg.assurance, use_monitor=False, use_uncertainty=False, use_ood=False))
++        pol.name = "ens"
++        return pol
++    ood = MahalanobisOOD.load(calib / "ood.npz")
++    z = np.load(calib / "id_val_scores.npz")
++    tu, to = float(np.percentile(z["unc"], m["pct"])), float(np.percentile(z["ood"], m["pct"]))
++    return build_assured(cfg, ens, ood, tu, to, keep_log=keep_log, seed=seed, acfg=replace(cfg.assurance, **VARIANTS[m["variant"]]))
++
++
++# ------------------------------------------------------------------ consistency of recorded outcomes
++def validate_rows(rows: list[dict], capacity: float | None = 250.0) -> list[str]:
++    """Every episode row must tell one consistent story about how the episode ended. Returns a list of problems."""
++    bad = []
++    for r in rows:
++        tag = f"{r.get('method')}/{r.get('preset')}/{r.get('map')}"
++        reason, ok = r["reason"], int(float(r["success"]))
++        if reason not in VALID_REASONS:
++            bad.append(f"{tag}: unknown terminal reason {reason!r}")
++        if ok != (reason == "goal"):
++            bad.append(f"{tag}: success={ok} but reason={reason}")
++        steps, energy, left = float(r["steps"]), float(r["energy_used"]), float(r["battery_left"])
++        if capacity is not None and abs((capacity - energy) - left) > 1e-6:
++            bad.append(f"{tag}: battery_left {left} != capacity {capacity} - energy_used {energy}")
++        if left < 0:
++            bad.append(f"{tag}: negative battery")
++        if reason == "battery_depleted" and left > 0:
++            bad.append(f"{tag}: battery_depleted with {left} left")
++        if reason == "goal" and not (math.isfinite(float(r["energy_ratio"])) and float(r["energy_ratio"]) > 0):
++            bad.append(f"{tag}: success without a valid energy_ratio")
++        if reason != "goal" and r["energy_ratio"] not in ("", "nan") and math.isfinite(float(r["energy_ratio"])):
++            bad.append(f"{tag}: energy_ratio defined for a failed episode")
++        if reason == "safe_stop" and float(r["collisions"]) < 0:
++            bad.append(f"{tag}: bad collisions")
++        if steps < 0 or float(r["collisions"]) < 0 or float(r["attempted_unsafe"]) < 0:
++            bad.append(f"{tag}: negative counter")
++    return bad
++
++
++def check_pairing(by_method: dict[str, list[dict]]) -> list[str]:
++    """Same maps, same order, same optimal cost for every method within a (preset, split): required for paired tests."""
++    bad, ref_name, ref = [], None, None
++    for name, rows in by_method.items():
++        sig = [(r["map"], r["optimal_cost"]) for r in rows]
++        if ref is None:
++            ref_name, ref = name, sig
++        elif sig != ref:
++            bad.append(f"{name}: episodes differ from {ref_name} (maps / optimal cost / count)")
++    return bad
++
++
++# ------------------------------------------------------------------ one cell = (method, system seed, preset)
++def run_cell(task: dict) -> dict:
++    import torch
++    torch.set_num_threads(1)
++    root, out = Path(task["root"]), Path(task["out"])
++    spec, k, preset, split, n_maps = task["spec"], task["seed"], task["preset"], task["split"], task["n_maps"]
++    tag = method_tag(spec, k)
++    miss = missing_artefacts(spec, k, root, task.get("ckpt", "best_val"))
++    if miss:
++        return {"tag": tag, "preset": preset, "status": "missing", "detail": str(miss[0].relative_to(root))}
++    pol = build_method(spec, k, root, task.get("ckpt", "best_val"), keep_log=task.get("log_maps", 0) > 0)
++    dest = out / split / preset
++    off = SPLIT_OFFSET[split]
++    seeds = list(range(off, off + n_maps))
++    t0 = time.perf_counter()
++    rows, summ = evaluate_method(pol, root / f"configs/sim32_{preset}.yaml", seeds, tag, preset, dest / f"{tag}.csv")
++    wall = time.perf_counter() - t0
++    problems = validate_rows(rows)
++    if task.get("log_maps", 0) > 0 and parse_method(spec)["kind"] == "assured":
++        from src.config import load_config
++        from src.evaluation.evaluator import make_env
++        env, ev = make_env(load_config(root / f"configs/sim32_{preset}.yaml").env, 0)
++        pol.attach(env.explored_map, env.max_battery)
++        (dest / "logs").mkdir(parents=True, exist_ok=True)
++        with open(dest / "logs" / f"{tag}.jsonl", "w") as f:
++            for s in seeds[:task["log_maps"]]:
++                pol.log.clear()
++                r = run_episode_ext(env, ev, pol, s, tag, preset)
++                f.write(json.dumps({"map_seed": s, "reason": r["reason"], "success": r["success"], "decisions": pol.log}) + "\n")
++    summ.update({"wall_seconds": round(wall, 3), "seconds_per_episode": round(wall / n_maps, 4), "consistency_problems": problems})
++    (dest / f"{tag}.json").write_text(json.dumps(summ, indent=2, default=float))
++    return {"tag": tag, "preset": preset, "status": "ok", "sr": summ["success_rate"], "stops": summ["reasons"].get("safe_stop", 0),
++            "wall": wall, "spe": wall / n_maps, "problems": problems}
+diff --git a/src/evaluation/harness.py b/src/evaluation/harness.py
+index 864832a..8db07da 100644
+--- a/src/evaluation/harness.py
++++ b/src/evaluation/harness.py
+@@ -24,7 +24,7 @@ from src.evaluation.runner import summarise
+ 
+ ROW_FIELDS = ["method", "preset", "map", "success", "reason", "steps", "reward", "battery_left", "energy_used", "collisions",
+               "attempted_unsafe", "interventions", "decisions", "no_safe_action", "fallback_steps", "unc_alarms", "ood_alarms", "monitor_rejects", "optimal_cost", "energy_ratio", "plan_ms"]
+-SPLIT_OFFSET = {"val": 10_000, "test": 20_000}
++from src.evaluation.reproducibility import SPLIT_OFFSET  # noqa: E402  (val/test/fit/final/pilot; single source of truth)
+ 
+ 
+ class GreedyAgentPolicy:
+diff --git a/src/evaluation/reproducibility.py b/src/evaluation/reproducibility.py
+new file mode 100644
+index 0000000..cb3b3eb
+--- /dev/null
++++ b/src/evaluation/reproducibility.py
+@@ -0,0 +1,160 @@
++"""Run manifests, freeze/verify, and the test-access ledger (Task 5). Orchestration side: never imported by onboard code.
++
++* `run_manifest(...)`   everything needed to reproduce / audit one run: command line, git commit + dirty flag, library and
++                        machine info, config files (sha256 + parsed), seed lists, split offsets, checkpoint ids (sha256),
++                        calibration (OOD detector, threshold arrays) hashes.
++* `freeze_manifest()`   the same for the whole code base + all trained artefacts; written once to protocol/freeze.json.
++* `verify_freeze(root)` recomputes it and lists every difference (code, configs, checkpoints, calibration, thresholds).
++* `claim_split(...)`    every evaluation on a held-out split is appended to results/test_access.jsonl; the confirmatory
++                        'final' split additionally refuses to run unless the freeze verifies.
++"""
++from __future__ import annotations
++
++import hashlib
++import json
++import os
++import platform
++import subprocess
++import sys
++import time
++from pathlib import Path
++
++SPLIT_OFFSET = {"val": 10_000, "test": 20_000, "fit": 30_000, "final": 40_000, "pilot": 60_000}
++HELD_OUT = ("test", "final")
++FREEZE_PATH = "protocol/freeze.json"
++CODE_GLOBS = ("src/**/*.py", "scripts/*.py", "configs/*.yaml", "tests/*.py", "protocol/phase2_protocol.json")
++
++
++def sha256_file(path) -> str:
++    h = hashlib.sha256()
++    with open(path, "rb") as f:
++        for chunk in iter(lambda: f.read(1 << 20), b""):
++            h.update(chunk)
++    return h.hexdigest()
++
++
++def _git(root: Path, *args) -> str | None:
++    try:
++        r = subprocess.run(["git", *args], capture_output=True, text=True, cwd=root, timeout=20)
++        return r.stdout.strip() if r.returncode == 0 else None
++    except Exception:
++        return None
++
++
++def git_state(root: Path) -> dict:
++    commit = _git(root, "rev-parse", "HEAD")
++    status = _git(root, "status", "--porcelain", "--untracked-files=no")
++    return {"commit": commit, "dirty": bool(status) if status is not None else None, "tag": _git(root, "describe", "--tags", "--always")}
++
++
++def software_info() -> dict:
++    info = {"python": platform.python_version(), "platform": platform.platform(), "machine": platform.machine(),
++            "processor": platform.processor(), "cpu_count": os.cpu_count()}
++    for mod in ("numpy", "torch", "yaml"):
++        try:
++            info[mod] = __import__(mod).__version__
++        except Exception:
++            info[mod] = None
++    return info
++
++
++def hash_tree(root: Path, globs=CODE_GLOBS) -> dict[str, str]:
++    out = {}
++    for g in globs:
++        for p in sorted(root.glob(g)):
++            if p.is_file() and "__pycache__" not in p.parts:
++                out[str(p.relative_to(root))] = sha256_file(p)
++    return out
++
++
++def artefact_hashes(root: Path) -> dict[str, str]:
++    """Checkpoints (best_val.pt / final.pt) and calibration files of every trained run found under results/."""
++    out = {}
++    for pat in ("results/*/train/*/checkpoints/*.pt", "results/*/train/*/*/checkpoints/*.pt", "results/*/calib/*/*.npz"):
++        for p in sorted(root.glob(pat)):
++            out[str(p.relative_to(root))] = sha256_file(p)
++    return out
++
++
++def run_manifest(root: Path, *, kind: str, configs=(), seeds=None, extra=None, artefacts=None) -> dict:
++    root = Path(root)
++    cfgs = {}
++    for c in configs:
++        p = Path(c) if Path(c).is_absolute() else root / c
++        if p.exists():
++            cfgs[str(Path(c))] = {"sha256": sha256_file(p), "text": p.read_text()}
++    return {"kind": kind, "created": time.strftime("%Y-%m-%d %H:%M:%S %z"), "argv": sys.argv, "git": git_state(root),
++            "software": software_info(), "configs": cfgs, "seeds": seeds, "split_offsets": SPLIT_OFFSET,
++            "artefacts": artefacts or {}, **(extra or {})}
++
++
++def write_manifest(out_dir, manifest: dict, name: str = "run_manifest.json") -> Path:
++    p = Path(out_dir); p.mkdir(parents=True, exist_ok=True)
++    (p / name).write_text(json.dumps(manifest, indent=2, default=str))
++    return p / name
++
++
++# ------------------------------------------------------------------ thresholds
++def thresholds_table(root: Path, pcts=(90.0, 95.0, 99.0)) -> dict:
++    """Frozen alarm thresholds per system seed and percentile, recomputed from the stored in-distribution validation scores."""
++    import numpy as np
++    out = {}
++    for d in sorted((root / "results").glob("*/calib/ens_s*")):
++        z = np.load(d / "id_val_scores.npz")
++        out[str(d.relative_to(root))] = {f"p{int(p)}": {"tau_unc": float(np.percentile(z["unc"], p)), "tau_ood": float(np.percentile(z["ood"], p))}
++                                         for p in pcts}
++    return out
++
++
++# ------------------------------------------------------------------ freeze / verify
++def freeze_manifest(root: Path, protocol: dict | None = None) -> dict:
++    root = Path(root)
++    return {"created": time.strftime("%Y-%m-%d %H:%M:%S %z"), "git": git_state(root), "software": software_info(),
++            "code": hash_tree(root), "artefacts": artefact_hashes(root), "thresholds": thresholds_table(root),
++            "split_offsets": SPLIT_OFFSET, "protocol": protocol or {}}
++
++
++def diff_freeze(frozen: dict, now: dict) -> list[str]:
++    problems = []
++    for section in ("code", "artefacts"):
++        a, b = frozen.get(section, {}), now.get(section, {})
++        problems += [f"{section}: changed   {k}" for k in sorted(a) if k in b and a[k] != b[k]]
++        problems += [f"{section}: missing   {k}" for k in sorted(a) if k not in b]
++        problems += [f"{section}: new file  {k}" for k in sorted(b) if k not in a and section == "code"]
++    if frozen.get("thresholds") != now.get("thresholds"):
++        problems.append("thresholds: differ from the frozen values")
++    if frozen.get("split_offsets") != now.get("split_offsets"):
++        problems.append("split offsets differ")
++    return problems
++
++
++def verify_freeze(root: Path) -> list[str]:
++    root = Path(root)
++    p = root / FREEZE_PATH
++    if not p.exists():
++        return [f"no freeze manifest at {FREEZE_PATH}: run `python3 scripts/freeze.py freeze` first"]
++    frozen = json.loads(p.read_text())
++    return diff_freeze(frozen, freeze_manifest(root))
++
++
++# ------------------------------------------------------------------ held-out split ledger
++class SplitAccessError(RuntimeError):
++    pass
++
++
++def claim_split(root: Path, split: str, purpose: str, allow_unfrozen: bool = False) -> None:
++    """Record every use of a held-out split. 'final' (confirmatory) requires a verified freeze."""
++    root = Path(root)
++    if split not in SPLIT_OFFSET:
++        raise ValueError(f"unknown split {split!r}")
++    if split == "final" and not allow_unfrozen:
++        problems = verify_freeze(root)
++        if problems:
++            raise SplitAccessError("refusing to evaluate on the 'final' split: the code/artefacts do not match the freeze:\n  " +
++                                   "\n  ".join(problems[:15]))
++    if split in HELD_OUT:
++        ledger = root / "results" / "test_access.jsonl"
++        ledger.parent.mkdir(parents=True, exist_ok=True)
++        with open(ledger, "a") as f:
++            f.write(json.dumps({"time": time.strftime("%Y-%m-%d %H:%M:%S %z"), "split": split, "purpose": purpose,
++                                "git": git_state(root), "argv": sys.argv}) + "\n")
+diff --git a/src/training/loops.py b/src/training/loops.py
+index 1c3ddff..ad9f1b8 100644
+--- a/src/training/loops.py
++++ b/src/training/loops.py
+@@ -64,17 +64,18 @@ def _eval_row(episode, s):
+ def _finish(agent, cfg: Config, out_dir: Path, w: _Writers, success, battery, t0, n_steps, eval_env, eval_ev):
+     w.close()
+     val = _eval(agent, cfg, eval_env, eval_ev, cfg.run.val_seed_offset, 200)
+-    test = _eval(agent, cfg, eval_env, eval_ev, cfg.run.test_seed_offset, 200)
++    test = _eval(agent, cfg, eval_env, eval_ev, cfg.run.test_seed_offset, 200) if cfg.run.final_test_eval else None
+     # PPO-like agents: also report the sampled policy on the same maps (after the greedy runs, so greedy numbers
+     # and RNG streams are unchanged). A large greedy-vs-sampled gap means the argmax policy is not the trained one.
+     sampled = ({"sampled_val_200": evaluate(eval_env, eval_ev, _Sampled(agent), range(cfg.run.val_seed_offset, cfg.run.val_seed_offset + 200))[1],
+-                "sampled_test_200": evaluate(eval_env, eval_ev, _Sampled(agent), range(cfg.run.test_seed_offset, cfg.run.test_seed_offset + 200))[1]}
++                **({"sampled_test_200": evaluate(eval_env, eval_ev, _Sampled(agent), range(cfg.run.test_seed_offset, cfg.run.test_seed_offset + 200))[1]}
++                  if cfg.run.final_test_eval else {})}
+                if hasattr(agent, "sample") else {})
+     summary = {
+         "episodes": len(success), "env_steps": n_steps, "wall_seconds": round(time.time() - t0, 1),
+         "train_time_SR_last100": float(np.mean(success[-100:])), "train_time_battery_last100": float(np.mean(battery[-100:])),
+         "train_time_min_battery": int(min(battery)),
+-        "greedy_val_200": val, "greedy_test_200": test, **sampled,
++        "greedy_val_200": val, **({"greedy_test_200": test} if test is not None else {}), **sampled,
+         "note": "train_time_* include exploration (DQN eps>=eps_min, PPO sampling); greedy_* are the deployable policy",
+     }
+     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2, default=float))
+diff --git a/tests/test_integration.py b/tests/test_integration.py
+new file mode 100644
+index 0000000..53d055f
+--- /dev/null
++++ b/tests/test_integration.py
+@@ -0,0 +1,264 @@
++"""Task 5: integration, stress and protocol-hygiene tests (all presets, termination bookkeeping, determinism, pairing,
++fuzzing, split disjointness, hidden-state scan, manifests, freeze, held-out-split ledger)."""
++import ast
++import hashlib
++import json
++import tempfile
++import unittest
++from dataclasses import replace
++from pathlib import Path
++
++import numpy as np
++
++from src.assurance import layout as L
++from src.assurance.controller import RuntimeAssuranceController
++from src.assurance.ensemble import EnsemblePolicy
++from src.assurance.ood import MahalanobisOOD
++from src.config import AssuranceConfig, load_config
++from src.evaluation import reproducibility as R
++from src.evaluation.evaluator import make_env
++from src.evaluation.experiment import PRESETS, check_pairing, method_tag, parse_method, validate_rows
++from src.evaluation.harness import evaluate_method
++from src.policies.astar_battery import BatteryAwareAStar
++from src.policies.baseline_policies import RandomPolicy
++from src.policies.rule_shield import RuleShield
++from src.policies.sim32_heuristic import ReactiveExplorer
++from tests.test_assurance import controller
++from tests.test_task3 import fake_obs, flat, known_map
++
++ROOT = Path(__file__).resolve().parents[1]
++
++
++class GoalHeuristicEnsemble:
++    """Hand-made 'members' (no training needed): exercises the full assurance loop on every preset."""
++    def q_matrix(self, obs):
++        g = np.array([-obs[2], obs[2], -obs[3], obs[3]])
++        return np.stack([g + 0.01 * k * np.arange(4) for k in range(3)])
++    summarise = staticmethod(EnsemblePolicy.summarise)
++
++
++def assured(tau_ood=5.0, **kw):
++    ood = MahalanobisOOD(); ood.mu = np.zeros(len(L.OOD_FEATURES)); ood.prec = np.eye(len(L.OOD_FEATURES)); ood.score = lambda o: 1.0
++    return RuntimeAssuranceController(GoalHeuristicEnsemble(), ood, BatteryAwareAStar(), replace(AssuranceConfig(), **kw), 10.0, tau_ood)
++
++
++def policies():
++    class GoalHeuristicBase:
++        name = "base"
++        def act(self, obs): return int(np.argmax([-obs[2], obs[2], -obs[3], obs[3]]))
++        def q_values(self, obs): return np.array([-obs[2], obs[2], -obs[3], obs[3]])
++    return {"astar": BatteryAwareAStar(), "reactive": ReactiveExplorer(0), "random": RandomPolicy(0),
++            "shield": RuleShield(GoalHeuristicBase()), "assured": assured()}
++
++
++class TestSmokeAllPresets(unittest.TestCase):
++    def test_every_method_on_every_preset_records_consistent_outcomes(self):
++        for preset in PRESETS:
++            by = {}
++            for name, pol in policies().items():
++                rows, summ = evaluate_method(pol, ROOT / f"configs/sim32_{preset}.yaml", range(10000, 10003), name, preset)
++                self.assertEqual(validate_rows(rows), [], f"{name}/{preset}")
++                by[name] = rows
++            self.assertEqual(check_pairing(by), [], preset)
++
++    def test_every_terminal_reason_is_recorded_consistently(self):
++        cfg = load_config(ROOT / "configs/sim32_id.yaml")
++        seen = {}
++        # goal / safe_stop / battery_depleted / timeout, each forced
++        class Stop:
++            stats = None
++            def act(self, obs): return L.STOP_ACTION
++        class Dither:
++            stats = None
++            def __init__(self): self.i = 0
++            def act(self, obs): self.i += 1; return 0 if self.i % 2 else 1      # up/down forever, never reaches the goal
++        import yaml
++        for name, pol, patch in (("goal", BatteryAwareAStar(), {}), ("safe_stop", Stop(), {}), ("battery_depleted", Dither(), {}),
++                                 ("timeout", Dither(), {"max_steps": 20})):
++            with tempfile.TemporaryDirectory() as t:
++                p = Path(t) / "c.yaml"
++                d = yaml.safe_load((ROOT / "configs/sim32_id.yaml").read_text()); d["env"].update(patch); p.write_text(yaml.safe_dump(d))
++                rows, _ = evaluate_method(pol, p, [10000], name, "id")
++            seen[name] = rows[0]["reason"]
++            self.assertEqual(validate_rows(rows), [], name)
++        self.assertEqual(seen, {"goal": "goal", "safe_stop": "safe_stop", "battery_depleted": "battery_depleted", "timeout": "timeout"})
++
++    def test_validate_rows_flags_inconsistent_records(self):
++        env, ev = make_env(load_config(ROOT / "configs/sim32_id.yaml").env, 0)
++        rows, _ = evaluate_method(BatteryAwareAStar(), ROOT / "configs/sim32_id.yaml", [10000], "a", "id")
++        good = dict(rows[0])
++        for key, val in (("success", 0), ("reason", "exploded"), ("battery_left", 5), ("energy_ratio", "nan")):
++            self.assertTrue(validate_rows([{**good, key: val}]), key)
++
++
++class TestDeterminism(unittest.TestCase):
++    def test_same_seeds_same_episodes_for_every_method(self):
++        def run(pol):
++            rows, _ = evaluate_method(pol, ROOT / "configs/sim32_combined_shift.yaml", range(10000, 10003), "m", "combined_shift")
++            return [{k: (None if isinstance(v, float) and v != v else v) for k, v in r.items() if k != "plan_ms"} for r in rows]   # NaN != NaN
++        for name in ("astar", "shield", "assured", "reactive"):
++            self.assertEqual(run(policies()[name]), run(policies()[name]), name)
++
++    def test_paired_methods_see_identical_maps_and_optimal_costs(self):
++        a, _ = evaluate_method(BatteryAwareAStar(), ROOT / "configs/sim32_id.yaml", range(10000, 10004), "a", "id")
++        b, _ = evaluate_method(ReactiveExplorer(0), ROOT / "configs/sim32_id.yaml", range(10000, 10004), "b", "id")
++        self.assertEqual([(r["map"], r["optimal_cost"]) for r in a], [(r["map"], r["optimal_cost"]) for r in b])
++
++
++class TestFuzz(unittest.TestCase):
++    def test_controller_never_raises_and_always_returns_a_valid_decision(self):
++        rng = np.random.default_rng(0)
++        for i in range(400):
++            grid = rng.integers(0, 4, size=(32, 32)).astype(np.int64)
++            pos = (int(rng.integers(0, 32)), int(rng.integers(0, 32))); goal = (int(rng.integers(0, 32)), int(rng.integers(0, 32)))
++            o = fake_obs(pos, goal, float(rng.uniform(0, 1)), window=rng.uniform(0, 1, (5, 5)))
++            o[L.IDX_SLIP], o[L.IDX_CONF], o[L.IDX_STEPS] = rng.uniform(0, 1, 3)
++            q = rng.normal(size=(3, 4)) * rng.choice([0.01, 1, 100])
++            c, _ = controller(q, ood_score=float(rng.choice([0.5, 50.0])), tau_unc=float(rng.choice([0.1, 10.0])), grid=grid, pos=pos, goal=goal,
++                              battery=float(rng.uniform(0, 1)), window=o[L.WIN0:L.WIN0 + 25].reshape(5, 5))
++            a = c.act(o)
++            self.assertIn(a, (0, 1, 2, 3, L.STOP_ACTION), i)
++            self.assertEqual(c.last_decision["action"], a)
++            if a != L.STOP_ACTION:
++                self.assertEqual(c.monitor.check(o, a, c._get_map(), hard_only=True), [] if c.last_decision["source"] == "fallback" else c.monitor.check(o, a, c._get_map(), hard_only=True))
++
++    def test_non_finite_observation_triggers_a_safe_stop(self):
++        c, o = controller([[0, 9, 1, 0], [0, 9, 1, 0], [0, 9, 1, 0]])
++        for bad in (np.nan, np.inf, -np.inf):
++            o2 = o.copy(); o2[10] = bad
++            self.assertEqual(c.act(o2), L.STOP_ACTION)
++            self.assertEqual(c.last_decision["stop_cause"], "invalid_observation")
++
++
++class TestSplitHygiene(unittest.TestCase):
++    @staticmethod
++    def grid_hashes(env, seeds):
++        out = {}
++        for s in seeds:
++            env.reset(seed=s) if s is not None else env.reset()
++            out[s if s is not None else len(out)] = hashlib.sha256(env._world.grid.tobytes()).hexdigest()   # evaluator-side check
++        return out
++
++    def test_training_stream_and_all_evaluation_splits_share_no_map(self):
++        cfg = load_config(ROOT / "configs/sim32_id.yaml")
++        env, _ = make_env(cfg.env, 0)
++        train = {env.reset() is not None and hashlib.sha256(env._world.grid.tobytes()).hexdigest() for _ in range(150)}
++        groups = {name: set(self.grid_hashes(env, range(R.SPLIT_OFFSET[name], R.SPLIT_OFFSET[name] + 60)).values()) for name in R.SPLIT_OFFSET}
++        for a in groups:
++            self.assertEqual(len(groups[a]), 60, f"{a} has duplicate maps")
++            self.assertFalse(groups[a] & train, f"{a} overlaps the training stream")
++            for b in groups:
++                if a < b:
++                    self.assertFalse(groups[a] & groups[b], f"{a} / {b} overlap")
++
++    def test_split_ranges_are_disjoint_for_realistic_sizes(self):
++        offs = sorted(R.SPLIT_OFFSET.values())
++        self.assertTrue(all(b - a >= 10_000 for a, b in zip(offs, offs[1:])))
++
++    def test_training_does_not_evaluate_on_test_maps_by_default(self):
++        from src.config import RunConfig
++        self.assertFalse(RunConfig().final_test_eval)
++
++
++class TestHiddenStateScan(unittest.TestCase):
++    PRIVATE = {"_world", "_slip", "_lut", "_ref_lut", "_slip_rng", "_sens_rng", "optimal_cost", "true_slip", "true_energy_table", "commanded_cell_unsafe"}
++
++    def test_policies_agents_and_assurance_never_touch_ground_truth(self):
++        for pkg in ("src/policies", "src/agents", "src/assurance"):
++            for f in (ROOT / pkg).glob("*.py"):
++                tree = ast.parse(f.read_text())
++                for node in ast.walk(tree):
++                    if isinstance(node, ast.Attribute):
++                        self.assertNotIn(node.attr, self.PRIVATE, f"{f.name}: {node.attr}")
++                    mods = [a.name for a in node.names] if isinstance(node, ast.Import) else [node.module or ""] if isinstance(node, ast.ImportFrom) else []
++                    for m in mods:
++                        self.assertFalse(m.startswith("src.evaluation") or m.endswith("procgen"), f"{f.name} imports {m}")
++
++    def test_env_public_api_exposes_no_ground_truth(self):
++        env, _ = make_env(load_config(ROOT / "configs/sim32_id.yaml").env, 0)
++        env.reset(seed=1)
++        pub = [n for n in dir(env) if not n.startswith("_")]
++        for n in pub:
++            self.assertFalse(isinstance(getattr(env, n), np.ndarray) and getattr(env, n).shape == (32, 32), n)
++
++
++class TestThresholdHygiene(unittest.TestCase):
++    def test_run_task4_calibrates_on_id_validation_only(self):
++        src = (ROOT / "scripts/run_task4.py").read_text()
++        i, j = src.index("def _calibrate_one"), src.index("def thresholds(")
++        body = src[i:j]
++        self.assertIn('SPLIT_OFFSET["val"]', body)
++        self.assertNotIn("test", body.replace("tests", ""))
++        self.assertNotIn("shift", body)
++        self.assertIn("CONFIG", body)            # the in-distribution ensemble config, never a shifted preset
++
++    def test_thresholds_depend_only_on_stored_id_scores(self):
++        with tempfile.TemporaryDirectory() as t:
++            d = Path(t) / "results/task4/calib/ens_s0"; d.mkdir(parents=True)
++            np.savez(d / "id_val_scores.npz", unc=np.arange(1000.0), ood=np.arange(1000.0) / 10)
++            tab = R.thresholds_table(Path(t))
++            v = tab["results/task4/calib/ens_s0"]["p95"]
++            self.assertAlmostEqual(v["tau_unc"], np.percentile(np.arange(1000.0), 95)); self.assertAlmostEqual(v["tau_ood"], 94.905, places=2)
++
++
++class TestManifestFreezeLedger(unittest.TestCase):
++    def make_repo(self, t):
++        root = Path(t)
++        (root / "src").mkdir(); (root / "configs").mkdir(); (root / "scripts").mkdir(); (root / "tests").mkdir()
++        (root / "src/a.py").write_text("x = 1\n"); (root / "configs/c.yaml").write_text("a: 1\n")
++        ck = root / "results/task3/train/dqn_s0/checkpoints"; ck.mkdir(parents=True); (ck / "best_val.pt").write_bytes(b"weights")
++        return root
++
++    def test_manifest_has_the_required_fields(self):
++        with tempfile.TemporaryDirectory() as t:
++            root = self.make_repo(t)
++            m = R.run_manifest(root, kind="x", configs=["configs/c.yaml"], seeds="0-9", artefacts=R.artefact_hashes(root))
++            for k in ("argv", "git", "software", "configs", "seeds", "split_offsets", "artefacts", "created"):
++                self.assertIn(k, m)
++            self.assertIn("python", m["software"]); self.assertIn("numpy", m["software"]); self.assertIn("platform", m["software"])
++            self.assertEqual(m["configs"]["configs/c.yaml"]["sha256"], R.sha256_file(root / "configs/c.yaml"))
++            self.assertEqual(len(m["artefacts"]), 1)
++
++    def test_verify_detects_code_checkpoint_and_threshold_changes(self):
++        with tempfile.TemporaryDirectory() as t:
++            root = self.make_repo(t)
++            (root / "protocol").mkdir()
++            (root / R.FREEZE_PATH).write_text(json.dumps(R.freeze_manifest(root)))
++            self.assertEqual(R.verify_freeze(root), [])
++            (root / "src/a.py").write_text("x = 2\n")
++            self.assertTrue(any("changed" in p and "src/a.py" in p for p in R.verify_freeze(root)))
++            (root / "src/a.py").write_text("x = 1\n")
++            (root / "results/task3/train/dqn_s0/checkpoints/best_val.pt").write_bytes(b"other")
++            self.assertTrue(any("best_val.pt" in p for p in R.verify_freeze(root)))
++            (root / "results/task3/train/dqn_s0/checkpoints/best_val.pt").write_bytes(b"weights")
++            (root / "src/new.py").write_text("y = 1\n")
++            self.assertTrue(any("new file" in p for p in R.verify_freeze(root)))
++
++    def test_final_split_requires_a_clean_freeze_and_every_held_out_use_is_logged(self):
++        with tempfile.TemporaryDirectory() as t:
++            root = self.make_repo(t)
++            with self.assertRaises(R.SplitAccessError):
++                R.claim_split(root, "final", "x")                      # no freeze manifest yet
++            (root / "protocol").mkdir(); (root / R.FREEZE_PATH).write_text(json.dumps(R.freeze_manifest(root)))
++            R.claim_split(root, "final", "x")                          # frozen and unchanged: allowed
++            (root / "src/a.py").write_text("x = 3\n")
++            with self.assertRaises(R.SplitAccessError):
++                R.claim_split(root, "final", "x")                      # code changed after the freeze: refused
++            R.claim_split(root, "val", "x"); R.claim_split(root, "test", "y"); R.claim_split(root, "pilot", "z")
++            lines = [json.loads(l) for l in (root / "results/test_access.jsonl").read_text().splitlines()]
++            self.assertEqual([l["split"] for l in lines], ["final", "test"])   # val/pilot are not held-out; the refused attempt is not logged
++
++    def test_method_spec_parsing_and_tags(self):
++        self.assertEqual(parse_method("assured")["variant"], "full")
++        self.assertEqual(parse_method("assured-no_ood@90")["pct"], 90.0)
++        self.assertEqual(method_tag("assured-no_stop@95", 3), "assured-no_stop_p95_s3")
++        self.assertEqual(method_tag("assured", 0), "assured_p95_s0")
++        self.assertEqual(method_tag("dqn_shield", 2), "dqn_shield_s2")
++        self.assertEqual(method_tag("astar", 5), "astar")
++        for bad in ("assured-bogus", "dqn@95", "nonsense"):
++            with self.assertRaises(ValueError):
++                parse_method(bad)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tests/test_task3.py b/tests/test_task3.py
+index 300bd40..4037b64 100644
+--- a/tests/test_task3.py
++++ b/tests/test_task3.py
+@@ -386,7 +386,7 @@ class TestDQNChecks(unittest.TestCase):
+         from src.agents.dqn_agent import DQNAgent
+         from src.training.loops import train_dqn
+         cfg = Config(env=cfg32(), dqn=replace(DQNConfig(), warmup_steps=50, buffer_size=2000),
+-                     run=replace(Config().run, episodes=4, eval_every=2, eval_episodes=2))
++                     run=replace(Config().run, episodes=4, eval_every=2, eval_episodes=2, final_test_eval=True))
+         env, _ = make_env(cfg.env, 0)
+         agent = DQNAgent(env.obs_dim, env.n_actions, cfg.dqn, seed=0)
+         with tempfile.TemporaryDirectory() as d:

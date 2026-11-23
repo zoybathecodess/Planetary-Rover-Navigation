@@ -19,5 +19,6 @@ write_meta(out, cfg.to_dict())
 probe, _ = make_env(cfg.env, cfg.run.seed)  # basic (10x10) or advanced (32x32) env, per cfg.env.kind
 agent = PPOAgent(probe.obs_dim, probe.n_actions, cfg.ppo, seed=cfg.run.seed)
 s = train_ppo(agent, cfg, out)
+test_txt = f"greedy test SR={s['greedy_test_200']['success_rate']:.2f}  " if "greedy_test_200" in s else ""
 print(f"[PPO] train SR(last100)={s['train_time_SR_last100']:.2f}  greedy val SR={s['greedy_val_200']['success_rate']:.2f}  "
-      f"greedy test SR={s['greedy_test_200']['success_rate']:.2f}  wall={s['wall_seconds']}s  -> {out}")
+      f"{test_txt}wall={s['wall_seconds']}s  -> {out}")

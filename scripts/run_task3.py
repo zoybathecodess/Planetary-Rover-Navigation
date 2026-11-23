@@ -101,6 +101,8 @@ def _eval_one(task):
 
 
 def cmd_eval(a):
+    from src.evaluation.reproducibility import claim_split
+    claim_split(ROOT, a.split, "run_task3 eval")
     out = ROOT / a.out
     seeds, presets = parse_seeds(a.seeds), a.presets.split(",")
     tasks = []

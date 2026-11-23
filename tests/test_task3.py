@@ -386,7 +386,7 @@ class TestDQNChecks(unittest.TestCase):
         from src.agents.dqn_agent import DQNAgent
         from src.training.loops import train_dqn
         cfg = Config(env=cfg32(), dqn=replace(DQNConfig(), warmup_steps=50, buffer_size=2000),
-                     run=replace(Config().run, episodes=4, eval_every=2, eval_episodes=2))
+                     run=replace(Config().run, episodes=4, eval_every=2, eval_episodes=2, final_test_eval=True))
         env, _ = make_env(cfg.env, 0)
         agent = DQNAgent(env.obs_dim, env.n_actions, cfg.dqn, seed=0)
         with tempfile.TemporaryDirectory() as d:

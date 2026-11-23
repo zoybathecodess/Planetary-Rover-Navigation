@@ -1,0 +1,11 @@
+method,preset,map,success,reason,steps,reward,battery_left,energy_used,collisions,attempted_unsafe,interventions,decisions,no_safe_action,fallback_steps,unc_alarms,ood_alarms,monitor_rejects,optimal_cost,energy_ratio,plan_ms
+assured-ood_only_p95_s0,dynamics_shift,seed(60000),1,goal,64,161.85,174,76,0,0,0,64,0,0,0,0,0,64,1.1875,0.22673754687518866
+assured-ood_only_p95_s0,dynamics_shift,seed(60001),1,goal,77,149.675,130,120,1,0,0,77,0,0,0,0,0,62,1.935483870967742,0.22271376623450578
+assured-ood_only_p95_s0,dynamics_shift,seed(60002),1,goal,66,160.0,166,84,0,0,0,66,0,0,0,0,0,62,1.3548387096774193,0.21497356060703768
+assured-ood_only_p95_s0,dynamics_shift,seed(60003),1,goal,76,134.1,104,146,6,5,0,76,0,0,0,0,0,77,1.896103896103896,0.2166836315793163
+assured-ood_only_p95_s0,dynamics_shift,seed(60004),1,goal,69,154.6,151,99,1,0,0,69,0,0,0,0,0,73,1.356164383561644,0.21493779710173042
+assured-ood_only_p95_s0,dynamics_shift,seed(60005),1,goal,76,152.1,132,118,0,0,6,76,0,6,0,6,0,62,1.903225806451613,0.6042691710529811
+assured-ood_only_p95_s0,dynamics_shift,seed(60006),1,goal,68,156.35,150,100,0,0,0,68,0,0,0,0,0,62,1.6129032258064515,0.21015863235388443
+assured-ood_only_p95_s0,dynamics_shift,seed(60007),1,goal,68,159.05,162,88,0,0,0,68,0,0,0,0,0,70,1.2571428571428571,0.22126661764771177
+assured-ood_only_p95_s0,dynamics_shift,seed(60008),1,goal,72,141.175,83,167,0,0,0,72,0,0,0,0,0,62,2.693548387096774,0.23339122222094172
+assured-ood_only_p95_s0,dynamics_shift,seed(60009),1,goal,80,156.05,150,100,0,0,0,80,0,0,0,0,0,62,1.6129032258064515,0.22409162499990032

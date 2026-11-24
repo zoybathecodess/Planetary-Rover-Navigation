@@ -83,40 +83,45 @@ def grouped(ax, d, methods, metric, ylabel, log=False):
 
 # ------------------------------------------------------------------ Fig. 1 architecture
 def fig1():
-    from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
-    fig, ax = plt.subplots(figsize=(TEXTW, 2.15))
-    ax.set_xlim(-0.5, 101); ax.set_ylim(0, 32); ax.axis("off")
+    """Black-and-white decision flowchart (single column)."""
+    from matplotlib.patches import FancyArrowPatch, Polygon, Rectangle
+    fig, ax = plt.subplots(figsize=(COLW, 3.1))
+    ax.set_xlim(0, 100); ax.set_ylim(0, 132); ax.axis("off")
+    kw = dict(fc="white", ec="black", lw=0.8)
 
-    def box(x, y, w, h, text, fc):
-        ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.3,rounding_size=1.0", fc=fc, ec="#333", lw=0.7))
-        ax.text(x + w / 2, y + h / 2, text, ha="center", va="center", fontsize=6, linespacing=1.15)
+    def box(x0, x1, y0, y1, text):
+        ax.add_patch(Rectangle((x0, y0), x1 - x0, y1 - y0, **kw))
+        ax.text((x0 + x1) / 2, (y0 + y1) / 2, text, ha="center", va="center", fontsize=7)
 
-    def arr(x0, y0, x1, y1, text=None, dy=1.2):
-        ax.add_patch(FancyArrowPatch((x0, y0), (x1, y1), arrowstyle="-|>", mutation_scale=7, lw=0.7, color="#333"))
-        if text:
-            ax.text((x0 + x1) / 2, (y0 + y1) / 2 + dy, text, ha="center", fontsize=6, style="italic")
+    def diamond(cx, cy, w, h, text):
+        ax.add_patch(Polygon([(cx - w, cy), (cx, cy + h), (cx + w, cy), (cx, cy - h)], closed=True, **kw))
+        ax.text(cx, cy, text, ha="center", va="center", fontsize=7)
 
-    box(0, 11.5, 14, 9, "Rover sim (32×32)\npartial obs.: 5×5\nwindow, battery,\nslip est., expl. map", "#f2e6d0")
-    box(19.5, 22, 15, 7, "DQN ensemble\n(K=5, rand. priors\n+ bootstrap)", "#d6e9f8")
-    box(19.5, 3, 15, 7, "Mahalanobis OOD\n(windowed score s)", "#d6e9f8")
-    box(40, 22, 14, 7, "Uncertainty gate\nσ(Q_a) > τ_u ?", "#e3f1e3")
-    box(40, 12.5, 14, 7, "Safety monitor\n(4 onboard rules)", "#e3f1e3")
-    box(40, 3, 14, 7, "OOD gate\ns > τ_s ?", "#e3f1e3")
-    box(59, 12.5, 9, 7, "any\nalarm?", "#fff4c2")
-    box(74, 22, 26, 7, "ACCEPT policy action a", "#d6e9f8")
-    box(74, 12.5, 26, 7, "FALLBACK: battery-aware A* on\nexplored map; best move that\npasses the hard monitor rules", "#fde2d4")
-    box(74, 3, 26, 7, "SAFE STOP: no energy-feasible\nroute, or every move vetoed", "#f6c9c9")
-    arr(14.8, 19, 19.2, 25.5); ax.text(15.2, 23.5, "obs", fontsize=6, style="italic")
-    arr(14.8, 13, 19.2, 6.5)
-    arr(35.3, 25.5, 39.7, 25.5); ax.text(37.5, 27.2, "a, σ", fontsize=6, style="italic", ha="center")
-    arr(35.3, 6.5, 39.7, 6.5); ax.text(37.5, 8.0, "s", fontsize=6, style="italic", ha="center")
-    arr(35.3, 23.5, 39.7, 18, None)
-    arr(54.5, 25, 61, 20); arr(54.5, 16, 58.7, 16); arr(54.5, 7, 61, 12.2)
-    arr(68.5, 18.5, 73.6, 25.5); ax.text(69.5, 23, "no", fontsize=6, style="italic")
-    arr(68.5, 16, 73.6, 16); ax.text(70, 16.8, "yes", fontsize=6, style="italic")
-    arr(87, 12.2, 87, 10.3, None)
-    ax.text(50, 0.2, "Onboard information only: observation + explored map. Ground truth is used by the evaluator for scoring only.",
-            ha="center", fontsize=6, color="#555")
+    def arrow(p0, p1, label=None, lx=0, ly=0):
+        ax.add_patch(FancyArrowPatch(p0, p1, arrowstyle="-|>", mutation_scale=8, lw=0.8, color="black", shrinkA=0, shrinkB=0))
+        if label:
+            ax.text((p0[0] + p1[0]) / 2 + lx, (p0[1] + p1[1]) / 2 + ly, label, ha="center", va="center", fontsize=6.5)
+
+    box(30, 70, 121, 130, "Observation")
+    box(28, 72, 104, 113, "Policy proposes action")
+    box(1, 31, 84, 94, "Uncertainty")
+    box(35, 65, 84, 94, "Novelty (OOD)")
+    box(69, 99, 84, 94, "Safety rules")
+    diamond(50, 67, 14, 9, "All pass?")
+    box(71, 99.5, 62, 72, "Execute action")
+    box(30, 70, 44, 53, "Fallback planner")
+    diamond(50, 28, 14, 9, "Safe move?")
+    box(71, 99.5, 23, 33, "Execute move")
+    box(30, 70, 3, 12, "Safe stop")
+    arrow((50, 121), (50, 113))
+    for x in (16, 50, 84):
+        arrow((50, 104), (x, 94))
+        arrow((x, 84), (50, 76))
+    arrow((64, 67), (71, 67), "yes", ly=2.8)
+    arrow((50, 58), (50, 53), "no", lx=4)
+    arrow((50, 44), (50, 37))
+    arrow((64, 28), (71, 28), "yes", ly=2.8)
+    arrow((50, 19), (50, 12), "no", lx=4)
     save(fig, "fig1_architecture")
 
 
@@ -257,23 +262,24 @@ def fig9():
         print("  (no amendment-A3 analysis yet: skipping fig9_a3)")
         return
     rows = list(csv.DictReader(open(p)))
-    want = [("success", "Δ success"), ("unsafe", "Δ unsafe moves / episode"), ("intervention_rate", "Δ intervention rate")]
-    comps = [("action-OOD vs raw-OOD (full system)", "action-OOD − raw-OOD", "#0072B2"),
-             ("action-OOD vs no OOD (full system)", "action-OOD − no OOD", "#E69F00")]
-    fig, ax = plt.subplots(1, 3, figsize=(TEXTW, 1.9))
+    want = [("success", "(a) Δ success"), ("unsafe", "(b) Δ unsafe moves / episode")]
+    comps = [("action-OOD vs raw-OOD (full system)", "action-cond. − raw OOD gate", "black"),
+             ("action-OOD vs no OOD (full system)", "action-cond. − no OOD gate", "#888888")]
+    fig, ax = plt.subplots(1, 2, figsize=(COLW, 1.75))
     for a, (metric, lab) in zip(ax, want):
         for k, (comp, clab, col) in enumerate(comps):
             rr = [next(r for r in rows if r["comparison"] == comp and r["metric"] == metric and r["condition"] == c) for c in CONDS]
             x = np.arange(len(CONDS)) + (k - 0.5) * 0.25
             m = np.array([float(r["diff"]) for r in rr]); lo = np.array([float(r["lo"]) for r in rr]); hi = np.array([float(r["hi"]) for r in rr])
-            a.errorbar(x, m, yerr=[m - lo, hi - m], fmt="o", ms=2.8, lw=0.8, capsize=1.5, color=col, label=clab)
+            a.errorbar(x, m, yerr=[m - lo, hi - m], fmt="o" if k == 0 else "s", ms=2.6, lw=0.8, capsize=1.5, color=col, label=clab)
             for xi, r in zip(x, rr):
                 if float(r["p_holm"]) < 0.05:
                     a.text(xi, max(float(r["hi"]), float(r["diff"])), "*", ha="center", va="bottom", fontsize=7)
-        a.axhline(0, lw=0.5, color="#555"); a.set_xticks(range(len(CONDS)), [CLAB[c] for c in CONDS], rotation=30)
-        a.set_title(lab); a.grid(axis="y", lw=0.3, alpha=0.5)
+        a.axhline(0, lw=0.5, color="#555"); a.set_xticks(range(len(CONDS)), [CLAB[c] for c in CONDS], rotation=40, fontsize=6)
+        a.set_title(lab, fontsize=7); a.grid(axis="y", lw=0.3, alpha=0.5); a.tick_params(axis="y", labelsize=6)
     h, l = ax[0].get_legend_handles_labels()
-    fig.legend(h, l, ncol=2, loc="upper center", bbox_to_anchor=(0.5, 1.12), frameon=False)
+    fig.legend(h, l, ncol=2, loc="upper center", bbox_to_anchor=(0.5, 1.13), frameon=False, fontsize=6)
+    fig.tight_layout(w_pad=1.0)
     save(fig, "fig9_a3")
 
 

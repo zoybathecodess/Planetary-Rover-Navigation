@@ -1,26 +1,131 @@
 {
-  "version": "1.0-draft-for-task6",
-  "status": "Frozen defaults. Task 6 may finalise the items listed under open_for_task6 BEFORE the final split is evaluated; afterwards nothing here changes.",
-  "simulator": {"size": 32, "battery": 250, "observation_dim": 59, "presets": ["id", "terrain_shift", "sensor_shift", "dynamics_shift", "combined_shift"],
-                "preset_configs": "configs/sim32_<preset>.yaml (hashed in protocol/freeze.json)"},
-  "training": {"algorithms": ["dqn", "ppo", "ensemble(5 x dqn, randomised prior + bootstrapped replay)"], "system_seeds": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-               "member_seed_rule": "1000*(system_seed+1)+member_index", "distribution": "id only", "checkpoint_rule": "best_val (greedy SR on validation maps)",
-               "training_touches_test_maps": false},
-  "splits": {"train": "env map stream (SeedSequence [seed,0x5EED,i]); disjoint from the splits below by construction and verified by grid hashing",
-             "val": {"seeds_from": 10000, "use": "checkpoint selection, OOD/uncertainty threshold calibration (in-distribution preset only)"},
-             "fit": {"seeds_from": 30000, "use": "OOD detector fitting (in-distribution)"},
-             "test": {"seeds_from": 20000, "use": "reserved; its greedy SR was printed by Task-1/3 training scripts (never used for any decision) so it is NOT used for confirmatory claims"},
-             "final": {"seeds_from": 40000, "use": "confirmatory evaluation; never touched before the freeze; access logged in results/test_access.jsonl; requires a clean `freeze.py verify`"},
-             "pilot": {"seeds_from": 60000, "use": "debugging / runtime estimate only; never reported as a result"}},
-  "thresholds": {"calibration_data": "in-distribution validation maps only (seeds 10000-10099), plain-ensemble rollouts", "primary_percentile": 95,
-                 "sensitivity_percentiles": [90, 99], "frozen_values": "protocol/freeze.json -> thresholds"},
-  "methods": {"baselines": ["astar", "reactive", "dqn", "dqn_shield", "ppo", "ppo_shield"], "learned_no_assurance": ["ens"],
-              "proposed": ["assured@95"], "operating_points": ["assured@95 (safe stop enabled)", "assured-no_stop@95 (mission-first)"],
-              "ablations": ["assured-monitor_only", "assured-unc_only", "assured-ood_only", "assured-no_ood", "assured-no_unc", "assured-no_monitor", "assured-no_stop"]},
-  "evaluation": {"maps_per_preset": 200, "same_maps_for_all_methods": true, "unit_of_replication": "system seed (learned methods); map (deterministic methods)",
-                 "primary_metrics": ["success", "collisions_per_episode", "attempted_unsafe_per_episode", "steps", "energy_used", "battery_left", "intervention_rate",
-                                     "fallback_rate", "safe_stop_rate"],
-                 "success_definition": "terminal reason == goal; a safe stop is a mission failure reported separately",
-                 "statistics": "mean +/- 95% t-interval over seeds; paired differences over matched (map, seed) pairs; Wilson interval for single-policy proportions"},
-  "open_for_task6": ["number of maps per preset (default 200)", "which paired tests / multiplicity correction to use", "whether the 'test' split is dropped or reported as exploratory"]
+  "version": "1.1",
+  "status": "FINAL protocol (Task 6). Frozen together with the code by scripts/freeze.py; any change afterwards is detected by `freeze.py verify` and blocks the confirmatory run.",
+  "simulator": {
+    "size": 32,
+    "battery": 250,
+    "observation_dim": 59,
+    "presets": [
+      "id",
+      "terrain_shift",
+      "sensor_shift",
+      "dynamics_shift",
+      "combined_shift"
+    ],
+    "preset_configs": "configs/sim32_<preset>.yaml (hashed in protocol/freeze.json)"
+  },
+  "training": {
+    "algorithms": [
+      "dqn",
+      "ppo",
+      "ensemble(5 x dqn, randomised prior + bootstrapped replay)"
+    ],
+    "system_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "member_seed_rule": "1000*(system_seed+1)+member_index",
+    "distribution": "id only",
+    "checkpoint_rule": "best_val (greedy SR on validation maps)",
+    "training_touches_test_maps": false,
+    "number_of_independent_training_seeds": 10
+  },
+  "splits": {
+    "train": "env map stream (SeedSequence [seed,0x5EED,i]); disjoint from the splits below by construction and verified by grid hashing",
+    "val": {
+      "seeds_from": 10000,
+      "use": "checkpoint selection, OOD/uncertainty threshold calibration (in-distribution preset only)"
+    },
+    "fit": {
+      "seeds_from": 30000,
+      "use": "OOD detector fitting (in-distribution)"
+    },
+    "test": {
+      "seeds_from": 20000,
+      "use": "reserved; its greedy SR was printed by Task-1/3 training scripts (never used for any decision) so it is NOT used for confirmatory claims"
+    },
+    "final": {
+      "seeds_from": 40000,
+      "use": "confirmatory evaluation; never touched before the freeze; access logged in results/test_access.jsonl; requires a clean `freeze.py verify`"
+    },
+    "pilot": {
+      "seeds_from": 60000,
+      "use": "debugging / runtime estimate only; never reported as a result"
+    }
+  },
+  "thresholds": {
+    "calibration_data": "in-distribution validation maps only (seeds 10000-10099), plain-ensemble rollouts",
+    "primary_percentile": 95,
+    "sensitivity_percentiles": [
+      90,
+      99
+    ],
+    "frozen_values": "protocol/freeze.json -> thresholds"
+  },
+  "methods": {
+    "baselines": [
+      "astar",
+      "astar_monitor",
+      "reactive",
+      "dqn",
+      "dqn_shield",
+      "ppo",
+      "ppo_shield"
+    ],
+    "learned_no_assurance": [
+      "ens"
+    ],
+    "proposed": [
+      "assured@95"
+    ],
+    "operating_points": [
+      "assured@95 (safe stop enabled)",
+      "assured-no_stop@95 (mission-first)"
+    ],
+    "ablations": [
+      "assured-monitor_only",
+      "assured-unc_only",
+      "assured-ood_only",
+      "assured-no_ood",
+      "assured-no_unc",
+      "assured-no_monitor",
+      "assured-no_stop"
+    ]
+  },
+  "evaluation": {
+    "maps_per_preset": 500,
+    "same_maps_for_all_methods": true,
+    "unit_of_replication": "system seed (learned methods); map (deterministic methods)",
+    "primary_metrics": [
+      "success",
+      "collisions_per_episode",
+      "attempted_unsafe_per_episode",
+      "steps",
+      "energy_used",
+      "battery_left",
+      "intervention_rate",
+      "fallback_rate",
+      "safe_stop_rate"
+    ],
+    "success_definition": "terminal reason == goal; a safe stop is a mission failure reported separately",
+    "statistics": "mean +/- 95% t-interval over 10 system seeds; paired differences (A-B) on identical maps with exact sign-flip permutation p and Holm adjustment across conditions per (comparison, metric); Wilson interval for seedless methods; full definition in protocol/analysis_plan.json",
+    "map_seeds": "final split: seeds 40000-40499 for every method and condition",
+    "metric_definitions": "src/evaluation/metrics.py docstring"
+  },
+  "analysis_plan": "protocol/analysis_plan.json",
+  "shift_levels": "docs/SHIFT_LEVELS.md (generated from the preset configs)",
+  "decisions_made_in_task6": [
+    "maps per preset = 500 (evaluation costs ~3 core-hours at this size)",
+    "paired seed-level tests with exact sign-flip permutation, Holm within family",
+    "test split (20000+) excluded from confirmatory claims; may be reported as exploratory only",
+    "operating points: assured@95 and assured-no_stop@95 both reported"
+  ]
 }

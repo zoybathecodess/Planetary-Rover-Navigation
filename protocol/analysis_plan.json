@@ -1,0 +1,135 @@
+{
+  "version": "1.1",
+  "note": "Fixed before the confirmatory run. The analysis script reads this file; changing it after the freeze is detected by freeze.py verify.",
+  "conditions": [
+    "id",
+    "terrain_shift",
+    "sensor_shift",
+    "dynamics_shift",
+    "combined_shift"
+  ],
+  "proposed": "assured@95",
+  "main_table_methods": [
+    "astar",
+    "astar_monitor",
+    "reactive",
+    "dqn",
+    "dqn_shield",
+    "ppo",
+    "ppo_shield",
+    "ens",
+    "assured-unc_only@95",
+    "assured@95",
+    "assured-no_stop@95"
+  ],
+  "ablation_methods": [
+    "ens",
+    "assured-monitor_only@95",
+    "assured-unc_only@95",
+    "assured-ood_only@95",
+    "assured-no_ood@95",
+    "assured-no_unc@95",
+    "assured-no_monitor@95",
+    "assured-no_stop@95",
+    "assured@95"
+  ],
+  "sensitivity_methods": [
+    "assured@90",
+    "assured@95",
+    "assured@99"
+  ],
+  "primary_metrics": [
+    "success",
+    "collisions",
+    "unsafe"
+  ],
+  "secondary_metrics": [
+    "steps_goal",
+    "energy_used",
+    "battery_left",
+    "energy_ratio",
+    "intervention_rate",
+    "fallback_rate",
+    "safe_stop_rate",
+    "depleted_rate",
+    "timeout_rate",
+    "fallback_success"
+  ],
+  "primary_comparisons": [
+    {
+      "name": "assured vs A*",
+      "a": "assured@95",
+      "b": "astar"
+    },
+    {
+      "name": "assured vs A*+monitor",
+      "a": "assured@95",
+      "b": "astar_monitor"
+    },
+    {
+      "name": "assured vs DQN",
+      "a": "assured@95",
+      "b": "dqn"
+    },
+    {
+      "name": "assured vs DQN+shield",
+      "a": "assured@95",
+      "b": "dqn_shield"
+    },
+    {
+      "name": "assured vs PPO+shield",
+      "a": "assured@95",
+      "b": "ppo_shield"
+    },
+    {
+      "name": "assured vs ensemble",
+      "a": "assured@95",
+      "b": "ens"
+    },
+    {
+      "name": "assured vs uncertainty-gated",
+      "a": "assured@95",
+      "b": "assured-unc_only@95"
+    }
+  ],
+  "secondary_comparisons": [
+    {
+      "name": "stop vs no-stop",
+      "a": "assured@95",
+      "b": "assured-no_stop@95"
+    },
+    {
+      "name": "full vs monitor-only",
+      "a": "assured@95",
+      "b": "assured-monitor_only@95"
+    },
+    {
+      "name": "full vs no-OOD",
+      "a": "assured@95",
+      "b": "assured-no_ood@95"
+    },
+    {
+      "name": "full vs no-uncertainty",
+      "a": "assured@95",
+      "b": "assured-no_unc@95"
+    },
+    {
+      "name": "full vs no-monitor",
+      "a": "assured@95",
+      "b": "assured-no_monitor@95"
+    },
+    {
+      "name": "monitor-only vs ensemble",
+      "a": "assured-monitor_only@95",
+      "b": "ens"
+    }
+  ],
+  "multiplicity": "Holm step-down across the conditions within each (comparison, metric). Rationale (a design property, not an outcome): with 10 seeds the exact sign-flip p-value cannot go below 2/1024=0.00195, so a single family over all 36 comparisons (Bonferroni level 0.05/36) could never reject. Introduced after the validation rehearsal, before the freeze and before any confirmatory data existed.",
+  "unit_of_replication": "system seed; pairs are (method A seed k, method B seed k) on identical maps; seedless methods (A*) pair with every seed",
+  "interval": "t-based 95% over seeds; paired differences with exact sign-flip permutation p and t p-value",
+  "alpha": 0.05,
+  "history": [
+    "1.0: single Holm family per metric over all comparisons x conditions (found unable to reject in the val rehearsal)",
+    "1.1: Holm across conditions per (comparison, metric); added A*+monitor baseline"
+  ]
+}

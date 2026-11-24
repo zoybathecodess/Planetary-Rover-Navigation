@@ -34,6 +34,7 @@ class EnvConfig:
     sensor_miss: float = 0.05           # TRUE P(obstacle not detected)
     sensor_false: float = 0.02          # TRUE P(free cell reported as obstacle)
     sensor_sigma: float = 0.05          # TRUE std-dev of the terrain reading (reading scale 0..1)
+    external_tiles: str = ""            # amendment A2: .npz of real-terrain tiles; reset(seed) loads the tile with that seed
 
 
 @dataclass

@@ -19,10 +19,12 @@ import sys
 import time
 from pathlib import Path
 
-SPLIT_OFFSET = {"val": 10_000, "test": 20_000, "fit": 30_000, "final": 40_000, "pilot": 60_000}
-HELD_OUT = ("test", "final")
+SPLIT_OFFSET = {"val": 10_000, "test": 20_000, "fit": 30_000, "final": 40_000, "pilot": 60_000,
+                "real_final": 70_000, "real_pilot": 75_000}   # amendment A2: real-terrain tile seeds
+HELD_OUT = ("test", "final", "real_final")
 FREEZE_PATH = "protocol/freeze.json"
-CODE_GLOBS = ("src/**/*.py", "scripts/*.py", "configs/*.yaml", "tests/*.py", "protocol/phase2_protocol.json", "protocol/analysis_plan.json")
+CODE_GLOBS = ("src/**/*.py", "scripts/*.py", "configs/*.yaml", "tests/*.py", "protocol/phase2_protocol.json", "protocol/analysis_plan.json",
+              "protocol/amendment_*.json")
 
 
 def sha256_file(path) -> str:
@@ -147,7 +149,7 @@ def claim_split(root: Path, split: str, purpose: str, allow_unfrozen: bool = Fal
     root = Path(root)
     if split not in SPLIT_OFFSET:
         raise ValueError(f"unknown split {split!r}")
-    if split == "final" and not allow_unfrozen:
+    if split in ("final", "real_final") and not allow_unfrozen:
         problems = verify_freeze(root)
         if problems:
             raise SplitAccessError("refusing to evaluate on the 'final' split: the code/artefacts do not match the freeze:\n  " +

@@ -8,6 +8,7 @@ fig7_sensitivity, fig8_h3, fig9_a3 (the last two only if the amendment runs exis
 from _common import ROOT  # noqa: F401
 
 import csv
+import json
 import math
 from collections import defaultdict
 from pathlib import Path
@@ -276,6 +277,35 @@ def fig9():
     save(fig, "fig9_a3")
 
 
+def fig10():
+    p = ROOT / "data/real_tiles/hirise_tiles.npz"
+    if not p.exists():
+        print("  (no real-terrain tiles yet: skipping fig10_real_tiles)")
+        return
+    from matplotlib.colors import ListedColormap
+    from src.evaluation.replay import TERRAIN_COLORS
+    z = np.load(p)
+    meta = json.loads((ROOT / "data/real_tiles/hirise_tiles.json").read_text())
+    sites = [("victoria", "Victoria crater (Opportunity)"), ("jezero", "Jezero crater (Perseverance)"), ("gale", "Gale crater (Curiosity)")]
+    fig, ax = plt.subplots(1, 4, figsize=(TEXTW, 1.95), gridspec_kw={"width_ratios": [1, 1, 1, 1.25]})
+    for a, (site, lab) in zip(ax, sites):
+        i = next(k for k in range(len(z["seeds"])) if z["site"][k] == site and z["split"][k] == "real_final")
+        a.imshow(z["grids"][i], cmap=ListedColormap(TERRAIN_COLORS), vmin=0, vmax=3, interpolation="nearest")
+        a.set_title(f"{lab}\ntile {int(z['seeds'][i])}", fontsize=6.5); a.set_xticks([]); a.set_yticks([])
+        for sp in a.spines.values():
+            sp.set_visible(False)
+    names = ["normal", "sand", "rock", "obstacle"]
+    x = np.arange(len(sites) + 1)
+    comps = [[meta["sites"][s]["composition"][k] for k in names] for s, _ in sites] + [[0.60, 0.15, 0.10, 0.15]]
+    bottom = np.zeros(len(x))
+    for j, k in enumerate(names):
+        v = np.array([c[j] for c in comps])
+        ax[3].bar(x, v, bottom=bottom, color=TERRAIN_COLORS[j], edgecolor="#333", lw=0.3, label=k); bottom += v
+    ax[3].set_xticks(x, ["Vict.", "Jez.", "Gale", "Proc. ID"], fontsize=6); ax[3].set_ylabel("")
+    ax[3].legend(fontsize=5.5, frameon=False, loc="upper left", bbox_to_anchor=(1.0, 1.0)); ax[3].set_title("Terrain composition\n(fraction of cells)", fontsize=6.5)
+    save(fig, "fig10_real_tiles")
+
+
 if __name__ == "__main__":
     d = load_by_seed(MAIN)
-    fig1(); fig2(); fig3(d); fig4(d); fig5(d); fig6(d); fig7(d); fig8(); fig9()
+    fig1(); fig2(); fig3(d); fig4(d); fig5(d); fig6(d); fig7(d); fig8(); fig9(); fig10()

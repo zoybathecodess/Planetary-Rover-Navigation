@@ -1,0 +1,239 @@
+% Bibliography for the MAREC paper. Entries marked "VERIFY" must have DOI/pages checked against the publisher before submission
+% (Task 13). Entries were collected in the 2026-11-24 targeted literature review (docs/RELATED_WORK.md).
+
+% ---------------- runtime assurance / simplex
+@article{sha2001simplex,
+  author    = {Sha, Lui},
+  title     = {Using Simplicity to Control Complexity},
+  journal   = {IEEE Software},
+  volume    = {18},
+  number    = {4},
+  pages     = {20--28},
+  year      = {2001},
+  doi       = {10.1109/MS.2001.936213}
+}
+@article{hobbs2023rta,
+  author  = {Hobbs, Kerianne L. and Mote, Mark L. and Abate, Matthew C. L. and Coogan, Samuel D. and Feron, Eric M.},
+  title   = {Runtime Assurance for Safety-Critical Systems: An Introduction to Safety Filtering Approaches for Complex Control Systems},
+  journal = {IEEE Control Systems Magazine},
+  volume  = {43},
+  number  = {2},
+  pages   = {28--65},
+  year    = {2023},
+  doi     = {10.1109/MCS.2022.3234380},
+  note    = {VERIFY pages}
+}
+@inproceedings{phan2020neuralsimplex,
+  author    = {Phan, Dung T. and Grosu, Radu and Jansen, Nils and Paoletti, Nicola and Smolka, Scott A. and Stoller, Scott D.},
+  title     = {Neural Simplex Architecture},
+  booktitle = {NASA Formal Methods (NFM)},
+  series    = {LNCS},
+  volume    = {12229},
+  pages     = {97--114},
+  year      = {2020},
+  publisher = {Springer}
+}
+@inproceedings{mehmood2022bbsimplex,
+  author    = {Mehmood, Usama and Sheikhi, Sanaz and Bak, Stanley and Smolka, Scott A. and Stoller, Scott D.},
+  title     = {The Black-Box Simplex Architecture for Runtime Assurance of Autonomous {CPS}},
+  booktitle = {NASA Formal Methods (NFM)},
+  series    = {LNCS},
+  volume    = {13260},
+  year      = {2022},
+  publisher = {Springer},
+  note      = {VERIFY pages}
+}
+@inproceedings{sinha2023fallback,
+  author    = {Sinha, Rohan and Schmerling, Edward and Pavone, Marco},
+  title     = {Closing the Loop on Runtime Monitors with Fallback-Safe {MPC}},
+  booktitle = {IEEE Conference on Decision and Control (CDC)},
+  year      = {2023},
+  note      = {arXiv:2309.08603; VERIFY pages}
+}
+
+% ---------------- shielding / safe RL
+@inproceedings{alshiekh2018shield,
+  author    = {Alshiekh, Mohammed and Bloem, Roderick and Ehlers, R{\"u}diger and K{\"o}nighofer, Bettina and Niekum, Scott and Topcu, Ufuk},
+  title     = {Safe Reinforcement Learning via Shielding},
+  booktitle = {AAAI Conference on Artificial Intelligence},
+  volume    = {32},
+  year      = {2018},
+  doi       = {10.1609/aaai.v32i1.11797}
+}
+@inproceedings{carr2023pomdpshield,
+  author    = {Carr, Steven and Jansen, Nils and Junges, Sebastian and Topcu, Ufuk},
+  title     = {Safe Reinforcement Learning via Shielding under Partial Observability},
+  booktitle = {AAAI Conference on Artificial Intelligence},
+  volume    = {37},
+  number    = {12},
+  pages     = {14748--14756},
+  year      = {2023},
+  doi       = {10.1609/aaai.v37i12.26723}
+}
+@article{garcia2015saferl,
+  author  = {Garc{\'i}a, Javier and Fern{\'a}ndez, Fernando},
+  title   = {A Comprehensive Survey on Safe Reinforcement Learning},
+  journal = {Journal of Machine Learning Research},
+  volume  = {16},
+  pages   = {1437--1480},
+  year    = {2015}
+}
+@article{brunke2022saferobot,
+  author  = {Brunke, Lukas and Greeff, Melissa and Hall, Adam W. and Yuan, Zhaocong and Zhou, Siqi and Panerati, Jacopo and Schoellig, Angela P.},
+  title   = {Safe Learning in Robotics: From Learning-Based Control to Safe Reinforcement Learning},
+  journal = {Annual Review of Control, Robotics, and Autonomous Systems},
+  volume  = {5},
+  pages   = {411--444},
+  year    = {2022},
+  doi     = {10.1146/annurev-control-042920-020211}
+}
+
+% ---------------- uncertainty / OOD
+@inproceedings{lakshminarayanan2017ensembles,
+  author    = {Lakshminarayanan, Balaji and Pritzel, Alexander and Blundell, Charles},
+  title     = {Simple and Scalable Predictive Uncertainty Estimation using Deep Ensembles},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {30},
+  year      = {2017}
+}
+@inproceedings{osband2016bootstrapped,
+  author    = {Osband, Ian and Blundell, Charles and Pritzel, Alexander and Van Roy, Benjamin},
+  title     = {Deep Exploration via Bootstrapped {DQN}},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {29},
+  year      = {2016}
+}
+@inproceedings{osband2018priors,
+  author    = {Osband, Ian and Aslanides, John and Cassirer, Albin},
+  title     = {Randomized Prior Functions for Deep Reinforcement Learning},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {31},
+  year      = {2018}
+}
+@inproceedings{lee2018mahalanobis,
+  author    = {Lee, Kimin and Lee, Kibok and Lee, Honglak and Shin, Jinwoo},
+  title     = {A Simple Unified Framework for Detecting Out-of-Distribution Samples and Adversarial Attacks},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {31},
+  year      = {2018}
+}
+@inproceedings{ovadia2019shift,
+  author    = {Ovadia, Yaniv and Fertig, Emily and Ren, Jie and Nado, Zachary and Sculley, D. and Nowozin, Sebastian and Dillon, Joshua V. and Lakshminarayanan, Balaji and Snoek, Jasper},
+  title     = {Can You Trust Your Model's Uncertainty? Evaluating Predictive Uncertainty Under Dataset Shift},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {32},
+  year      = {2019}
+}
+@article{kahn2017uncertainty,
+  author  = {Kahn, Gregory and Villaflor, Adam and Pong, Vitchyr and Abbeel, Pieter and Levine, Sergey},
+  title   = {Uncertainty-Aware Reinforcement Learning for Collision Avoidance},
+  journal = {arXiv preprint arXiv:1702.01182},
+  year    = {2017}
+}
+@inproceedings{lutjens2019safe,
+  author    = {L{\"u}tjens, Bj{\"o}rn and Everett, Michael and How, Jonathan P.},
+  title     = {Safe Reinforcement Learning with Model Uncertainty Estimates},
+  booktitle = {IEEE International Conference on Robotics and Automation (ICRA)},
+  pages     = {8662--8668},
+  year      = {2019},
+  doi       = {10.1109/ICRA.2019.8793611}
+}
+@article{stutts2024sodampc,
+  author  = {{VERIFY authors}},
+  title   = {Safe, Out-of-Distribution-Adaptive {MPC} with Conformalized Neural Network Ensembles},
+  journal = {arXiv preprint arXiv:2406.02436},
+  year    = {2024},
+  note    = {VERIFY venue}
+}
+@article{shin2025policyswitch,
+  title   = {Evaluation-Time Policy Switching for Offline Reinforcement Learning},
+  journal = {arXiv preprint arXiv:2503.12222},
+  year    = {2025},
+  author  = {{VERIFY authors}}
+}
+
+% ---------------- planetary rover navigation
+@inproceedings{toupet2020enav,
+  author    = {Toupet, Olivier and Del Sesto, Tyler and Ono, Masahiro and Myint, Steven and vander Hook, Joshua and McHenry, Michael},
+  title     = {A {ROS}-based Simulator for Testing the Enhanced Autonomous Navigation of the Mars 2020 Rover},
+  booktitle = {IEEE Aerospace Conference},
+  year      = {2020},
+  doi       = {10.1109/AERO47225.2020.9172345},
+  note      = {VERIFY author list and DOI}
+}
+@inproceedings{swan2021ai4mars,
+  author    = {Swan, R. Michael and Atha, Deegan and Leopold, Henry A. and Gildner, Matthew and Oij, Stephanie and Chiu, Cindy and Ono, Masahiro},
+  title     = {{AI4MARS}: A Dataset for Terrain-Aware Autonomous Driving on Mars},
+  booktitle = {IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops (CVPRW)},
+  pages     = {1982--1991},
+  year      = {2021}
+}
+@article{endo2024traversability,
+  author  = {Endo, Masafumi and Taniai, Tatsunori and Ishigami, Genya},
+  title   = {Deep Probabilistic Traversability with Test-time Adaptation for Uncertainty-aware Planetary Rover Navigation},
+  journal = {arXiv preprint arXiv:2409.00641},
+  year    = {2024},
+  note    = {journal version in Scientific Reports, 2026; VERIFY}
+}
+@article{mortensen2023teacher,
+  author  = {Mortensen, Anton Bj{\o}rndahl and Pedersen, Emil Tribler and Benedicto, Laia Vives and Burg, Lionel and Madsen, Mads Rossen and B{\o}gh, Simon},
+  title   = {Teacher-Student Reinforcement Learning for Mapless Navigation using a Planetary Space Rover},
+  journal = {arXiv preprint arXiv:2309.12807},
+  year    = {2023},
+  note    = {VERIFY author list}
+}
+@article{zhang2024lunardqn,
+  title   = {A Deep Learning Approach to Lunar Rover Global Path Planning Using Environmental Constraints and the Rover Internal Resource Status},
+  journal = {Sensors},
+  volume  = {24},
+  number  = {3},
+  pages   = {844},
+  year    = {2024},
+  doi     = {10.3390/s24030844},
+  author  = {{VERIFY authors}}
+}
+@article{review2025rover,
+  title   = {A Comprehensive Review of Path-Planning Algorithms for Planetary Rover Exploration},
+  journal = {Remote Sensing},
+  volume  = {17},
+  number  = {11},
+  pages   = {1924},
+  year    = {2025},
+  author  = {{VERIFY authors}}
+}
+
+% ---------------- base algorithms
+@article{mnih2015dqn,
+  author  = {Mnih, Volodymyr and Kavukcuoglu, Koray and Silver, David and others},
+  title   = {Human-level Control through Deep Reinforcement Learning},
+  journal = {Nature},
+  volume  = {518},
+  pages   = {529--533},
+  year    = {2015},
+  doi     = {10.1038/nature14236}
+}
+@article{schulman2017ppo,
+  author  = {Schulman, John and Wolski, Filip and Dhariwal, Prafulla and Radford, Alec and Klimov, Oleg},
+  title   = {Proximal Policy Optimization Algorithms},
+  journal = {arXiv preprint arXiv:1707.06347},
+  year    = {2017}
+}
+@article{hart1968astar,
+  author  = {Hart, Peter E. and Nilsson, Nils J. and Raphael, Bertram},
+  title   = {A Formal Basis for the Heuristic Determination of Minimum Cost Paths},
+  journal = {IEEE Transactions on Systems Science and Cybernetics},
+  volume  = {4},
+  number  = {2},
+  pages   = {100--107},
+  year    = {1968},
+  doi     = {10.1109/TSSC.1968.300136}
+}
+@article{holm1979,
+  author  = {Holm, Sture},
+  title   = {A Simple Sequentially Rejective Multiple Test Procedure},
+  journal = {Scandinavian Journal of Statistics},
+  volume  = {6},
+  number  = {2},
+  pages   = {65--70},
+  year    = {1979}
+}

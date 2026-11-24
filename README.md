@@ -31,3 +31,10 @@ Recover the untouched original at any time: `git checkout v0.0-original`.
 * Anything an agent, monitor or fallback planner uses must come from `obs`/`info` of `RoverEnv`. `tests/test_no_leakage.py` fails the build otherwise.
 * Never pick thresholds/hyper-parameters on test seeds (20 000+); use validation seeds (10 000+).
 * Success is `info["reason"] == "goal"`. Never infer it from reward.
+
+## Phase 2 status (2026-11-24)
+* Confirmatory campaign v1.1: `results/phase2/phase2/` (tables in `analysis/final/`), freeze tag `v5.1-freeze`.
+* Amendment A1 (hypothesis H3, energy-blind fallback): pre-registration `protocol/amendment_A1_h3.json`, freeze tag
+  `v6.1-freeze-A1`, run `results/phase2/h3/`, analysis `python3 scripts/analyse_h3.py`.
+* Literature check: `docs/RELATED_WORK.md`. Planned real-terrain extension: `docs/REAL_TERRAIN_EXTENSION.md`.
+* Figures: `python3 scripts/make_figures.py` → `paper/figures/`. Manuscript (IEEEtran): `paper/main.tex` + `paper/references.bib`.

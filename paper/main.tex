@@ -1,0 +1,394 @@
+% MAREC manuscript — IEEE conference two-column draft (IEEEtran). Compile: pdflatex main; bibtex main; pdflatex main; pdflatex main
+% (or upload the paper/ folder to Overleaf). Every number in this file is copied from a saved analysis table; the source table is
+% named in a comment next to each claim. Replace the venue-specific template/options once the target venue is chosen (Task 12).
+\documentclass[conference]{IEEEtran}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{siunitx}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{cite}
+\graphicspath{{figures/}}
+\newcommand{\ours}{\textsc{Assured}}
+
+\begin{document}
+
+\title{Uncertainty-Gated Runtime Assurance for Learning-Based Planetary Rover Navigation Under Partial Observability and Distribution Shift}
+
+\author{\IEEEauthorblockN{Author Name(s)}
+\IEEEauthorblockA{Affiliation\\ email}}  % TODO(Task 13): author block
+
+\maketitle
+
+\begin{abstract}
+Learned navigation policies can drive a rover efficiently, but they can fail silently when terrain, sensing or vehicle
+dynamics differ from what they were trained on. We study a runtime-assurance layer for a learned planetary-rover
+navigator that uses only onboard information. A five-member deep-Q ensemble proposes each move. The move is accepted
+only if three checks pass: an ensemble-disagreement gate, a Mahalanobis out-of-distribution (OOD) gate and an explicit
+rule-based safety monitor. Otherwise a battery-aware A* planner on the explored map takes over, and the rover stops
+safely when no energy-feasible move remains. We evaluate the system in a $32\times32$ partially observable simulator
+with terrain, sensor, dynamics and combined shifts, against eight baselines and nine ablation or sensitivity variants. All methods use 10
+training seeds and the same 500 held-out maps per condition, under a pre-registered, frozen protocol. Compared with the
+unshielded ensemble, the assured system reduces attempted unsafe moves by 77--99\%. It has the lowest unsafe-action
+exposure of all baselines in every condition. It does not reach the success rate of a plain A* planner. It matches an
+A*-plus-monitor baseline in success in four of five conditions while attempting significantly fewer unsafe moves.
+Ablations show that the rule monitor accounts for most of the safety gain. Ensemble disagreement adds a little; the OOD
+gate fires on about 95\% of steps under sensor shift and makes outcomes worse there. These results are simulation
+evidence only, and we report the negative findings alongside the positive ones.
+\end{abstract}
+
+\begin{IEEEkeywords}
+runtime assurance, safe reinforcement learning, out-of-distribution detection, deep ensembles, planetary rover, partial observability
+\end{IEEEkeywords}
+
+% =====================================================================================================================
+\section{Introduction}
+Autonomous navigation lets planetary rovers drive farther between ground contacts~\cite{toupet2020enav}. Learned
+policies can make efficient local decisions in cluttered terrain~\cite{mortensen2023teacher,zhang2024lunardqn}, but
+their value estimates are only trustworthy near the training distribution. Unfamiliar terrain, a degraded sensor or
+looser-than-expected soil can lead a learned policy to choose a move that looks good to it but is unsafe or
+energy-infeasible. Runtime assurance (RTA) handles this by keeping the learned controller in charge only while a
+supervisor trusts it, and switching to a simpler fallback otherwise~\cite{sha2001simplex,hobbs2023rta}.
+
+The building blocks are well known: Simplex-style switching~\cite{sha2001simplex,phan2020neuralsimplex,mehmood2022bbsimplex},
+shields~\cite{alshiekh2018shield,carr2023pomdpshield}, deep ensembles~\cite{lakshminarayanan2017ensembles,osband2018priors}
+and feature-space OOD detectors~\cite{lee2018mahalanobis}. Much less is known about how these signals behave
+\emph{together}, on a resource-limited rover that sees only a local window, has to keep enough energy to reach its goal,
+and faces several different kinds of distribution shift. We study that question empirically.
+
+\textbf{Research question.} Can an uncertainty-gated RTA layer with an onboard safety monitor and a battery-aware
+fallback planner improve the safety and mission reliability of a learned rover navigator under partial observability
+and controlled distribution shift? Which of its components are responsible?
+
+\textbf{Contributions.}
+(i)~An information-constrained RTA architecture for a learned rover navigator. Every component (ensemble, OOD detector,
+monitor, fallback planner, safe stop) uses only onboard observations and the rover's own explored map; the simulator's
+ground truth is used only for scoring.
+(ii)~A pre-registered, frozen evaluation of 18 methods and variants over five shift conditions, with 10 training seeds
+and 500 identical held-out maps per condition, paired statistics and Holm correction.
+(iii)~A component-level account of where the safety gains come from, including two negative results: the system does
+not beat a classical planner on mission success, and the OOD gate hurts under sensor shift.
+(iv)~A pre-registered amendment that tests whether energy awareness in the fallback matters (H3).
+Code, configurations, frozen manifests and per-episode logs are released for reproduction.
+
+% =====================================================================================================================
+\section{Related Work}
+\textbf{Runtime assurance and Simplex.} Simplex pairs an unverified high-performance controller with a trusted baseline
+and a decision module~\cite{sha2001simplex}. Hobbs \emph{et al.} survey switching- and optimisation-based RTA
+filters~\cite{hobbs2023rta}. Neural Simplex~\cite{phan2020neuralsimplex} and Black-Box Simplex~\cite{mehmood2022bbsimplex}
+adapt the idea to learned controllers. Fallback-safe MPC links the monitor to the feasibility of the
+fallback~\cite{sinha2023fallback}. These works mainly use \emph{safety conditions} as switching triggers. We combine
+such a monitor with \emph{learned-confidence} triggers and an energy budget.
+
+\textbf{Shielding.} Shields restrict an RL agent to actions that a (partial) model certifies as safe, including under
+partial observability~\cite{alshiekh2018shield,carr2023pomdpshield}. Our monitor is a hand-written rule set with no formal
+guarantee. We include a conventional rule shield as a baseline and make no formal safety claim.
+
+\textbf{Uncertainty and OOD signals for control.} Ensembles~\cite{lakshminarayanan2017ensembles}, bootstrapped and
+randomised-prior Q-networks~\cite{osband2016bootstrapped,osband2018priors} and Mahalanobis detectors~\cite{lee2018mahalanobis}
+are standard uncertainty and OOD tools. They have been used to slow down or hand over control in
+navigation~\cite{kahn2017uncertainty,lutjens2019safe} and to trigger a safe fallback in MPC~\cite{stutts2024sodampc}.
+Uncertainty estimates are known to degrade under dataset shift~\cite{ovadia2019shift}, and raw ensemble disagreement is
+not calibrated~\cite{stutts2024sodampc}. We treat both signals as uncalibrated scores.
+
+\textbf{Planetary rover navigation.} Flight navigation uses classical traversability analysis and
+planning~\cite{toupet2020enav}. Learning-based work covers terrain classification~\cite{swan2021ai4mars},
+uncertainty-aware traversability with test-time adaptation~\cite{endo2024traversability}, RL navigation in
+simulation~\cite{mortensen2023teacher} and resource-constrained DQN path planning~\cite{zhang2024lunardqn}; see
+also~\cite{review2025rover}. In our targeted search we found no study that wraps a learned rover navigator in an RTA layer
+and measures intervention, safe-stop and energy trade-offs under controlled shifts by ablation. The individual
+components are not new; our contribution is the integrated, information-constrained evaluation and what it shows.
+
+% =====================================================================================================================
+\section{Problem Formulation}
+\textbf{World.} A $32\times32$ grid with normal, sand and rock cells and impassable obstacles, generated procedurally from
+smoothed noise fields (Table~\ref{tab:sim}). The rover starts at $(0,0)$ with battery $B_0=250$ and must reach $(31,31)$.
+Entering a cell costs (1,\,3,\,5) energy units for normal/sand/rock. These are illustrative simulation units, not
+measured Martian energies. With terrain-dependent probability, a slip replaces the commanded move by a perpendicular one.
+A collision costs one unit and leaves the rover in place. The four actions are the compass moves; the assured system also
+has a \emph{stop} decision.
+
+\textbf{Partial observability.} At each step the rover receives a 59-dimensional observation: normalised position and
+goal offset, battery and step fractions, an odometry-based slip estimate, a sensor self-consistency score, map coverage,
+a noisy $5\times5$ terrain reading and its own visit counts. Readings miss obstacles, report false obstacles and carry
+Gaussian noise. The rover keeps an \emph{explored map} of the readings it has received and the collisions it has had. The
+policy, OOD detector, monitor and fallback may use only the observation and the explored map. The true grid, slip,
+energy and sensor parameters are visible only to the evaluator, which is enforced by automated leakage tests.
+
+\textbf{Episodes and safety events.} An episode ends at the goal (success), when the battery is depleted, or at a safe
+stop, which counts as a mission failure and is reported separately. We record \emph{collisions} (executed moves into an
+obstacle or the map edge, including slip-induced ones) and \emph{attempted unsafe moves} (commanded moves whose target is
+an obstacle or off the map, judged from ground truth).
+
+\textbf{Distribution shifts.} Policies are trained only in-distribution (ID). Four test-time shifts change the true
+parameters, which the rover never observes (Table~\ref{tab:sim}): \emph{terrain} (rougher, more obstacles),
+\emph{sensor} (4$\times$ miss and false-detection rates, 3$\times$ noise), \emph{dynamics} (costlier sand/rock and
+2.5--3$\times$ slip) and \emph{combined} (all three together).
+
+\begin{table}[t]
+\centering
+\caption{Simulator parameters per condition (from \texttt{docs/SHIFT\_LEVELS.md}).}
+\label{tab:sim}
+\setlength{\tabcolsep}{2.6pt}
+\footnotesize
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Parameter & ID & Terrain & Sensor & Dyn. & Comb. \\ \midrule
+$P$(normal/sand/rock) & .60/.15/.10 & .35/.25/.22 & .60/.15/.10 & .60/.15/.10 & .35/.25/.22 \\
+Obstacle fraction & .15 & .18 & .15 & .15 & .18 \\
+Energy (n/s/r) & 1/3/5 & 1/3/5 & 1/3/5 & 1/4/6 & 1/4/6 \\
+Slip (n/s/r) & .02/.10/.05 & .02/.10/.05 & .02/.10/.05 & .06/.25/.15 & .06/.25/.15 \\
+Sensor miss / false & .05/.02 & .05/.02 & .20/.08 & .05/.02 & .20/.08 \\
+Reading noise $\sigma$ & .05 & .05 & .15 & .05 & .15 \\ \bottomrule
+\end{tabular}\\[2pt]
+{\scriptsize Battery 250 units; grid $32\times32$; $5\times5$ sensor window in all conditions.}
+\end{table}
+
+% =====================================================================================================================
+\section{Method}
+Fig.~\ref{fig:arch} shows the decision flow, which runs once per step.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig1_architecture}
+\caption{Runtime-assurance decision flow. All blocks use onboard information only.}
+\label{fig:arch}
+\end{figure*}
+
+\textbf{Ensemble policy.} $K=5$ Double-DQN members~\cite{mnih2015dqn} with layers $(256,256,128)$. Each member has a
+fixed randomised prior network (scale 10)~\cite{osband2018priors} and Poisson(1) online bootstrap weights on replayed
+transitions~\cite{osband2016bootstrapped}, to reduce ensemble collapse. Members are trained for 1500 ID episodes, and the
+checkpoint with the best greedy success on validation maps is kept. The proposed action is
+$a=\arg\max_{a'} \bar Q(o,a')$, the argmax of the member-mean Q-value, and its uncertainty is
+$u=\operatorname{std}_k Q_k(o,a)$.
+
+\textbf{OOD detector.} A Mahalanobis detector~\cite{lee2018mahalanobis} on the policy-facing observation features, with
+covariance shrinkage of 0.1 towards the diagonal. It is fitted on observations from 200 training-distribution episodes
+on a separate \emph{fit} map split. The gate uses $s$, the mean score over the last 10 steps.
+
+\textbf{Thresholds.} $\tau_u$ and $\tau_s$ are the 95th percentiles of $u$ and $s$ recorded by the plain ensemble on ID
+\emph{validation} maps (90 and 99 for sensitivity). They are frozen per training seed before the confirmatory run, and
+no test data was used to set them.
+
+\textbf{Safety monitor.} Four explicit rules on the observation and explored map:
+\emph{invalid action} (leaves the map),
+\emph{obstacle proximity} (target cell read as an obstacle now, believed blocked by most past readings, or proven by an
+earlier collision),
+\emph{battery feasibility} (the nominal entry energy exceeds the battery, or the battery after the move is below the
+Manhattan distance to the goal) and
+\emph{uncertain movement} (slip estimate $\geq 0.15$ and a sideways neighbour is blocked).
+The first three are \emph{hard} rules, which also screen the fallback's moves.
+
+\textbf{Fallback and safe stop.} A battery-aware A*~\cite{hart1968astar} plans on the explored map. Known cells cost their
+nominal terrain energy. Unknown cells cost 2 plus a risk premium that grows as the battery drains. Believed obstacles
+get a soft penalty, cells proven blocked by a collision are walls, and revisits are mildly penalised. The fallback ranks
+the four moves by entry cost plus cost-to-go and takes the best one that passes the hard rules. If the cheapest
+estimated route energy exceeds the remaining battery, or every move is vetoed, the rover issues a \emph{safe stop}.
+
+\textbf{Decision rule.} The policy action is accepted only if no monitor rule fires, $u\le\tau_u$ and $s\le\tau_s$.
+Otherwise control passes to the fallback for that step. Every decision is logged with the reasons that triggered it.
+
+% =====================================================================================================================
+\section{Experimental Setup}
+\textbf{Methods} (Table~\ref{tab:main}): battery-aware \textbf{A*} on the explored map; \textbf{A*+monitor}, which has the
+same monitor, fallback and safe stop as ours but no learned component; a \textbf{reactive} explorer; \textbf{DQN} and
+\textbf{PPO}~\cite{schulman2017ppo}, each with and without a conventional rule \textbf{shield}; the plain
+\textbf{ensemble}; the \textbf{uncertainty-gated} variant (ensemble + uncertainty gate + fallback); and \ours{} at the
+95th percentile, both with and without safe stop. The ablations remove or isolate the OOD gate, the uncertainty gate and
+the monitor.
+
+\textbf{Protocol.} Maps are split deterministically into train, validation, fit, test, \emph{final} and pilot sets, and
+disjointness is checked by hashing terrain grids. All confirmatory results use the \emph{final} split (seeds
+40000--40499), which was untouched until code, thresholds, protocol and analysis plan were frozen and hashed. A guard
+refuses to run on that split if the code differs from the freeze. Each learned method is trained with 10 independent
+system seeds (each ensemble seed is an independent 5-member ensemble). Every method sees the same 500 maps per
+condition, in the same order.
+
+\textbf{Statistics.} We report means with 95\% $t$-intervals over seeds (Wilson intervals over maps for the seedless
+A*). Comparisons are paired by seed on identical maps, with exact sign-flip permutation $p$-values and Holm
+correction~\cite{holm1979} across the five conditions within each (comparison, metric). Seven primary comparisons on
+three primary metrics (success, collisions, attempted unsafe moves) were fixed in advance.
+
+% =====================================================================================================================
+\section{Results}
+\begin{table*}[t]
+\centering
+\caption{Main results on the final split (500 maps per condition; mean over 10 seeds; $\pm$ = 95\% interval).
+Unsafe = attempted unsafe moves per episode. Source: \texttt{results/phase2/phase2/analysis/final/table\_main.md}.}
+\label{tab:main}
+\footnotesize
+\setlength{\tabcolsep}{3.2pt}
+\begin{tabular}{@{}l ccccc ccccc@{}}
+\toprule
+& \multicolumn{5}{c}{Success rate $\uparrow$} & \multicolumn{5}{c}{Attempted unsafe moves / episode $\downarrow$} \\
+\cmidrule(lr){2-6}\cmidrule(lr){7-11}
+Method & ID & Terrain & Sensor & Dyn. & Comb. & ID & Terrain & Sensor & Dyn. & Comb. \\ \midrule
+A*              & \textbf{.998} & \textbf{.970} & \textbf{1.00} & \textbf{.998} & \textbf{.800} & .270 & .390 & 1.41 & .288 & 1.49 \\
+A*+monitor      & .980 & .952 & .932 & .976 & .718 & .096 & .086 & .690 & .104 & .632 \\
+Reactive        & .798 & .758 & .838 & .804 & .584 & 2.91 & 2.50 & 10.3 & 2.63 & 7.55 \\
+DQN             & .921 & .798 & .911 & .900 & .522 & 5.79 & 7.86 & 5.21 & 5.01 & 6.29 \\
+DQN+shield      & .934 & .822 & .922 & .916 & .513 & .313 & .695 & .692 & .330 & 1.24 \\
+PPO             & .876 & .742 & .882 & .870 & .528 & 16.8 & 18.4 & 15.3 & 13.0 & 13.9 \\
+PPO+shield      & .910 & .782 & .906 & .893 & .502 & 1.05 & 1.62 & 1.31 & .969 & 2.31 \\
+Ensemble        & .966 & .887 & .964 & .955 & .719 & 1.99 & 2.99 & 2.58 & 1.74 & 2.76 \\
+Unc.-gated      & .986 & .928 & .984 & .979 & .730 & 1.18 & 1.11 & 1.75 & .895 & 1.27 \\
+\ours{} (ours)  & .982 & .929 & .927 & .978 & .712 & \textbf{.035} & \textbf{.028} & \textbf{.592} & \textbf{.032} & \textbf{.561} \\
+\ours{}, no stop& .987 & .939 & .982 & .983 & .749 & .063 & .109 & .652 & .059 & .677 \\ \bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig3_success_unsafe}
+\caption{(a) Mission success and (b) attempted unsafe moves per episode (log scale) across conditions. Error bars: 95\%
+intervals over 10 seeds (Wilson over 500 maps for A*). Each cell is 500 identical final-split maps.}
+\label{fig:main}
+\end{figure*}
+
+\textbf{H1, unsafe-action exposure (supported).} \ours{} attempts the fewest unsafe moves of all baselines in every
+condition (Table~\ref{tab:main}, Fig.~\ref{fig:main}b). Relative to the unshielded ensemble that proposes its actions,
+attempted unsafe moves fall from 1.99 to 0.035 per episode ID and from 2.76 to 0.561 under combined shift. The paired
+differences against DQN, DQN+shield, PPO+shield, the ensemble and the uncertainty-gated variant are significant after
+Holm correction in every condition, with one exception: DQN+shield under sensor shift ($-0.10$, 95\% CI
+$[-0.24,+0.04]$). \ours{} also attempts significantly fewer unsafe moves than A*+monitor in all five conditions
+($-0.058$ to $-0.098$ per episode) and has fewer collisions.
+
+\textbf{Mission success (negative against the classical planner).} A* alone reaches the goal significantly more often
+than \ours{} in all five conditions (paired difference from $-1.6$ points ID to $-8.8$ points combined). Its success,
+however, comes with 8--14$\times$ more attempted unsafe moves in ID, terrain and dynamics shift. Against the matched
+A*+monitor baseline, success differs significantly only under terrain shift ($-2.3$ points). Against DQN, DQN+shield and
+PPO+shield, \ours{} succeeds significantly more often in every condition except sensor shift vs.\ the shielded learners
+($+6.1$ to $+18.9$ points vs.\ DQN). In this simulator, then, the learned proposer's measurable benefit over a classical
+planner wrapped in the same monitor is lower unsafe-action exposure and slightly lower energy use (94.7 vs.\ 101.2 units
+ID; Fig.~\ref{fig:energy}). It is not higher success.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{fig4_energy}
+\caption{Energy used per episode and battery-depletion rate. Depletion is near zero for \ours{} because infeasible routes
+trigger a safe stop instead.}
+\label{fig:energy}
+\end{figure}
+
+\textbf{H2, OOD-aware gating (not supported).} Adding the OOD gate to an otherwise complete system (full vs.\ no-OOD)
+does not change success in ID, terrain, dynamics or combined shift. Under \emph{sensor} shift it lowers success by 3.2
+points and raises attempted unsafe moves by 0.28 per episode. It also raises unsafe moves by 0.24 under combined shift
+(all Holm-significant; \texttt{table\_paired.md}). The cause is visible in Fig.~\ref{fig:interv}a. Noisier readings move
+the observation far from the ID feature distribution, so the OOD gate fires on 94--96\% of decisions. The system then
+mostly hands control to the A* fallback, which is less safe under noisy sensing than the monitored learned policy. The
+threshold sensitivity analysis (Fig.~\ref{fig:sens}) shows the same over-firing at the 90th, 95th and 99th percentiles,
+so it is not an artefact of the chosen threshold. The OOD gate does \emph{detect} the sensor shift. Detecting a shift is
+not the same as knowing whether the policy's action is unsafe, and only the second helps safety.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig5_interventions}
+\caption{(a) Interventions per decision, (b) share of fallback episodes that reach the goal, (c) safe-stop rate. Under
+sensor and combined shift the OOD gate keeps the fallback in control on ${\approx}95\%$ of steps.}
+\label{fig:interv}
+\end{figure*}
+
+\textbf{Which components matter (ablations).} Fig.~\ref{fig:abl} and Table~\ref{tab:abl} isolate the components. The
+\emph{rule monitor} produces most of the reduction in unsafe moves. \emph{Monitor only} reaches 0.035 attempted unsafe
+moves per episode ID, the same as the full system, and removing the monitor from the full system increases them
+significantly in four of five conditions (e.g., $+0.59$ ID, $+0.80$ terrain). The exception is combined shift, where the
+OOD gate already routes nearly every decision to the fallback. The \emph{uncertainty gate} adds 1.2--3.1 points
+of success over monitor-only in ID, terrain, dynamics and combined shift (full vs.\ no-uncertainty is significant in ID,
+terrain and dynamics), because it sends low-confidence decisions to a planner that succeeds in 92--96\% of ID fallback
+episodes. The \emph{OOD gate} adds nothing significant in ID, terrain or dynamics and hurts under sensor shift (H2).
+
+\begin{table}[t]
+\centering
+\caption{Ablation (selected; success / unsafe moves per episode). Source: \texttt{table\_ablation.md}.}
+\label{tab:abl}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Variant & ID & Sensor & Combined \\ \midrule
+Ensemble only     & .966 / 1.99 & .964 / 2.58 & .719 / 2.76 \\
+Monitor only      & .970 / .035 & .941 / .317 & .685 / .295 \\
+Unc. only         & .986 / 1.18 & .984 / 1.75 & .730 / 1.27 \\
+OOD only          & .971 / .909 & .931 / .610 & .717 / .566 \\
+Full $-$ OOD      & .983 / .035 & .959 / .316 & .706 / .319 \\
+Full $-$ unc.     & .972 / .035 & .927 / .592 & .712 / .561 \\
+Full $-$ monitor  & .986 / .626 & .931 / .610 & .717 / .566 \\
+Full              & .982 / .035 & .927 / .592 & .712 / .561 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{fig6_ablation}
+\caption{Ablation over all conditions (mean $\pm$ 95\% CI over 10 seeds).}
+\label{fig:abl}
+\end{figure}
+
+\textbf{Safe stop (H4, trade-off).} Safe stop trades a little success for safety. Compared with the no-stop variant it
+costs 0.5--5.5 points of success and removes 0.028--0.116 attempted unsafe moves and 0.03--0.23 collisions per episode
+(all significant). Without safe stop, the infeasible episodes end in battery depletion instead (e.g., 25\% under
+combined shift; Fig.~\ref{fig:energy}b). We therefore report both operating points, \emph{safety-first} (with stop) and
+\emph{mission-first} (without stop), rather than claiming one dominates.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{fig7_sensitivity}
+\caption{Threshold sensitivity (percentile of ID-validation scores used for $\tau_u,\tau_s$).}
+\label{fig:sens}
+\end{figure}
+
+\IfFileExists{h3_section.tex}{\input{h3_section.tex}}{}
+
+% =====================================================================================================================
+\section{Discussion}
+\textbf{What the layer buys.} The safety gain is large and consistent, but it comes almost entirely from \emph{explicit,
+onboard-checkable rules}, not from learned confidence. This agrees with the RTA literature's preference for simple,
+verifiable switching conditions~\cite{sha2001simplex,hobbs2023rta}. It also suggests a practical design rule: in a rover
+stack, invest first in the monitor and the fallback, and treat learned-confidence gates as add-ons whose net value has
+to be measured for each kind of shift.
+
+\textbf{Why OOD gating backfires.} A whole-observation Mahalanobis score responds to \emph{any} change in the input,
+including changes that do not affect the policy's competence. Under sensor shift it fires almost continuously, which
+turns the learned controller off and hands control to a fallback that is itself worse in that condition. Detecting
+shift and deciding whom to trust are different problems. Action-conditioned or calibrated
+monitors~\cite{stutts2024sodampc}, or OOD features restricted to policy-relevant inputs, are the obvious next steps.
+
+\textbf{Why learn at all?} In our simulator a well-designed classical planner reaches the goal more often. The learned
+proposer is still useful inside the RTA layer: it uses less energy and attempts fewer unsafe moves than the same planner
+under the same monitor. It is not a replacement for the planner. Whether this persists in richer terrain is open.
+
+\textbf{Failure cases.} Under combined shift every method's success drops sharply (A* 0.80, \ours{} 0.71). For \ours{},
+29\% of episodes end in a safe stop when the fallback finds no energy-feasible route. Part of the cause is that its
+nominal energy table underestimates the shifted sand and rock costs, so its route estimates are optimistic until the
+battery runs short.
+
+% =====================================================================================================================
+\section{Limitations and Future Work}
+All findings come from a grid simulator with illustrative energy units. They support no claim about real rovers. The
+monitor gives \emph{empirical} risk reduction, not a formal guarantee; collisions still occur, mostly from slips and
+missed obstacles. Ensemble disagreement and OOD scores are uncalibrated. The OOD thresholds were calibrated on the
+validation maps also used for checkpoint selection, which is slightly optimistic in-distribution. Prior scale, monitor
+thresholds and planner costs were set a priori and not tuned, so other settings may change the component ranking. The
+\texttt{test} split was displayed during development and is therefore excluded from all claims. Future work: an
+evaluation on terrain derived from orbital elevation data, action-conditioned OOD monitors, and a mission-level
+risk/energy budget controller.
+
+% =====================================================================================================================
+\section{Conclusion}
+We built and evaluated, under a frozen and pre-registered protocol, an onboard runtime-assurance layer for a learned
+planetary-rover navigator. It cuts attempted unsafe moves by up to two orders of magnitude relative to the unshielded
+learned policy, at a small cost in mission success relative to a classical planner. The explicit monitor is responsible
+for most of this gain. Ensemble uncertainty adds modest value, and Mahalanobis OOD gating is redundant or harmful under
+the shifts we tested. Separating ``a shift has occurred'' from ``this action should not be trusted'' is the main open
+problem this study points to.
+
+\section*{Reproducibility}
+Code, configs, frozen manifests (tags \texttt{v5.1-freeze}, \texttt{v6.1-freeze-A1}), per-episode CSVs and the analysis
+scripts that regenerate every table and figure are provided in the supplementary material.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+\end{document}

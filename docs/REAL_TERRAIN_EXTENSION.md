@@ -14,7 +14,21 @@ unchanged. This makes it an out-of-distribution transfer test, and it keeps the 
 | **HiRISE DTMs** (University of Arizona / NASA PDS; ~1 m/px elevation for sites such as Jezero and Gale crater) | primary: slope and roughness → terrain class grid | PDS `.IMG` (32-bit float raster + label) per site, typically tens to hundreds of MB each |
 | AI4Mars (Swan et al., CVPRW 2021; NASA Open Data, Hugging Face mirror) | secondary: justify the class mapping and the sensor-noise model (soil / bedrock / sand / big rock) | rover-view images + masks; **not** top-down maps, so not used to build grids |
 
-Recommended scope: 3–4 HiRISE DTM sites. Taking 32×32 tiles at a 2–4 m cell size gives several hundred candidate maps.
+### Exact files (checked 2026-11-24 with HTTP HEAD; nothing downloaded yet)
+Base URL: `https://hirise-pds.lpl.arizona.edu/PDS/DTM/`
+
+| Site (rover) | File | Size | Path under base URL |
+|---|---|---|---|
+| Jezero crater (Perseverance) | `DTEEC_023524_1985_023379_1985_U01.IMG` | 700,271,460 B (700 MB) | `ESP/ORB_023500_023599/ESP_023524_1985_ESP_023379_1985/` |
+| Gale crater floor / Mt Sharp (Curiosity) | `DTEEC_009505_1755_009571_1755_U01.IMG` | 830,489,472 B (830 MB) | `PSP/ORB_009500_009599/PSP_009505_1755_PSP_009571_1755/` |
+| Victoria crater, Meridiani (Opportunity) | `DTEEC_001414_1780_001612_1780_U01.IMG` | 8,671,620 B (8.7 MB) | `PSP/ORB_001400_001499/PSP_001414_1780_PSP_001612_1780/` |
+
+Total about 1.54 GB (308 GB free on disk). Files are stored in `data/hirise/` and git-ignored; only the derived tile `.npz` and
+its SHA-256 hash are committed. Format: PDS3 `.IMG` with an embedded text label (32-bit float elevations, metres, with a
+missing-data constant), read with numpy `memmap`, so no GDAL is needed. The server supports HTTP range requests, so if
+bandwidth is a problem a row band of each DTM can be fetched instead of the full file.
+
+Recommended scope: these 3 sites. Taking 32×32 tiles at a 2–4 m cell size gives several hundred candidate maps.
 
 ## Map construction (fixed before looking at any results)
 1. Resample the DTM to cell size *c* (fixed: 2 m). Compute per-cell slope (degrees) and roughness (std. of the

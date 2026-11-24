@@ -1,9 +1,9 @@
 {
-  "created": "2026-11-24 09:05:18 +0530",
+  "created": "2026-11-24 20:41:41 +0530",
   "git": {
-    "commit": "d53c16b1eb43d61f62c7da8493fe3f85ba9f0637",
+    "commit": "4149de12be5d848f7f8c4978f1c692b378e88f3d",
     "dirty": false,
-    "tag": "v5.0-integration-2-gd53c16b"
+    "tag": "v6.0-final-results-2-g4149de1"
   },
   "software": {
     "python": "3.14.6",
@@ -28,7 +28,7 @@
     "src/assurance/layout.py": "f695205e4f44b324b4c25c11084073f6bfb0c199fe0c7497110f7360277a20c6",
     "src/assurance/monitor.py": "2f65338aafa8e22a64a5b5a3e1cc9789f30ac07ff8273b4f6f0b6375fe81c61f",
     "src/assurance/ood.py": "8882755e51b76532c3b70c6ffd91fee902d6a8797677604d33178f89008a71dd",
-    "src/config.py": "a4592b92826d7a0ec196a28b5145a375ee19524fae437adc20a681e6a9daf12b",
+    "src/config.py": "87fe137176586c9e186b91abb4c4cb3091159c44c5f71f7364170dedd0525872",
     "src/environment/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "src/environment/advanced_env.py": "e887652f7798e01d0bc7e88ac24c1135182d9a7c558ee1fc5146d6f8b5d16f4e",
     "src/environment/procgen.py": "91ed9471a7a2ef4c3492c34fc167e82ed5436edaa6de00a950fb5d39b6aebbea",
@@ -36,9 +36,9 @@
     "src/environment/terrain.py": "a138272a994d8afc569b0b12e554ecc081e151fa94897403744ca51dc87ec32f",
     "src/evaluation/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "src/evaluation/analysis.py": "1bb5e34e1fa3f19420708b4b97b86bbac21e54cc465d860269695580a55d4a4c",
-    "src/evaluation/assurance_factory.py": "7ff77e6ca6ddad873fae265ac3a574caa85d83480ec27711fb45658b2bc87fd9",
+    "src/evaluation/assurance_factory.py": "56cb82ba4e73a1ebf690a1009a80b8cd9787644af12f6b379de77eb0a8898369",
     "src/evaluation/evaluator.py": "35cb0362dd758037874d99d1d1bd4019369c1a0be7e1dce11d7a04fa2b39f605",
-    "src/evaluation/experiment.py": "eb11335aaa72823d9bef3913e9aeeeaa5297b9a7b65429592f86bf971d6c532c",
+    "src/evaluation/experiment.py": "71f88f1b311c55ac35dec5124153e748f26186949d597ee8af376541d9f85b01",
     "src/evaluation/harness.py": "9ba64adf13ca652b1c32d30430a1667d077dc36ac0304f30cf7017a592810757",
     "src/evaluation/metrics.py": "ed38cc898c4e3342b433970acf77ad5d1571b366f50e6cbee7a8feabb30a76fe",
     "src/evaluation/replay.py": "63e43f18759ac9d671c1b40de9f0edba29c9aa1a9fdcd4e98fb1de9558e45f5c",
@@ -46,7 +46,7 @@
     "src/evaluation/runner.py": "78f8a17458a6cda7aa575d3c47c00af7b0d3df758f6efb816c4dea98abadf2b3",
     "src/evaluation/stats.py": "9e3317edc77c6027d50099a40873a23fffec1e5fa5b1ecd0d08cce2bb2b3833c",
     "src/policies/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "src/policies/astar_battery.py": "e45b78d9c8f34abe9399bc8129184221842cde932626e79ec81be9cf321038ad",
+    "src/policies/astar_battery.py": "3e04edbe0d91d22ad940ffe07c05aa04c4b6c571c486e445a020c0a2b844258f",
     "src/policies/baseline_policies.py": "e6afc547c0c5b4a93cdcabee190309938798566c0cc14649f2949f84aa3d61f4",
     "src/policies/rule_shield.py": "c09cdf65063623124453edd42d4f240c5621d6d012da39d05f8b79ba4156d817",
     "src/policies/sim32_heuristic.py": "bcff9854557578a27a55398a1fdbf5c26e9d328b2fdeb311f524b7fc3c5f7d2f",
@@ -87,6 +87,7 @@
     "configs/sweep_ppo_e0.01.yaml": "91eaf4e3d87918d94635f439ab967e129f1f0e38d15c8a434367b539dd435ea7",
     "tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "tests/helpers.py": "1223cf0a67b1f7600ecc3a3aa299b78b1c56bc57db1a8af57b3aa26ba4de90da",
+    "tests/test_amendment_h3.py": "00a896f44e5dedc6e1cf90ca72f2053db269e78dcc98fc9222ad076b32ded793",
     "tests/test_analysis.py": "476605865788a762b312d6ec35135249cc2f62caacb7c4b06f09a2688779b55f",
     "tests/test_assurance.py": "11121dbaf993b92683ae97fa09b7a40bacdec64f71ab0dcdbf701eaa10137b4d",
     "tests/test_docs_sync.py": "684516ec7b9b6f5013b6113f9bd3d14ccca2b604d6bedbeb18fb701fae4c2037",

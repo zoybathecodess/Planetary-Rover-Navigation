@@ -36,5 +36,7 @@ Recover the untouched original at any time: `git checkout v0.0-original`.
 * Confirmatory campaign v1.1: `results/phase2/phase2/` (tables in `analysis/final/`), freeze tag `v5.1-freeze`.
 * Amendment A1 (hypothesis H3, energy-blind fallback): pre-registration `protocol/amendment_A1_h3.json`, freeze tag
   `v6.1-freeze-A1`, run `results/phase2/h3/`, analysis `python3 scripts/analyse_h3.py`.
+* Amendment A3 (action-conditioned OOD gate): pre-registration `protocol/amendment_A3_action_ood.json`, calibration
+  `python3 scripts/calibrate_aood.py`, freeze tag `v6.2-freeze-A3`, run `results/phase2/a3/`, analysis `python3 scripts/analyse_a3.py`.
 * Literature check: `docs/RELATED_WORK.md`. Planned real-terrain extension: `docs/REAL_TERRAIN_EXTENSION.md`.
 * Figures: `python3 scripts/make_figures.py` → `paper/figures/`. Manuscript (IEEEtran): `paper/main.tex` + `paper/references.bib`.

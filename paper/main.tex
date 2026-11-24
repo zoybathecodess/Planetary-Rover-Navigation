@@ -36,8 +36,12 @@ unshielded ensemble, the assured system reduces attempted unsafe moves by 77--99
 exposure of all baselines in every condition. It does not reach the success rate of a plain A* planner. It matches an
 A*-plus-monitor baseline in success in four of five conditions while attempting significantly fewer unsafe moves.
 Ablations show that the rule monitor accounts for most of the safety gain. Ensemble disagreement adds a little; the OOD
-gate fires on about 95\% of steps under sensor shift and makes outcomes worse there. These results are simulation
-evidence only, and we report the negative findings alongside the positive ones.
+gate fires on about 95\% of steps under sensor shift and makes outcomes worse there. A pre-registered
+action-conditioned replacement, a class-conditional Mahalanobis score on the policy's own features, removes this harm.
+It lowers interventions under sensor shift from 94\% to 5\% of decisions and restores 3.3 points of success, but it adds
+no measurable value over omitting the OOD gate. A second amendment shows that energy awareness in the fallback is
+decisive under combined shift (+44 points of success). These results are simulation evidence only, and we report the
+negative findings alongside the positive ones.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -71,7 +75,8 @@ ground truth is used only for scoring.
 and 500 identical held-out maps per condition, paired statistics and Holm correction.
 (iii)~A component-level account of where the safety gains come from, including two negative results: the system does
 not beat a classical planner on mission success, and the OOD gate hurts under sensor shift.
-(iv)~A pre-registered amendment that tests whether energy awareness in the fallback matters (H3).
+(iv)~Pre-registered amendments that test whether energy awareness in the fallback matters (H3) and whether an
+action-conditioned OOD gate repairs the OOD failure.
 Code, configurations, frozen manifests and per-episode logs are released for reproduction.
 
 % =====================================================================================================================
@@ -341,6 +346,7 @@ combined shift; Fig.~\ref{fig:energy}b). We therefore report both operating poin
 \end{figure}
 
 \IfFileExists{h3_section.tex}{\input{h3_section.tex}}{}
+\IfFileExists{a3_section.tex}{\input{a3_section.tex}}{}
 
 % =====================================================================================================================
 \section{Discussion}
@@ -353,8 +359,11 @@ to be measured for each kind of shift.
 \textbf{Why OOD gating backfires.} A whole-observation Mahalanobis score responds to \emph{any} change in the input,
 including changes that do not affect the policy's competence. Under sensor shift it fires almost continuously, which
 turns the learned controller off and hands control to a fallback that is itself worse in that condition. Detecting
-shift and deciding whom to trust are different problems. Action-conditioned or calibrated
-monitors~\cite{stutts2024sodampc}, or OOD features restricted to policy-relevant inputs, are the obvious next steps.
+shift and deciding whom to trust are different problems. Amendment A3 supports this diagnosis: scoring novelty in the
+policy's own feature space, conditioned on the proposed action, stops the over-firing and recovers the lost success and
+safety. Once repaired, though, the gate is redundant with the uncertainty gate and the monitor in our simulator. A gate
+that \emph{adds} value would probably need to target failure modes the monitor cannot see, for example calibrated
+failure prediction~\cite{stutts2024sodampc}.
 
 \textbf{Why learn at all?} In our simulator a well-designed classical planner reaches the goal more often. The learned
 proposer is still useful inside the RTA layer: it uses less energy and attempts fewer unsafe moves than the same planner
@@ -372,7 +381,10 @@ monitor gives \emph{empirical} risk reduction, not a formal guarantee; collision
 missed obstacles. Ensemble disagreement and OOD scores are uncalibrated. The OOD thresholds were calibrated on the
 validation maps also used for checkpoint selection, which is slightly optimistic in-distribution. Prior scale, monitor
 thresholds and planner costs were set a priori and not tuned, so other settings may change the component ranking. The
-\texttt{test} split was displayed during development and is therefore excluded from all claims. Future work: an
+\texttt{test} split was displayed during development and is therefore excluded from all claims. Amendments A1 and A3
+were designed \emph{after} the v1.1 final results were known. Each was pre-registered and frozen before its own data was
+generated, and nothing was tuned, but their motivation is post hoc and they evaluate on the same final maps. They
+should be read as confirmatory tests of a diagnosis, not as an independent replication. Future work: an
 evaluation on terrain derived from orbital elevation data, action-conditioned OOD monitors, and a mission-level
 risk/energy budget controller.
 
@@ -381,12 +393,13 @@ risk/energy budget controller.
 We built and evaluated, under a frozen and pre-registered protocol, an onboard runtime-assurance layer for a learned
 planetary-rover navigator. It cuts attempted unsafe moves by up to two orders of magnitude relative to the unshielded
 learned policy, at a small cost in mission success relative to a classical planner. The explicit monitor is responsible
-for most of this gain. Ensemble uncertainty adds modest value, and Mahalanobis OOD gating is redundant or harmful under
-the shifts we tested. Separating ``a shift has occurred'' from ``this action should not be trusted'' is the main open
+for most of this gain. Ensemble uncertainty adds modest value. Raw-observation OOD gating is harmful under sensor shift.
+An action-conditioned gate in the policy's feature space removes that harm but is redundant with the other components,
+and an energy-aware fallback is decisive under combined shift. Separating ``a shift has occurred'' from ``this action should not be trusted'' is the main open
 problem this study points to.
 
 \section*{Reproducibility}
-Code, configs, frozen manifests (tags \texttt{v5.1-freeze}, \texttt{v6.1-freeze-A1}), per-episode CSVs and the analysis
+Code, configs, frozen manifests (tags \texttt{v5.1-freeze}, \texttt{v6.1-freeze-A1}, \texttt{v6.2-freeze-A3}), per-episode CSVs and the analysis
 scripts that regenerate every table and figure are provided in the supplementary material.
 
 \bibliographystyle{IEEEtran}

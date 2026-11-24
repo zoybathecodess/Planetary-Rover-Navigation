@@ -3,7 +3,7 @@ on a PILOT map (debug split, never a result).
 
   python3 scripts/make_figures.py                     # all figures -> paper/figures/*.pdf (+ .png previews)
 Figures: fig1_architecture, fig2_episode, fig3_success_unsafe, fig4_energy, fig5_interventions, fig6_ablation,
-fig7_sensitivity, fig8_h3 (only if the amendment-A1 run exists).
+fig7_sensitivity, fig8_h3, fig9_a3 (the last two only if the amendment runs exist).
 """
 from _common import ROOT  # noqa: F401
 
@@ -246,10 +246,36 @@ def fig8():
         a.axhline(0, lw=0.5, color="#555"); a.set_xticks(range(len(CONDS)), [CLAB[c] for c in CONDS], rotation=30)
         a.set_title(lab + "\n(battery-aware − energy-blind)", fontsize=7); a.grid(axis="y", lw=0.3, alpha=0.5)
     h, l = ax[0].get_legend_handles_labels()
-    fig.legend(h, l, ncol=2, loc="upper center", bbox_to_anchor=(0.5, 1.12), frameon=False)
+    fig.legend(h, l, ncol=2, loc="upper center", bbox_to_anchor=(0.5, 1.22), frameon=False)
     save(fig, "fig8_h3")
+
+
+def fig9():
+    p = ROOT / "results/phase2/a3/analysis/final/a3_paired.csv"
+    if not p.exists():
+        print("  (no amendment-A3 analysis yet: skipping fig9_a3)")
+        return
+    rows = list(csv.DictReader(open(p)))
+    want = [("success", "Δ success"), ("unsafe", "Δ unsafe moves / episode"), ("intervention_rate", "Δ intervention rate")]
+    comps = [("action-OOD vs raw-OOD (full system)", "action-OOD − raw-OOD", "#0072B2"),
+             ("action-OOD vs no OOD (full system)", "action-OOD − no OOD", "#E69F00")]
+    fig, ax = plt.subplots(1, 3, figsize=(TEXTW, 1.9))
+    for a, (metric, lab) in zip(ax, want):
+        for k, (comp, clab, col) in enumerate(comps):
+            rr = [next(r for r in rows if r["comparison"] == comp and r["metric"] == metric and r["condition"] == c) for c in CONDS]
+            x = np.arange(len(CONDS)) + (k - 0.5) * 0.25
+            m = np.array([float(r["diff"]) for r in rr]); lo = np.array([float(r["lo"]) for r in rr]); hi = np.array([float(r["hi"]) for r in rr])
+            a.errorbar(x, m, yerr=[m - lo, hi - m], fmt="o", ms=2.8, lw=0.8, capsize=1.5, color=col, label=clab)
+            for xi, r in zip(x, rr):
+                if float(r["p_holm"]) < 0.05:
+                    a.text(xi, max(float(r["hi"]), float(r["diff"])), "*", ha="center", va="bottom", fontsize=7)
+        a.axhline(0, lw=0.5, color="#555"); a.set_xticks(range(len(CONDS)), [CLAB[c] for c in CONDS], rotation=30)
+        a.set_title(lab); a.grid(axis="y", lw=0.3, alpha=0.5)
+    h, l = ax[0].get_legend_handles_labels()
+    fig.legend(h, l, ncol=2, loc="upper center", bbox_to_anchor=(0.5, 1.12), frameon=False)
+    save(fig, "fig9_a3")
 
 
 if __name__ == "__main__":
     d = load_by_seed(MAIN)
-    fig1(); fig2(); fig3(d); fig4(d); fig5(d); fig6(d); fig7(d); fig8()
+    fig1(); fig2(); fig3(d); fig4(d); fig5(d); fig6(d); fig7(d); fig8(); fig9()

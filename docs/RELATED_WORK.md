@@ -23,8 +23,9 @@ pre-registered statistics. The component ideas are all established.
 
 **Claimable contribution (precise):** an *information-constrained, pre-registered empirical study* of runtime
 assurance for a learned rover navigator. It includes the component-level finding of *which* assurance signals actually
-help under which shift (the rule monitor does; ensemble disagreement helps a little; Mahalanobis OOD over-fires under
-sensor shift), and the role of energy-aware fallback (H3, amendment A1).
+help under which shift (the rule monitor does; ensemble disagreement helps a little; raw Mahalanobis OOD over-fires under
+sensor shift), a pre-registered repair of that failure (amendment A3: an action-conditioned feature-space gate removes the
+harm but adds no value over no OOD gate), and the role of energy-aware fallback (H3, amendment A1: decisive under combined shift).
 
 **Not claimable:** first-of-its-kind architecture; formal safety; calibrated failure probabilities; real-rover performance.
 

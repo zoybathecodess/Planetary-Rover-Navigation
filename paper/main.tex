@@ -40,7 +40,8 @@ gate fires on about 95\% of steps under sensor shift and makes outcomes worse th
 action-conditioned replacement, a class-conditional Mahalanobis score on the policy's own features, removes this harm.
 It lowers interventions under sensor shift from 94\% to 5\% of decisions and restores 3.3 points of success, but it adds
 no measurable value over omitting the OOD gate. A second amendment shows that energy awareness in the fallback is
-decisive under combined shift (+44 points of success). These results are simulation evidence only, and we report the
+decisive under combined shift (+44 points of success). On 450 maps derived from HiRISE terrain models of three rover
+sites, the assured system matches A* in success with 81\% fewer unsafe moves. These results are simulation evidence only, and we report the
 negative findings alongside the positive ones.
 \end{abstract}
 
@@ -75,8 +76,9 @@ ground truth is used only for scoring.
 and 500 identical held-out maps per condition, paired statistics and Holm correction.
 (iii)~A component-level account of where the safety gains come from, including two negative results: the system does
 not beat a classical planner on mission success, and the OOD gate hurts under sensor shift.
-(iv)~Pre-registered amendments that test whether energy awareness in the fallback matters (H3) and whether an
-action-conditioned OOD gate repairs the OOD failure.
+(iv)~Pre-registered amendments that test whether energy awareness in the fallback matters (H3), whether an
+action-conditioned OOD gate repairs the OOD failure, and whether the conclusions transfer to terrain derived from
+real Mars elevation data (HiRISE DTMs at three rover sites).
 Code, configurations, frozen manifests and per-episode logs are released for reproduction.
 
 % =====================================================================================================================
@@ -347,6 +349,7 @@ combined shift; Fig.~\ref{fig:energy}b). We therefore report both operating poin
 
 \IfFileExists{h3_section.tex}{\input{h3_section.tex}}{}
 \IfFileExists{a3_section.tex}{\input{a3_section.tex}}{}
+\IfFileExists{a2_section.tex}{\input{a2_section.tex}}{}
 
 % =====================================================================================================================
 \section{Discussion}
@@ -377,16 +380,18 @@ battery runs short.
 % =====================================================================================================================
 \section{Limitations and Future Work}
 All findings come from a grid simulator with illustrative energy units. They support no claim about real rovers. The
+real-terrain tiles take only terrain \emph{structure} from HiRISE elevation data. The class rule is a modelling
+choice, the tiles are flatter and less hazardous than the procedural maps, and sensing and dynamics remain simulated. The
 monitor gives \emph{empirical} risk reduction, not a formal guarantee; collisions still occur, mostly from slips and
 missed obstacles. Ensemble disagreement and OOD scores are uncalibrated. The OOD thresholds were calibrated on the
 validation maps also used for checkpoint selection, which is slightly optimistic in-distribution. Prior scale, monitor
 thresholds and planner costs were set a priori and not tuned, so other settings may change the component ranking. The
-\texttt{test} split was displayed during development and is therefore excluded from all claims. Amendments A1 and A3
+\texttt{test} split was displayed during development and is therefore excluded from all claims. Amendments A1--A3
 were designed \emph{after} the v1.1 final results were known. Each was pre-registered and frozen before its own data was
 generated, and nothing was tuned, but their motivation is post hoc and they evaluate on the same final maps. They
-should be read as confirmatory tests of a diagnosis, not as an independent replication. Future work: an
-evaluation on terrain derived from orbital elevation data, action-conditioned OOD monitors, and a mission-level
-risk/energy budget controller.
+should be read as confirmatory tests of a diagnosis, not as an independent replication. Future work: real-terrain
+tiles combined with shifted physics, training on real terrain, monitors that predict failure rather than shift, and a
+mission-level risk/energy budget controller.
 
 % =====================================================================================================================
 \section{Conclusion}
@@ -399,7 +404,7 @@ and an energy-aware fallback is decisive under combined shift. Separating ``a sh
 problem this study points to.
 
 \section*{Reproducibility}
-Code, configs, frozen manifests (tags \texttt{v5.1-freeze}, \texttt{v6.1-freeze-A1}, \texttt{v6.2-freeze-A3}), per-episode CSVs and the analysis
+Code, configs, frozen manifests (tags \texttt{v5.1-freeze}, \texttt{v6.1-freeze-A1}, \texttt{v6.2-freeze-A3}, \texttt{v6.3-freeze-A2}), per-episode CSVs and the analysis
 scripts that regenerate every table and figure are provided in the supplementary material.
 
 \bibliographystyle{IEEEtran}

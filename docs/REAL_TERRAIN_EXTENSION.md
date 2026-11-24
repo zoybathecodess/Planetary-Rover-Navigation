@@ -1,7 +1,7 @@
 # Real-terrain extension (proposed amendment A2): scope and plan
 
-Status: **scoped, not started**. It needs public Mars data to be downloaded, which hasn't been approved yet. Nothing here
-changes the v1.1 or A1 results.
+Status: **done** (amendment A2, `protocol/amendment_A2_real_terrain.json`; results in `results/phase2/a2/analysis/real_final/table_a2.md`).
+Nothing here changes the v1.1, A1 or A3 results.
 
 ## Goal
 Answer the reviewer question "procedural maps only?" with an **evaluation-only** condition built from real Mars orbital

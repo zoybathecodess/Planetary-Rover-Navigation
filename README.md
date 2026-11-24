@@ -38,5 +38,8 @@ Recover the untouched original at any time: `git checkout v0.0-original`.
   `v6.1-freeze-A1`, run `results/phase2/h3/`, analysis `python3 scripts/analyse_h3.py`.
 * Amendment A3 (action-conditioned OOD gate): pre-registration `protocol/amendment_A3_action_ood.json`, calibration
   `python3 scripts/calibrate_aood.py`, freeze tag `v6.2-freeze-A3`, run `results/phase2/a3/`, analysis `python3 scripts/analyse_a3.py`.
+* Amendment A2 (real terrain): pre-registration `protocol/amendment_A2_real_terrain.json`; raw HiRISE DTMs in `data/hirise/`
+  (git-ignored; hashes in `data/hirise_sha256.txt`), tiles `python3 scripts/build_real_maps.py` -> `data/real_tiles/`,
+  freeze tag `v6.3-freeze-A2`, run `results/phase2/a2/`, analysis `python3 scripts/analyse_a2.py`.
 * Literature check: `docs/RELATED_WORK.md`. Planned real-terrain extension: `docs/REAL_TERRAIN_EXTENSION.md`.
 * Figures: `python3 scripts/make_figures.py` → `paper/figures/`. Manuscript (IEEEtran): `paper/main.tex` + `paper/references.bib`.

@@ -1,9 +1,9 @@
 {
-  "created": "2026-11-24 22:09:20 +0530",
+  "created": "2026-11-24 22:09:32 +0530",
   "git": {
-    "commit": "0baa77a0b079e34fda489a1d66ec7160584a8802",
+    "commit": "cf90b22247c54459f45d55a2b542a9e466754287",
     "dirty": false,
-    "tag": "v6.2-freeze-A3-5-g0baa77a"
+    "tag": "v6.2-freeze-A3-7-gcf90b22"
   },
   "software": {
     "python": "3.14.6",
@@ -44,7 +44,7 @@
     "src/evaluation/harness.py": "9ba64adf13ca652b1c32d30430a1667d077dc36ac0304f30cf7017a592810757",
     "src/evaluation/metrics.py": "ed38cc898c4e3342b433970acf77ad5d1571b366f50e6cbee7a8feabb30a76fe",
     "src/evaluation/replay.py": "63e43f18759ac9d671c1b40de9f0edba29c9aa1a9fdcd4e98fb1de9558e45f5c",
-    "src/evaluation/reproducibility.py": "2beb602a5bc3c4be935238def27979514d57245b1f6cf7ad11ca9b3d72a8fb87",
+    "src/evaluation/reproducibility.py": "4506ff37baea1373c6a8b9b5b2e953f0b589a373d2ca70c0f78466880f428315",
     "src/evaluation/runner.py": "78f8a17458a6cda7aa575d3c47c00af7b0d3df758f6efb816c4dea98abadf2b3",
     "src/evaluation/stats.py": "9e3317edc77c6027d50099a40873a23fffec1e5fa5b1ecd0d08cce2bb2b3833c",
     "src/policies/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -117,7 +117,9 @@
     "protocol/analysis_plan.json": "a599000a731c138e71d39adb5ca24ea6db4bf456ab64bf8b9b2b1d5e51b2f954",
     "protocol/amendment_A1_h3.json": "902f16e5a8c51d2ac69ea4eb808e64f7a4e37f3f67d153043e029ae717a93bf4",
     "protocol/amendment_A2_real_terrain.json": "8b4f98735d1a62af0b632036c49cfddc011e4f757e36666e815cbc80074be812",
-    "protocol/amendment_A3_action_ood.json": "20a4d9f80098aa70d3be8f5be532abbdfb1482b2f4ccd5efe472cd30ff0be615"
+    "protocol/amendment_A3_action_ood.json": "20a4d9f80098aa70d3be8f5be532abbdfb1482b2f4ccd5efe472cd30ff0be615",
+    "data/real_tiles/hirise_tiles.json": "4cc4081cee6c4e58d02e1ec5d2a15aaed40eadeca70f958afbb1fb7011db68d9",
+    "data/real_tiles/hirise_tiles.npz": "3a44de6ef624ca1d1804e3ce931bd6052967e4dba21dd08a58bc60a32d2b519c"
   },
   "artefacts": {
     "results/task3/train/dqn_s0/checkpoints/best_val.pt": "3572bcc37cf0a632891b01517fc5695a03774562707d60ba3550051ea6ec4fae",

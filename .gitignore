@@ -5,3 +5,4 @@ __pycache__/
 results/**/checkpoints/
 results/**/*.pt
 data/hirise/
+paper/*.zip

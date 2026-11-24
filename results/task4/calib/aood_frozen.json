@@ -1,0 +1,52 @@
+{
+  "0": {
+    "sha256": "3c292fb7d5aa00a5aba28469d08cafa1b1905e3c0f3c4037da224a44f2be5b46",
+    "fit_maps": 200,
+    "cal_maps": 100
+  },
+  "1": {
+    "sha256": "f9436ae34f31b6d3b6b1453ff97d3a07c62900866d02d3d81299bbc91425ae89",
+    "fit_maps": 200,
+    "cal_maps": 100
+  },
+  "2": {
+    "sha256": "5da84ee03052bfaec6217355a57448669b5a61a5f619f90aef31b12283f5a2b6",
+    "fit_maps": 200,
+    "cal_maps": 100
+  },
+  "3": {
+    "sha256": "7cfd63e2e05607a940918bfa9ee476cfc82d3577850cae7d2d4feb0b7c0261a5",
+    "fit_maps": 200,
+    "cal_maps": 100
+  },
+  "4": {
+    "sha256": "3eaf5ac96c7c81f1b9345d4f4507a4eeb883ad874ef822329dda924777b07867",
+    "fit_maps": 200,
+    "cal_maps": 100
+  },
+  "5": {
+    "sha256": "17197dd52391ae52a3f3b900cd6fb54c8a90d1959a8e4519d4035783c1ce050f",
+    "fit_maps": 200,
+    "cal_maps": 100
+  },
+  "6": {
+    "sha256": "87446f24c86836ae9899e92eafd02166a5321e051310760123d7be488059d489",
+    "fit_maps": 200,
+    "cal_maps": 100
+  },
+  "7": {
+    "sha256": "6a8e481252667bdf999cc755e02526edf4a246798d523463288c8af012ca6eaa",
+    "fit_maps": 200,
+    "cal_maps": 100
+  },
+  "8": {
+    "sha256": "90709323474d0018d24de9a3ce6bd5995625895453e5970a589a7736e5cc6ca6",
+    "fit_maps": 200,
+    "cal_maps": 100
+  },
+  "9": {
+    "sha256": "b216deb2a112dbf6811727be2018b7eb6a294d518327d6cbd06e933556516c9b",
+    "fit_maps": 200,
+    "cal_maps": 100
+  }
+}

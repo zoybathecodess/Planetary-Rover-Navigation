@@ -47,6 +47,7 @@ def _one(task):
     pol.ens.q_matrix = lambda o: (X.append(np.array(o, float)), inner(o))[1]
     for s in range(FIT_OFFSET, FIT_OFFSET + n_fit):
         run_episode_ext(env, ev, pol, s)
+    pol.ens.q_matrix = inner                      # remove the spy (the ensemble object is shared with pol2)
     A = np.array([d["policy_action"] for d in pol.log])
     X = np.stack(X)
     assert len(X) == len(A)

@@ -35,3 +35,19 @@ class EnsemblePolicy:
 
     def act(self, obs) -> int:
         return int(np.argmax(self.q_matrix(obs).mean(0)))
+
+
+class AStarProposer:
+    """Adapter: lets the controller treat the battery-aware A* planner as the 'proposing policy' (one-hot Q, zero disagreement).
+    Used for the A*+monitor baseline: same monitor, same fallback, same safe-stop semantics, but no learned component."""
+    name = "astar_proposer"
+
+    def __init__(self, planner):
+        self.planner = planner
+
+    def q_matrix(self, obs) -> np.ndarray:
+        q = np.zeros((3, 4))
+        q[:, int(self.planner.act(obs))] = 1.0
+        return q
+
+    summarise = staticmethod(EnsemblePolicy.summarise)

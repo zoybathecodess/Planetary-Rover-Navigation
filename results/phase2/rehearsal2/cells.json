@@ -1,0 +1,52 @@
+[
+  {
+    "tag": "astar_monitor",
+    "preset": "id",
+    "status": "ok",
+    "sr": 0.98,
+    "stops": 2,
+    "wall": 13.325822209000762,
+    "spe": 0.13325822209000762,
+    "problems": []
+  },
+  {
+    "tag": "astar_monitor",
+    "preset": "terrain_shift",
+    "status": "ok",
+    "sr": 0.96,
+    "stops": 4,
+    "wall": 12.599783334000676,
+    "spe": 0.12599783334000678,
+    "problems": []
+  },
+  {
+    "tag": "astar_monitor",
+    "preset": "sensor_shift",
+    "status": "ok",
+    "sr": 0.94,
+    "stops": 6,
+    "wall": 15.162996291997842,
+    "spe": 0.15162996291997843,
+    "problems": []
+  },
+  {
+    "tag": "astar_monitor",
+    "preset": "dynamics_shift",
+    "status": "ok",
+    "sr": 0.97,
+    "stops": 3,
+    "wall": 15.426392083001701,
+    "spe": 0.15426392083001703,
+    "problems": []
+  },
+  {
+    "tag": "astar_monitor",
+    "preset": "combined_shift",
+    "status": "ok",
+    "sr": 0.69,
+    "stops": 31,
+    "wall": 17.49771837500157,
+    "spe": 0.1749771837500157,
+    "problems": []
+  }
+]

@@ -28,11 +28,18 @@ Training never evaluates on test maps (`run.final_test_eval: false`). Checkpoint
     git add protocol/freeze.json && git commit -m "Freeze manifest" && git tag v5.0-freeze
     python3 scripts/freeze.py verify         # must print CLEAN before any final evaluation
 
-## 4. Pilot (debugging and runtime only)
+## 4. Pilot and dress rehearsal
     caffeinate -i python3 scripts/run_experiment.py pilot --jobs 4
+    caffeinate -i python3 scripts/run_experiment.py run --name rehearsal --split val --seeds 0-9 --n-maps 100 --jobs 4
+    python3 scripts/run_experiment.py validate --run results/phase2/rehearsal --split val
+    python3 scripts/analyse.py --run results/phase2/rehearsal --split val      # same tables as the final analysis; not a result
 
 ## 5. Confirmatory evaluation (Phase 2; refuses to run unless `freeze.py verify` is clean)
     caffeinate -i python3 scripts/run_experiment.py run --name phase2 --split final --seeds 0-9 --n-maps 200 --jobs 4
     python3 scripts/run_experiment.py validate --run results/phase2/phase2 --split final
+
+## 6. Analysis
+    python3 scripts/analyse.py --run results/phase2/phase2 --split final
+Tables land in `results/phase2/phase2/analysis/final/` (main, ablation, sensitivity, failure modes, paired comparisons with Holm-adjusted p). The analysis is fixed by `protocol/analysis_plan.json`.
 
 Every use of `test` or `final` maps is appended to `results/test_access.jsonl` (time, split, git commit, command line).

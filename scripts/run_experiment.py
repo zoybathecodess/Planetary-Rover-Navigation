@@ -1,7 +1,7 @@
 """Unified experiment runner (Task 5): every method x preset x system seed through ONE code path, with a manifest per run.
 
   python3 scripts/run_experiment.py pilot                              # small debugging run (never a paper result)
-  python3 scripts/run_experiment.py run --name phase2 --split final --methods astar,dqn,dqn_shield,ens,assured --seeds 0-9 --n-maps 200
+  python3 scripts/run_experiment.py run --name phase2 --split final --seeds 0-9 --n-maps 500
   python3 scripts/run_experiment.py validate --run results/phase2/phase2 --split final
 Method specs: see src/evaluation/experiment.py (e.g. assured-no_ood@95). Held-out splits are logged in results/test_access.jsonl;
 the confirmatory 'final' split refuses to run unless `python3 scripts/freeze.py verify` is clean.
@@ -16,7 +16,10 @@ import time
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
-DEFAULT_METHODS = "astar,reactive,dqn,dqn_shield,ppo,ppo_shield,ens,assured,assured-monitor_only,assured-unc_only,assured-ood_only"
+PILOT_METHODS = "astar,reactive,dqn,dqn_shield,ppo,ppo_shield,ens,assured,assured-monitor_only,assured-unc_only,assured-ood_only"
+# full campaign = every method named in protocol/analysis_plan.json
+DEFAULT_METHODS = ("astar,astar_monitor,reactive,dqn,dqn_shield,ppo,ppo_shield,ens,assured,assured@90,assured@99,assured-monitor_only,assured-unc_only,"
+                   "assured-ood_only,assured-no_ood,assured-no_unc,assured-no_monitor,assured-no_stop")
 
 
 def parse_seeds(s):
@@ -81,7 +84,7 @@ def _pairing(out, split):
     return bad
 
 
-def _runtime_estimate(results, a, campaign_maps=200, campaign_seeds=10):
+def _runtime_estimate(results, a, campaign_maps=500, campaign_seeds=10):
     from src.evaluation.experiment import SEEDLESS
     spe = {}
     for r in results:
@@ -120,10 +123,10 @@ def main():
         p.add_argument("--name", default="pilot" if name == "pilot" else "run")
         p.add_argument("--out", default="results/phase2" if name == "run" else "results/pilot")
         p.add_argument("--split", default="pilot" if name == "pilot" else "final")
-        p.add_argument("--methods", default=DEFAULT_METHODS)
+        p.add_argument("--methods", default=PILOT_METHODS if name == "pilot" else DEFAULT_METHODS)
         p.add_argument("--presets", default="id,terrain_shift,sensor_shift,dynamics_shift,combined_shift")
         p.add_argument("--seeds", default="0-1" if name == "pilot" else "0-9")
-        p.add_argument("--n-maps", type=int, default=10 if name == "pilot" else 200)
+        p.add_argument("--n-maps", type=int, default=10 if name == "pilot" else 500)
         p.add_argument("--ckpt", default="best_val")
         p.add_argument("--jobs", type=int, default=2)
         p.add_argument("--log-maps", type=int, default=5)

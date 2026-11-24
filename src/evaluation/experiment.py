@@ -25,7 +25,7 @@ from src.evaluation.reproducibility import SPLIT_OFFSET
 VARIANTS = {"full": {}, "no_ood": {"use_ood": False}, "no_unc": {"use_uncertainty": False}, "no_monitor": {"use_monitor": False},
             "no_stop": {"allow_stop": False}, "monitor_only": {"use_ood": False, "use_uncertainty": False},
             "unc_only": {"use_ood": False, "use_monitor": False}, "ood_only": {"use_uncertainty": False, "use_monitor": False}}
-SEEDLESS = ("astar", "reactive", "random")
+SEEDLESS = ("astar", "reactive", "random", "astar_monitor")
 PRESETS = ("id", "terrain_shift", "sensor_shift", "dynamics_shift", "combined_shift")
 VALID_REASONS = ("goal", "battery_depleted", "timeout", "safe_stop")
 TRAIN_CONFIG = {"dqn": "configs/sim32_id.yaml", "ppo": "configs/sim32_id_ppo.yaml", "ens": "configs/sim32_id_ensemble.yaml"}
@@ -78,6 +78,18 @@ def build_method(spec: str, seed: int, root: Path, ckpt: str = "best_val", keep_
     from src.evaluation.harness import build_policy
     m, root = parse_method(spec), Path(root)
     k = m["kind"]
+    if k == "astar_monitor":
+        from src.assurance.controller import RuntimeAssuranceController
+        from src.assurance.ensemble import AStarProposer
+        from src.assurance.ood import MahalanobisOOD
+        from src.policies.astar_battery import BatteryAwareAStar
+        cfg = load_config(root / TRAIN_CONFIG["ens"])
+        planner = BatteryAwareAStar(nominal_energy=cfg.env.ref_energy_cost, seed=0)
+        dummy = MahalanobisOOD().fit(np.random.default_rng(0).normal(size=(500, 59)))
+        pol = RuntimeAssuranceController(AStarProposer(planner), dummy, planner, replace(cfg.assurance, use_ood=False, use_uncertainty=False),
+                                         np.inf, np.inf, cfg.env.ref_energy_cost)
+        pol.name = "astar_monitor"
+        return pol
     if k in SEEDLESS or k in ("dqn", "dqn_shield", "ppo", "ppo_shield"):
         base = "dqn" if k.startswith("dqn") else "ppo" if k.startswith("ppo") else None
         cfg = load_config(root / TRAIN_CONFIG[base or "dqn"])

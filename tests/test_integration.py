@@ -105,6 +105,35 @@ class TestDeterminism(unittest.TestCase):
         self.assertEqual([(r["map"], r["optimal_cost"]) for r in a], [(r["map"], r["optimal_cost"]) for r in b])
 
 
+class TestAStarMonitorBaseline(unittest.TestCase):
+    def build(self):
+        from src.evaluation.experiment import build_method
+        return build_method("astar_monitor", 0, ROOT)
+
+    def test_spec_and_runs_on_every_preset_with_consistent_records(self):
+        self.assertEqual(method_tag("astar_monitor", 7), "astar_monitor")
+        for preset in PRESETS:
+            rows, _ = evaluate_method(self.build(), ROOT / f"configs/sim32_{preset}.yaml", range(10000, 10003), "astar_monitor", preset)
+            self.assertEqual(validate_rows(rows), [], preset)
+
+    def test_identical_to_plain_astar_when_the_monitor_is_quiet(self):
+        pol = self.build(); plain = BatteryAwareAStar()
+        m = known_map(flat())
+        pol.attach(lambda: m, 250); plain.attach(lambda: m, 250)
+        o = fake_obs((5, 5), (25, 25), 1.0, window=np.full((5, 5), 0.2)); o[L.IDX_STEPS] = 0.1
+        self.assertEqual(pol.act(o), plain.act(o)); self.assertEqual(pol.last_decision["source"], "policy")
+
+    def test_monitor_vetoes_an_astar_move_into_a_believed_obstacle(self):
+        pol = self.build()
+        g = flat(); m = known_map(g)
+        w = np.full((5, 5), 0.2); w[3, 2] = 1.0                 # obstacle directly below the rover
+        pol.attach(lambda: m, 250)
+        o = fake_obs((5, 5), (25, 5), 1.0, window=w); o[L.IDX_STEPS] = 0.1   # goal straight down: A* wants to go down
+        pol.ens.planner.act = lambda obs: 1                      # force the proposal into the obstacle
+        a = pol.act(o)
+        self.assertNotEqual(a, 1); self.assertIn("obstacle_proximity", pol.last_decision["reasons"])
+
+
 class TestFuzz(unittest.TestCase):
     def test_controller_never_raises_and_always_returns_a_valid_decision(self):
         rng = np.random.default_rng(0)

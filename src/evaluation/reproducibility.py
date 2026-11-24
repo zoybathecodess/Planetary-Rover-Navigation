@@ -22,7 +22,7 @@ from pathlib import Path
 SPLIT_OFFSET = {"val": 10_000, "test": 20_000, "fit": 30_000, "final": 40_000, "pilot": 60_000}
 HELD_OUT = ("test", "final")
 FREEZE_PATH = "protocol/freeze.json"
-CODE_GLOBS = ("src/**/*.py", "scripts/*.py", "configs/*.yaml", "tests/*.py", "protocol/phase2_protocol.json")
+CODE_GLOBS = ("src/**/*.py", "scripts/*.py", "configs/*.yaml", "tests/*.py", "protocol/phase2_protocol.json", "protocol/analysis_plan.json")
 
 
 def sha256_file(path) -> str:

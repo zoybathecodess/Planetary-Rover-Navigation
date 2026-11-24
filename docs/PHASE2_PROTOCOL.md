@@ -1,7 +1,7 @@
-# Phase 2 experiment protocol (frozen defaults)
+# Phase 2 experiment protocol (FINAL, Task 6)
 
 The machine-readable version is `protocol/phase2_protocol.json`; its hash is part of `protocol/freeze.json`.
-Items under "Open for Task 6" may still be decided before the confirmatory run; nothing else changes after the freeze.
+Task 6 decisions are final; the whole protocol is frozen with the code by `scripts/freeze.py`.
 
 ## Design
 * **Simulator:** 32×32 partially observable rover world, battery 250, 59-d observation; five conditions: `id`, `terrain_shift`,
@@ -20,7 +20,7 @@ Items under "Open for Task 6" may still be decided before the confirmatory run; 
 | pilot | 60000+ | debugging and runtime only; never a result |
 
   Disjointness is tested by hashing the generated terrain grids (train stream vs every split).
-* **Methods:** A*, reactive, DQN, DQN+rule shield, PPO, PPO+rule shield, plain ensemble, and the runtime-assurance system
+* **Methods:** A*, A*+monitor (same rule monitor, fallback and safe-stop, no learned policy), reactive, DQN, DQN+rule shield, PPO, PPO+rule shield, plain ensemble, and the runtime-assurance system
   `assured@95` (primary) with its sensitivity (`@90`, `@99`) and ablation variants (`monitor_only`, `unc_only`, `ood_only`,
   `no_ood`, `no_unc`, `no_monitor`, `no_stop`). Two operating points are reported for the proposed system:
   safe stop enabled (safety-first) and `no_stop` (mission-first).
@@ -42,6 +42,15 @@ Items under "Open for Task 6" may still be decided before the confirmatory run; 
 6. The A* fallback uses a nominal energy table and is not collision-free under noisy sensing; its collisions are reported.
 7. All findings are simulation results; nothing here supports claims about real planetary rovers.
 
-## Open for Task 6
-* Number of maps per preset (default 200), choice of paired test and multiplicity correction.
-* Whether `test` is dropped or reported as exploratory.
+## Task 6 decisions
+* **Seeds:** 10 independent training seeds per learned method (ensembles: 10 independent 5-member ensembles).
+* **Maps:** 500 per condition, seeds 40000–40499 of the `final` split, identical for every method (pairing is checked automatically).
+* **Conditions / shift levels:** five conditions, parameters in `docs/SHIFT_LEVELS.md` (generated from the preset configs).
+* **Thresholds:** frozen in `protocol/freeze.json` (percentile 95 primary; 90 and 99 sensitivity), calibrated on ID validation maps only.
+* **Primary metrics:** success, collisions per episode, attempted unsafe commands per episode. All others are secondary and labelled as such.
+* **Comparisons and statistics:** fixed in `protocol/analysis_plan.json`: six primary comparisons of `assured@95` (against A*, DQN, DQN+shield,
+  PPO+shield, the plain ensemble, and the uncertainty-gated variant) and six secondary ablation comparisons, each over all five conditions.
+  Unit of replication = system seed; differences are paired by seed index on identical maps; 95 % t interval, exact sign-flip permutation p,
+  Holm step-down adjustment across the five conditions within each (comparison, primary metric) (v1.1: see `protocol/analysis_plan.json` history). Seedless A* is paired with every seed and its interval is over maps (Wilson for success).
+* **Exploratory data:** the `test` split (20000+) is excluded from confirmatory claims.
+* **Dress rehearsal:** before the final run, the whole pipeline (run → validate → analyse) is run once on `val`; that output is never reported as a result.

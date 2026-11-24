@@ -1,9 +1,9 @@
 {
-  "created": "2026-11-24 22:09:32 +0530",
+  "created": "2026-11-24 22:44:45 +0530",
   "git": {
-    "commit": "cf90b22247c54459f45d55a2b542a9e466754287",
+    "commit": "7a9d41b66806d5bd6044bc0086eb89f0187c1bde",
     "dirty": false,
-    "tag": "v6.2-freeze-A3-7-gcf90b22"
+    "tag": "v6.3-freeze-A2-3-g7a9d41b"
   },
   "software": {
     "python": "3.14.6",
@@ -62,6 +62,7 @@
     "scripts/analyse.py": "2b034c4e622df4cbf253a50b77e389f7f8cc6cceeb663885614b20c76f70a2fe",
     "scripts/analyse_a2.py": "453eda612790c88f93322ae79e8ee19ae032fff2b4e85b52b6b106655d0c7b02",
     "scripts/analyse_a3.py": "a2e032078e19b440e019d110d50d7ab703e7ca965ff0a8427fe1c1c5851c6959",
+    "scripts/analyse_a4.py": "aa825df19e728d5017b5019b86a4b69fcab1a65a93b007aa1e5ed8a36acc68e5",
     "scripts/analyse_h3.py": "d0eb38cadc4d7ed02a166b064962dba692316bf709da39579e6d7a8a28368667",
     "scripts/audit_legacy.py": "74c1bb85ff6beca56309133fa93b1410d7e157f368371a214405c0dd275b45b2",
     "scripts/build_real_maps.py": "ef0a371bb68b71b75b66a82a304c1c6b294136e06f2b799e9c8d84bd943ee4b1",
@@ -88,7 +89,10 @@
     "configs/sim32_id.yaml": "35f91b43b11dec8e9f551ebbd9f432689a35009b84397b508102bcf50a660fb9",
     "configs/sim32_id_ensemble.yaml": "d2d845b70f990d8d3dfb4dc0c4190ffde849a6571dd7a57a7f3746d16052f6ad",
     "configs/sim32_id_ppo.yaml": "a54c1166ef2b9d688b34072f444f8bd24a426a95aa34cea21a3b35e9d69282fd",
+    "configs/sim32_real_combined.yaml": "e8bc7f96519af524785863e0a501d6a5e4afe575ec04b9cae9f9f20e7888038d",
+    "configs/sim32_real_dynamics.yaml": "56bb62c835e73517381307650ae01448a7fe9e384cc3c7aeaed118ee6c6bbb2f",
     "configs/sim32_real_hirise.yaml": "c1b1443102089b961ae31679f39093b76bf23050f092c29db75e86931c1ba4bd",
+    "configs/sim32_real_sensor.yaml": "8f49c0ef8abc7e0ed1e48044e75cd9ea8d3f4de57b611aaf983bc7bd2a5bf84c",
     "configs/sim32_sensor_shift.yaml": "e97a7a44af33c789acc171b9cc633988fd95a9e892d8af792df49868bd386dae",
     "configs/sim32_terrain_shift.yaml": "e8caef547a6c7a889bca383d018b213ce8cbb21190825d12b47ff9d603d9d3c2",
     "configs/sweep_ppo_e0.0.yaml": "60d5a5210bb4d599795a0cc65e1331a6777eea24e3a02e18e423c1bb9a472b3b",
@@ -118,6 +122,7 @@
     "protocol/amendment_A1_h3.json": "902f16e5a8c51d2ac69ea4eb808e64f7a4e37f3f67d153043e029ae717a93bf4",
     "protocol/amendment_A2_real_terrain.json": "8b4f98735d1a62af0b632036c49cfddc011e4f757e36666e815cbc80074be812",
     "protocol/amendment_A3_action_ood.json": "20a4d9f80098aa70d3be8f5be532abbdfb1482b2f4ccd5efe472cd30ff0be615",
+    "protocol/amendment_A4_real_shift.json": "6187edb674dd8d2bb64ca58662cb3c29f538aa548dfe17590d6ae936d53afece",
     "data/real_tiles/hirise_tiles.json": "4cc4081cee6c4e58d02e1ec5d2a15aaed40eadeca70f958afbb1fb7011db68d9",
     "data/real_tiles/hirise_tiles.npz": "3a44de6ef624ca1d1804e3ce931bd6052967e4dba21dd08a58bc60a32d2b519c"
   },

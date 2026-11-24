@@ -92,6 +92,7 @@ class AssuranceConfig:
     use_monitor: bool = True
     allow_stop: bool = True      # False = ablation: never end the episode; keep driving on the best ranked move
     fallback: str = "battery"    # "battery" (battery-aware A*, default) | "energy_blind" (amendment A1 / H3 ablation only)
+    ood_kind: str = "raw"        # "raw" (v1.1 observation Mahalanobis, default) | "action" (amendment A3: action-conditioned)
 
 
 @dataclass

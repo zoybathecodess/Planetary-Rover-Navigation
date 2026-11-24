@@ -26,7 +26,9 @@ VARIANTS = {"full": {}, "no_ood": {"use_ood": False}, "no_unc": {"use_uncertaint
             "no_stop": {"allow_stop": False}, "monitor_only": {"use_ood": False, "use_uncertainty": False},
             "unc_only": {"use_ood": False, "use_monitor": False}, "ood_only": {"use_uncertainty": False, "use_monitor": False},
             # amendment A1 (H3, protocol/amendment_A1_h3.json): same system, energy-blind fallback planner
-            "fb_blind": {"fallback": "energy_blind"}, "fb_blind_no_stop": {"fallback": "energy_blind", "allow_stop": False}}
+            "fb_blind": {"fallback": "energy_blind"}, "fb_blind_no_stop": {"fallback": "energy_blind", "allow_stop": False},
+            # amendment A3 (protocol/amendment_A3_action_ood.json): action-conditioned OOD gate
+            "aood": {"ood_kind": "action"}, "aood_only": {"ood_kind": "action", "use_uncertainty": False, "use_monitor": False}}
 SEEDLESS = ("astar", "reactive", "random", "astar_monitor")
 PRESETS = ("id", "terrain_shift", "sensor_shift", "dynamics_shift", "combined_shift")
 VALID_REASONS = ("goal", "battery_depleted", "timeout", "safe_stop")
@@ -70,8 +72,11 @@ def checkpoint_paths(spec: str, seed: int, root: Path, ckpt: str = "best_val", n
 
 def missing_artefacts(spec: str, seed: int, root: Path, ckpt: str = "best_val") -> list[Path]:
     need = checkpoint_paths(spec, seed, root, ckpt)
-    if parse_method(spec)["kind"] == "assured":
+    m = parse_method(spec)
+    if m["kind"] == "assured":
         need += [root / "results/task4/calib" / f"ens_s{seed}" / f for f in ("ood.npz", "id_val_scores.npz")]
+        if VARIANTS[m["variant"]].get("ood_kind") == "action":
+            need += [root / "results/task4/calib" / f"ens_s{seed}" / f for f in ("aood.npz", "aood_val_scores.npz")]
     return [p for p in need if not p.exists()]
 
 
@@ -107,9 +112,15 @@ def build_method(spec: str, seed: int, root: Path, ckpt: str = "best_val", keep_
         pol = build_assured(cfg, ens, dummy, np.inf, np.inf, acfg=replace(cfg.assurance, use_monitor=False, use_uncertainty=False, use_ood=False))
         pol.name = "ens"
         return pol
-    ood = MahalanobisOOD.load(calib / "ood.npz")
     z = np.load(calib / "id_val_scores.npz")
-    tu, to = float(np.percentile(z["unc"], m["pct"])), float(np.percentile(z["ood"], m["pct"]))
+    tu = float(np.percentile(z["unc"], m["pct"]))
+    if VARIANTS[m["variant"]].get("ood_kind") == "action":      # amendment A3
+        from src.assurance.action_ood import ActionConditionedOOD
+        ood = ActionConditionedOOD.load(calib / "aood.npz", ens)
+        to = float(np.percentile(np.load(calib / "aood_val_scores.npz")["ood"], m["pct"]))
+    else:
+        ood = MahalanobisOOD.load(calib / "ood.npz")
+        to = float(np.percentile(z["ood"], m["pct"]))
     return build_assured(cfg, ens, ood, tu, to, keep_log=keep_log, seed=seed, acfg=replace(cfg.assurance, **VARIANTS[m["variant"]]))
 
 

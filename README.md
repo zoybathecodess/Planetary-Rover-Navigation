@@ -41,5 +41,7 @@ Recover the untouched original at any time: `git checkout v0.0-original`.
 * Amendment A2 (real terrain): pre-registration `protocol/amendment_A2_real_terrain.json`; raw HiRISE DTMs in `data/hirise/`
   (git-ignored; hashes in `data/hirise_sha256.txt`), tiles `python3 scripts/build_real_maps.py` -> `data/real_tiles/`,
   freeze tag `v6.3-freeze-A2`, run `results/phase2/a2/`, analysis `python3 scripts/analyse_a2.py`.
+* Amendment A4 (real terrain + shifted physics): `protocol/amendment_A4_real_shift.json`, configs `configs/sim32_real_*.yaml`,
+  freeze tag `v6.4-freeze-A4`, run `results/phase2/a4/`, analysis `python3 scripts/analyse_a4.py`.
 * Literature check: `docs/RELATED_WORK.md`. Planned real-terrain extension: `docs/REAL_TERRAIN_EXTENSION.md`.
 * Figures: `python3 scripts/make_figures.py` → `paper/figures/`. Manuscript (IEEEtran): `paper/main.tex` + `paper/references.bib`.

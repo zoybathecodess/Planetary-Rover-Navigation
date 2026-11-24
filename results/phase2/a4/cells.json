@@ -1,0 +1,3392 @@
+[
+  {
+    "tag": "astar",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9911111111111112,
+    "stops": 0,
+    "wall": 82.77455395799916,
+    "spe": 0.18394345323999814,
+    "problems": []
+  },
+  {
+    "tag": "astar_monitor",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9555555555555556,
+    "stops": 20,
+    "wall": 113.6352011669951,
+    "spe": 0.2525226692599891,
+    "problems": []
+  },
+  {
+    "tag": "reactive",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.96,
+    "stops": 0,
+    "wall": 3.9972425829982967,
+    "spe": 0.00888276129555177,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s0",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9666666666666667,
+    "stops": 0,
+    "wall": 5.347798916998727,
+    "spe": 0.011883997593330503,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s1",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9466666666666667,
+    "stops": 0,
+    "wall": 5.740714624997054,
+    "spe": 0.012757143611104563,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s2",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9488888888888889,
+    "stops": 0,
+    "wall": 5.517877124999359,
+    "spe": 0.012261949166665242,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s3",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 0,
+    "wall": 5.738338584000303,
+    "spe": 0.012751863520000673,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s4",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.96,
+    "stops": 0,
+    "wall": 5.793226125002548,
+    "spe": 0.012873835833338995,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s5",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 0,
+    "wall": 5.6551068750050035,
+    "spe": 0.012566904166677786,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s6",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9711111111111111,
+    "stops": 0,
+    "wall": 5.575823749997653,
+    "spe": 0.01239071944443923,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s7",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9644444444444444,
+    "stops": 0,
+    "wall": 6.123026749999553,
+    "spe": 0.013606726111110119,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s8",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 0,
+    "wall": 5.898869582997577,
+    "spe": 0.013108599073327948,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s9",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.94,
+    "stops": 0,
+    "wall": 5.935422917005781,
+    "spe": 0.01318982870445729,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s0",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9688888888888889,
+    "stops": 0,
+    "wall": 6.464556541999627,
+    "spe": 0.014365681204443616,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s1",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 0,
+    "wall": 6.588434375000361,
+    "spe": 0.01464096527777858,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s2",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9533333333333334,
+    "stops": 0,
+    "wall": 6.774324416001036,
+    "spe": 0.015054054257780081,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s3",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9666666666666667,
+    "stops": 0,
+    "wall": 6.906633250000596,
+    "spe": 0.015348073888890212,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s4",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9733333333333334,
+    "stops": 0,
+    "wall": 6.947738832997857,
+    "spe": 0.015439419628884126,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s5",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9711111111111111,
+    "stops": 0,
+    "wall": 6.580175625000265,
+    "spe": 0.01462261250000059,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s6",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9711111111111111,
+    "stops": 0,
+    "wall": 6.6366446250031,
+    "spe": 0.014748099166673556,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s7",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 0,
+    "wall": 7.301223915994342,
+    "spe": 0.01622494203554298,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s8",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9666666666666667,
+    "stops": 0,
+    "wall": 6.9335954999987734,
+    "spe": 0.015407989999997275,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s9",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9555555555555556,
+    "stops": 0,
+    "wall": 6.75198874999478,
+    "spe": 0.015004419444432844,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s0",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9644444444444444,
+    "stops": 0,
+    "wall": 6.024396875000093,
+    "spe": 0.013387548611111319,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s1",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9511111111111111,
+    "stops": 0,
+    "wall": 6.128239333003876,
+    "spe": 0.013618309628897502,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s2",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9533333333333334,
+    "stops": 0,
+    "wall": 6.341883875000349,
+    "spe": 0.014093075277778554,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s3",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 0,
+    "wall": 6.293026250001276,
+    "spe": 0.013984502777780614,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s4",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 0,
+    "wall": 6.207355165999616,
+    "spe": 0.013794122591110257,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s5",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9511111111111111,
+    "stops": 0,
+    "wall": 6.213990792006371,
+    "spe": 0.013808868426680823,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s6",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9511111111111111,
+    "stops": 0,
+    "wall": 6.337201041998924,
+    "spe": 0.014082668982219831,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s7",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9555555555555556,
+    "stops": 0,
+    "wall": 6.156918250002491,
+    "spe": 0.013682040555561091,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s8",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 0,
+    "wall": 6.422348207997857,
+    "spe": 0.014271884906661904,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s9",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9555555555555556,
+    "stops": 0,
+    "wall": 6.362110542002483,
+    "spe": 0.014138023426672185,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s0",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9711111111111111,
+    "stops": 0,
+    "wall": 7.024165124996216,
+    "spe": 0.015609255833324925,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s1",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9644444444444444,
+    "stops": 0,
+    "wall": 7.159961666999152,
+    "spe": 0.015911025926664782,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s2",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 0,
+    "wall": 7.366993750001711,
+    "spe": 0.016371097222226023,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s3",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.98,
+    "stops": 0,
+    "wall": 7.243133415999182,
+    "spe": 0.016095852035553738,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s4",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9422222222222222,
+    "stops": 0,
+    "wall": 7.446988874995441,
+    "spe": 0.016548864166656536,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s5",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9466666666666667,
+    "stops": 0,
+    "wall": 7.593297041996266,
+    "spe": 0.01687399342665837,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s6",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 0,
+    "wall": 7.508552917002817,
+    "spe": 0.016685673148895148,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s7",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9711111111111111,
+    "stops": 0,
+    "wall": 7.2270057080022525,
+    "spe": 0.01606001268444945,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s8",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9688888888888889,
+    "stops": 0,
+    "wall": 7.492529875002219,
+    "spe": 0.01665006638889382,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s9",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.98,
+    "stops": 0,
+    "wall": 7.521769957995275,
+    "spe": 0.016715044351100612,
+    "problems": []
+  },
+  {
+    "tag": "ens_s0",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9822222222222222,
+    "stops": 0,
+    "wall": 19.086381999994046,
+    "spe": 0.04241418222220899,
+    "problems": []
+  },
+  {
+    "tag": "ens_s1",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9777777777777777,
+    "stops": 0,
+    "wall": 19.110374291994958,
+    "spe": 0.04246749842665546,
+    "problems": []
+  },
+  {
+    "tag": "ens_s2",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9911111111111112,
+    "stops": 0,
+    "wall": 18.99696866600425,
+    "spe": 0.042215485924453885,
+    "problems": []
+  },
+  {
+    "tag": "ens_s3",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9844444444444445,
+    "stops": 0,
+    "wall": 19.13414824999927,
+    "spe": 0.042520329444442825,
+    "problems": []
+  },
+  {
+    "tag": "ens_s4",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9777777777777777,
+    "stops": 0,
+    "wall": 19.76661645900458,
+    "spe": 0.043925814353343515,
+    "problems": []
+  },
+  {
+    "tag": "ens_s5",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9755555555555555,
+    "stops": 0,
+    "wall": 19.596658667003794,
+    "spe": 0.04354813037111954,
+    "problems": []
+  },
+  {
+    "tag": "ens_s6",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9733333333333334,
+    "stops": 0,
+    "wall": 19.224796291993698,
+    "spe": 0.04272176953776377,
+    "problems": []
+  },
+  {
+    "tag": "ens_s7",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.98,
+    "stops": 0,
+    "wall": 20.469631584004674,
+    "spe": 0.045488070186677054,
+    "problems": []
+  },
+  {
+    "tag": "ens_s8",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9755555555555555,
+    "stops": 0,
+    "wall": 20.27618729099777,
+    "spe": 0.04505819397999504,
+    "problems": []
+  },
+  {
+    "tag": "ens_s9",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.98,
+    "stops": 0,
+    "wall": 20.23141591699823,
+    "spe": 0.04495870203777384,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s0",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9777777777777777,
+    "stops": 10,
+    "wall": 22.012519292002253,
+    "spe": 0.048916709537782786,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s1",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9888888888888889,
+    "stops": 5,
+    "wall": 24.9681620840056,
+    "spe": 0.055484804631123555,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s2",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9911111111111112,
+    "stops": 4,
+    "wall": 20.544580957997823,
+    "spe": 0.045654624351106274,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s3",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9866666666666667,
+    "stops": 6,
+    "wall": 22.407906833999732,
+    "spe": 0.04979534851999941,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s4",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9844444444444445,
+    "stops": 7,
+    "wall": 24.636430875005317,
+    "spe": 0.054747624166678485,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s5",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9866666666666667,
+    "stops": 6,
+    "wall": 24.221812499999942,
+    "spe": 0.05382624999999987,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s6",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9911111111111112,
+    "stops": 4,
+    "wall": 24.64211458299542,
+    "spe": 0.05476025462887871,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s7",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9844444444444445,
+    "stops": 7,
+    "wall": 24.15657304100023,
+    "spe": 0.05368127342444495,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s8",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9844444444444445,
+    "stops": 7,
+    "wall": 22.56980037500034,
+    "spe": 0.050155111944445205,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s9",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9822222222222222,
+    "stops": 8,
+    "wall": 24.07389766700362,
+    "spe": 0.053497550371119154,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s0",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.96,
+    "stops": 18,
+    "wall": 329.3788703329992,
+    "spe": 0.7319530451844427,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s1",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 19,
+    "wall": 328.37654154100164,
+    "spe": 0.7297256478688925,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s2",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 17,
+    "wall": 335.16339708300075,
+    "spe": 0.744807549073335,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s3",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 17,
+    "wall": 321.6364021249974,
+    "spe": 0.714747560277772,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s4",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9666666666666667,
+    "stops": 15,
+    "wall": 326.74035804100276,
+    "spe": 0.7260896845355617,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s5",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9644444444444444,
+    "stops": 16,
+    "wall": 274.9140261670036,
+    "spe": 0.6109200581488969,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s6",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 17,
+    "wall": 312.4920455419997,
+    "spe": 0.6944267678711105,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s7",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 17,
+    "wall": 315.49067074999766,
+    "spe": 0.7010903794444392,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s8",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 17,
+    "wall": 330.53977654199844,
+    "spe": 0.7345328367599965,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s9",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.96,
+    "stops": 18,
+    "wall": 333.42798879100155,
+    "spe": 0.7409510862022257,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s0",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9977777777777778,
+    "stops": 0,
+    "wall": 342.18292720799946,
+    "spe": 0.7604065049066655,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s1",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9955555555555555,
+    "stops": 0,
+    "wall": 340.365843749998,
+    "spe": 0.7563685416666622,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s2",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9955555555555555,
+    "stops": 0,
+    "wall": 340.83996670800116,
+    "spe": 0.7574221482400025,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s3",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9955555555555555,
+    "stops": 0,
+    "wall": 330.7779089169999,
+    "spe": 0.7350620198155553,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s4",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9955555555555555,
+    "stops": 0,
+    "wall": 323.65504491700267,
+    "spe": 0.7192334331488949,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s5",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9955555555555555,
+    "stops": 0,
+    "wall": 291.44782937499986,
+    "spe": 0.6476618430555552,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s6",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9955555555555555,
+    "stops": 0,
+    "wall": 321.8295553749995,
+    "spe": 0.7151767897222211,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s7",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9955555555555555,
+    "stops": 0,
+    "wall": 334.85524458399595,
+    "spe": 0.7441227657422133,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s8",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9955555555555555,
+    "stops": 0,
+    "wall": 344.5413129170047,
+    "spe": 0.7656473620377882,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s9",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9955555555555555,
+    "stops": 0,
+    "wall": 368.80644883300556,
+    "spe": 0.8195698862955679,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s0",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 17,
+    "wall": 48.34554491699964,
+    "spe": 0.10743454425999921,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s1",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9644444444444444,
+    "stops": 16,
+    "wall": 51.70716374999756,
+    "spe": 0.11490480833332792,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s2",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9666666666666667,
+    "stops": 15,
+    "wall": 46.84784391699941,
+    "spe": 0.10410631981555424,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s3",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 17,
+    "wall": 49.398622499997145,
+    "spe": 0.10977471666666032,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s4",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9666666666666667,
+    "stops": 15,
+    "wall": 50.708032249996904,
+    "spe": 0.11268451611110424,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s5",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 17,
+    "wall": 50.139752999995835,
+    "spe": 0.11142167333332408,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s6",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.96,
+    "stops": 18,
+    "wall": 51.462379083001,
+    "spe": 0.11436084240666888,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s7",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9666666666666667,
+    "stops": 15,
+    "wall": 52.06069500000012,
+    "spe": 0.1156904333333336,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s8",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9555555555555556,
+    "stops": 20,
+    "wall": 53.0228226659965,
+    "spe": 0.11782849481332555,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s9",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9511111111111111,
+    "stops": 22,
+    "wall": 56.075973999999405,
+    "spe": 0.12461327555555424,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s0",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9488888888888889,
+    "stops": 23,
+    "wall": 32.15915416599455,
+    "spe": 0.07146478703554345,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s1",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9533333333333334,
+    "stops": 21,
+    "wall": 32.371754583997244,
+    "spe": 0.07193723240888276,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s2",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9644444444444444,
+    "stops": 16,
+    "wall": 32.62012808400323,
+    "spe": 0.07248917352000717,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s3",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9488888888888889,
+    "stops": 23,
+    "wall": 32.29652824999357,
+    "spe": 0.07177006277776349,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s4",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9644444444444444,
+    "stops": 16,
+    "wall": 33.18379358299717,
+    "spe": 0.07374176351777148,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s5",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.96,
+    "stops": 18,
+    "wall": 32.69425120899541,
+    "spe": 0.07265389157554536,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s6",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9533333333333334,
+    "stops": 21,
+    "wall": 33.23432091599534,
+    "spe": 0.07385404647998965,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s7",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 19,
+    "wall": 32.80956341699493,
+    "spe": 0.0729101409266554,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s8",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9511111111111111,
+    "stops": 22,
+    "wall": 32.21042624999973,
+    "spe": 0.0715787249999994,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s9",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9466666666666667,
+    "stops": 24,
+    "wall": 31.72314641599951,
+    "spe": 0.07049588092444335,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s0",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.96,
+    "stops": 18,
+    "wall": 34.476291541002865,
+    "spe": 0.07661398120222859,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s1",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9644444444444444,
+    "stops": 16,
+    "wall": 35.08829174999846,
+    "spe": 0.07797398166666325,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s2",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9666666666666667,
+    "stops": 15,
+    "wall": 33.30059733300004,
+    "spe": 0.07400132740666676,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s3",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 17,
+    "wall": 34.7905334169991,
+    "spe": 0.07731229648222021,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s4",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9666666666666667,
+    "stops": 15,
+    "wall": 34.73077212500357,
+    "spe": 0.07717949361111905,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s5",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9644444444444444,
+    "stops": 16,
+    "wall": 35.40148675000091,
+    "spe": 0.07866997055555758,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s6",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 19,
+    "wall": 34.85244412499742,
+    "spe": 0.0774498758333276,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s7",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9688888888888889,
+    "stops": 14,
+    "wall": 33.718645917004324,
+    "spe": 0.0749303242600096,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s8",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9533333333333334,
+    "stops": 21,
+    "wall": 33.861284833001264,
+    "spe": 0.07524729962889169,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s9",
+    "preset": "real_sensor",
+    "status": "ok",
+    "sr": 0.9533333333333334,
+    "stops": 21,
+    "wall": 34.606227541997214,
+    "spe": 0.07690272787110491,
+    "problems": []
+  },
+  {
+    "tag": "astar",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9911111111111112,
+    "stops": 0,
+    "wall": 120.93692937499873,
+    "spe": 0.2687487319444416,
+    "problems": []
+  },
+  {
+    "tag": "astar_monitor",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9866666666666667,
+    "stops": 6,
+    "wall": 138.25907837500563,
+    "spe": 0.3072423963889014,
+    "problems": []
+  },
+  {
+    "tag": "reactive",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9533333333333334,
+    "stops": 0,
+    "wall": 6.7862717080060975,
+    "spe": 0.015080603795569105,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s0",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9666666666666667,
+    "stops": 0,
+    "wall": 9.13578016700194,
+    "spe": 0.020301733704448755,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s1",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9488888888888889,
+    "stops": 0,
+    "wall": 9.333648458996322,
+    "spe": 0.020741441019991827,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s2",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9666666666666667,
+    "stops": 0,
+    "wall": 8.98469420800393,
+    "spe": 0.019965987128897623,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s3",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9666666666666667,
+    "stops": 0,
+    "wall": 9.326191166997887,
+    "spe": 0.020724869259995306,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s4",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9555555555555556,
+    "stops": 0,
+    "wall": 9.601224792000721,
+    "spe": 0.021336055093334937,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s5",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9555555555555556,
+    "stops": 0,
+    "wall": 9.161888209004246,
+    "spe": 0.02035975157556499,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s6",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9555555555555556,
+    "stops": 0,
+    "wall": 8.963478083001974,
+    "spe": 0.01991884018444883,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s7",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9666666666666667,
+    "stops": 0,
+    "wall": 9.540192874999775,
+    "spe": 0.02120042861111061,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s8",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9666666666666667,
+    "stops": 0,
+    "wall": 8.977451292004844,
+    "spe": 0.019949891760010764,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s9",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9488888888888889,
+    "stops": 0,
+    "wall": 9.172903959006362,
+    "spe": 0.02038423102001414,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s0",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9777777777777777,
+    "stops": 0,
+    "wall": 10.074151916000119,
+    "spe": 0.02238700425777804,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s1",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.96,
+    "stops": 0,
+    "wall": 10.13749983299931,
+    "spe": 0.022527777406665134,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s2",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9666666666666667,
+    "stops": 0,
+    "wall": 10.066490959005023,
+    "spe": 0.02236997990890005,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s3",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9688888888888889,
+    "stops": 0,
+    "wall": 10.322826875002647,
+    "spe": 0.02293961527778366,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s4",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9711111111111111,
+    "stops": 0,
+    "wall": 10.62731058299687,
+    "spe": 0.023616245739993044,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s5",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 0,
+    "wall": 10.276688167003158,
+    "spe": 0.022837084815562573,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s6",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9644444444444444,
+    "stops": 0,
+    "wall": 10.010823375007021,
+    "spe": 0.02224627416668227,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s7",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9666666666666667,
+    "stops": 0,
+    "wall": 10.837626333006483,
+    "spe": 0.02408361407334774,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s8",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9644444444444444,
+    "stops": 0,
+    "wall": 10.35497537500487,
+    "spe": 0.02301105638889971,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s9",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9555555555555556,
+    "stops": 0,
+    "wall": 10.439128167003219,
+    "spe": 0.023198062593340486,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s0",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9466666666666667,
+    "stops": 0,
+    "wall": 9.556321791998926,
+    "spe": 0.0212362706488865,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s1",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.94,
+    "stops": 0,
+    "wall": 9.435909125000762,
+    "spe": 0.02096868694444614,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s2",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9555555555555556,
+    "stops": 0,
+    "wall": 9.753154582998832,
+    "spe": 0.021673676851108516,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s3",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9555555555555556,
+    "stops": 0,
+    "wall": 9.482279583004129,
+    "spe": 0.02107173240667584,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s4",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9466666666666667,
+    "stops": 0,
+    "wall": 9.104605291002372,
+    "spe": 0.020232456202227495,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s5",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9466666666666667,
+    "stops": 0,
+    "wall": 9.34541841600003,
+    "spe": 0.020767596480000067,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s6",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9377777777777778,
+    "stops": 0,
+    "wall": 9.602144541997404,
+    "spe": 0.021338098982216454,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s7",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9533333333333334,
+    "stops": 0,
+    "wall": 9.223990917002084,
+    "spe": 0.020497757593337964,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s8",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 0,
+    "wall": 9.604085334001866,
+    "spe": 0.02134241185333748,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s9",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 0,
+    "wall": 9.385587707998639,
+    "spe": 0.020856861573330308,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s0",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 0,
+    "wall": 10.274633207998704,
+    "spe": 0.02283251823999712,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s1",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9533333333333334,
+    "stops": 0,
+    "wall": 10.300476125004934,
+    "spe": 0.022889946944455408,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s2",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9533333333333334,
+    "stops": 0,
+    "wall": 10.713172374998976,
+    "spe": 0.023807049722219947,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s3",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9644444444444444,
+    "stops": 0,
+    "wall": 10.43460475000029,
+    "spe": 0.0231880105555562,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s4",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9422222222222222,
+    "stops": 0,
+    "wall": 10.540662082996278,
+    "spe": 0.023423693517769507,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s5",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9511111111111111,
+    "stops": 0,
+    "wall": 10.727764499999466,
+    "spe": 0.02383947666666548,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s6",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 0,
+    "wall": 10.96616937500221,
+    "spe": 0.024369265277782687,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s7",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 0,
+    "wall": 10.480414500001643,
+    "spe": 0.02328981000000365,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s8",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9533333333333334,
+    "stops": 0,
+    "wall": 11.102077666997502,
+    "spe": 0.024671283704438895,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s9",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9711111111111111,
+    "stops": 0,
+    "wall": 10.704035375005333,
+    "spe": 0.02378674527778963,
+    "problems": []
+  },
+  {
+    "tag": "ens_s0",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9777777777777777,
+    "stops": 0,
+    "wall": 27.967726041999413,
+    "spe": 0.06215050231555425,
+    "problems": []
+  },
+  {
+    "tag": "ens_s1",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9755555555555555,
+    "stops": 0,
+    "wall": 27.708206041002995,
+    "spe": 0.061573791202228875,
+    "problems": []
+  },
+  {
+    "tag": "ens_s2",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9644444444444444,
+    "stops": 0,
+    "wall": 28.493040415996802,
+    "spe": 0.063317867591104,
+    "problems": []
+  },
+  {
+    "tag": "ens_s3",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9755555555555555,
+    "stops": 0,
+    "wall": 28.674320332997013,
+    "spe": 0.06372071185110448,
+    "problems": []
+  },
+  {
+    "tag": "ens_s4",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9733333333333334,
+    "stops": 0,
+    "wall": 29.063178625001456,
+    "spe": 0.06458484138889212,
+    "problems": []
+  },
+  {
+    "tag": "ens_s5",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9822222222222222,
+    "stops": 0,
+    "wall": 28.61932570800127,
+    "spe": 0.06359850157333616,
+    "problems": []
+  },
+  {
+    "tag": "ens_s6",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9733333333333334,
+    "stops": 0,
+    "wall": 29.759502333996352,
+    "spe": 0.06613222740888078,
+    "problems": []
+  },
+  {
+    "tag": "ens_s7",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9711111111111111,
+    "stops": 0,
+    "wall": 28.958073791996867,
+    "spe": 0.06435127509332637,
+    "problems": []
+  },
+  {
+    "tag": "ens_s8",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9688888888888889,
+    "stops": 0,
+    "wall": 29.035819583004923,
+    "spe": 0.06452404351778872,
+    "problems": []
+  },
+  {
+    "tag": "ens_s9",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9644444444444444,
+    "stops": 0,
+    "wall": 30.130517874997167,
+    "spe": 0.0669567063888826,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s0",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9844444444444445,
+    "stops": 7,
+    "wall": 32.25174050000351,
+    "spe": 0.07167053444445223,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s1",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9866666666666667,
+    "stops": 6,
+    "wall": 33.429057207998994,
+    "spe": 0.07428679379555332,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s2",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9777777777777777,
+    "stops": 10,
+    "wall": 31.875866082998982,
+    "spe": 0.07083525796221996,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s3",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9866666666666667,
+    "stops": 6,
+    "wall": 33.580254417000106,
+    "spe": 0.07462278759333357,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s4",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9822222222222222,
+    "stops": 8,
+    "wall": 33.17906850000145,
+    "spe": 0.07373126333333656,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s5",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9755555555555555,
+    "stops": 11,
+    "wall": 32.76693741700001,
+    "spe": 0.07281541648222224,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s6",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9866666666666667,
+    "stops": 6,
+    "wall": 33.23130408299767,
+    "spe": 0.07384734240666148,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s7",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9755555555555555,
+    "stops": 11,
+    "wall": 34.4743332500002,
+    "spe": 0.07660962944444488,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s8",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9822222222222222,
+    "stops": 8,
+    "wall": 32.987655625001935,
+    "spe": 0.07330590138889319,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s9",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9733333333333334,
+    "stops": 12,
+    "wall": 34.94666020799923,
+    "spe": 0.07765924490666495,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s0",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9888888888888889,
+    "stops": 5,
+    "wall": 55.7562555839977,
+    "spe": 0.12390279018666156,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s1",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9866666666666667,
+    "stops": 6,
+    "wall": 63.56562012500217,
+    "spe": 0.14125693361111594,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s2",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9844444444444445,
+    "stops": 7,
+    "wall": 57.22347024999908,
+    "spe": 0.12716326722222018,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s3",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9888888888888889,
+    "stops": 5,
+    "wall": 56.01623262499925,
+    "spe": 0.12448051694444277,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s4",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9866666666666667,
+    "stops": 6,
+    "wall": 59.48787037500006,
+    "spe": 0.13219526750000013,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s5",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9844444444444445,
+    "stops": 7,
+    "wall": 39.1810362920005,
+    "spe": 0.08706896953777889,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s6",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9866666666666667,
+    "stops": 6,
+    "wall": 53.318116458001896,
+    "spe": 0.11848470324000421,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s7",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9866666666666667,
+    "stops": 6,
+    "wall": 53.868341500005045,
+    "spe": 0.11970742555556677,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s8",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9911111111111112,
+    "stops": 4,
+    "wall": 51.41542791599932,
+    "spe": 0.11425650647999848,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s9",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9888888888888889,
+    "stops": 5,
+    "wall": 61.77413274999708,
+    "spe": 0.13727585055554906,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s0",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9911111111111112,
+    "stops": 0,
+    "wall": 58.19488612499845,
+    "spe": 0.12932196916666322,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s1",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9888888888888889,
+    "stops": 0,
+    "wall": 65.72323475000303,
+    "spe": 0.14605163277778452,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s2",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9888888888888889,
+    "stops": 0,
+    "wall": 60.75528683399898,
+    "spe": 0.13501174851999773,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s3",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9888888888888889,
+    "stops": 0,
+    "wall": 59.10554133299593,
+    "spe": 0.1313456474066576,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s4",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9888888888888889,
+    "stops": 0,
+    "wall": 63.009113084001,
+    "spe": 0.14002025129778,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s5",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9866666666666667,
+    "stops": 0,
+    "wall": 42.203968624999106,
+    "spe": 0.09378659694444245,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s6",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9888888888888889,
+    "stops": 0,
+    "wall": 55.91905479200068,
+    "spe": 0.12426456620444595,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s7",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9866666666666667,
+    "stops": 0,
+    "wall": 56.354613374998735,
+    "spe": 0.12523247416666386,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s8",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9933333333333333,
+    "stops": 0,
+    "wall": 56.02640062499995,
+    "spe": 0.12450311249999989,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s9",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9888888888888889,
+    "stops": 0,
+    "wall": 65.53863949999504,
+    "spe": 0.1456414211111001,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s0",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9888888888888889,
+    "stops": 5,
+    "wall": 62.92641479199665,
+    "spe": 0.1398364773155481,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s1",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9844444444444445,
+    "stops": 7,
+    "wall": 65.03631354099343,
+    "spe": 0.14452514120220764,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s2",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9755555555555555,
+    "stops": 11,
+    "wall": 64.074487124999,
+    "spe": 0.14238774916666444,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s3",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9888888888888889,
+    "stops": 5,
+    "wall": 67.03510008399462,
+    "spe": 0.1489668890755436,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s4",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9866666666666667,
+    "stops": 6,
+    "wall": 66.84159241599991,
+    "spe": 0.14853687203555535,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s5",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9844444444444445,
+    "stops": 7,
+    "wall": 61.961425082998176,
+    "spe": 0.13769205573999593,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s6",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9888888888888889,
+    "stops": 5,
+    "wall": 61.8277264999997,
+    "spe": 0.1373949477777771,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s7",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9844444444444445,
+    "stops": 7,
+    "wall": 63.17731662499864,
+    "spe": 0.1403940369444414,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s8",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9888888888888889,
+    "stops": 5,
+    "wall": 60.17014308299986,
+    "spe": 0.13371142907333303,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s9",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9822222222222222,
+    "stops": 8,
+    "wall": 63.24200220800412,
+    "spe": 0.1405377826844536,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s0",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9755555555555555,
+    "stops": 11,
+    "wall": 34.85931137499574,
+    "spe": 0.07746513638887942,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s1",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.98,
+    "stops": 9,
+    "wall": 35.19637762500497,
+    "spe": 0.07821417250001104,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s2",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9733333333333334,
+    "stops": 12,
+    "wall": 36.42236141600006,
+    "spe": 0.08093858092444457,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s3",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9822222222222222,
+    "stops": 8,
+    "wall": 33.97157262499968,
+    "spe": 0.0754923836111104,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s4",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9822222222222222,
+    "stops": 8,
+    "wall": 36.026478833999136,
+    "spe": 0.08005884185333141,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s5",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9733333333333334,
+    "stops": 12,
+    "wall": 33.51851137500489,
+    "spe": 0.07448558083334421,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s6",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9822222222222222,
+    "stops": 8,
+    "wall": 32.98988187500072,
+    "spe": 0.07331084861111271,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s7",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9777777777777777,
+    "stops": 10,
+    "wall": 35.37183870899753,
+    "spe": 0.07860408601999451,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s8",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9777777777777777,
+    "stops": 10,
+    "wall": 33.52149312499387,
+    "spe": 0.07449220694443082,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s9",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9755555555555555,
+    "stops": 11,
+    "wall": 35.027205416998186,
+    "spe": 0.07783823425999596,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s0",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9866666666666667,
+    "stops": 6,
+    "wall": 34.891900624999835,
+    "spe": 0.07753755694444407,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s1",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9844444444444445,
+    "stops": 7,
+    "wall": 36.02411604199733,
+    "spe": 0.08005359120443852,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s2",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9755555555555555,
+    "stops": 11,
+    "wall": 36.4574982080012,
+    "spe": 0.0810166626844471,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s3",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9888888888888889,
+    "stops": 5,
+    "wall": 36.469938958005514,
+    "spe": 0.08104430879556782,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s4",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9844444444444445,
+    "stops": 7,
+    "wall": 37.55800370799989,
+    "spe": 0.08346223046222197,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s5",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9844444444444445,
+    "stops": 7,
+    "wall": 33.850861083999916,
+    "spe": 0.07522413574222203,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s6",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9866666666666667,
+    "stops": 6,
+    "wall": 35.00300808299653,
+    "spe": 0.07778446240665896,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s7",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9822222222222222,
+    "stops": 8,
+    "wall": 36.272184749999724,
+    "spe": 0.08060485499999939,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s8",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.9866666666666667,
+    "stops": 6,
+    "wall": 34.31948429199838,
+    "spe": 0.07626552064888528,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s9",
+    "preset": "real_dynamics",
+    "status": "ok",
+    "sr": 0.98,
+    "stops": 9,
+    "wall": 36.16260466600215,
+    "spe": 0.080361343702227,
+    "problems": []
+  },
+  {
+    "tag": "astar",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9888888888888889,
+    "stops": 0,
+    "wall": 125.55113162500493,
+    "spe": 0.2790025147222332,
+    "problems": []
+  },
+  {
+    "tag": "astar_monitor",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9444444444444444,
+    "stops": 25,
+    "wall": 165.21489445800398,
+    "spe": 0.3671442099066755,
+    "problems": []
+  },
+  {
+    "tag": "reactive",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 0,
+    "wall": 7.2267198330009705,
+    "spe": 0.016059377406668823,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s0",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9555555555555556,
+    "stops": 0,
+    "wall": 9.466831666999497,
+    "spe": 0.021037403704443326,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s1",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9377777777777778,
+    "stops": 0,
+    "wall": 9.784148958002334,
+    "spe": 0.021742553240005187,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s2",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9488888888888889,
+    "stops": 0,
+    "wall": 9.393130041004042,
+    "spe": 0.020873622313342315,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s3",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 0,
+    "wall": 9.61429487499845,
+    "spe": 0.021365099722218776,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s4",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9511111111111111,
+    "stops": 0,
+    "wall": 9.775670750001154,
+    "spe": 0.021723712777780343,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s5",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9666666666666667,
+    "stops": 0,
+    "wall": 9.133035374994506,
+    "spe": 0.020295634166654457,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s6",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 0,
+    "wall": 8.951678207995428,
+    "spe": 0.01989261823998984,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s7",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 0,
+    "wall": 9.816199209002662,
+    "spe": 0.021813776020005914,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s8",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 0,
+    "wall": 9.108825708994118,
+    "spe": 0.02024183490887582,
+    "problems": []
+  },
+  {
+    "tag": "dqn_s9",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9311111111111111,
+    "stops": 0,
+    "wall": 9.313557084002241,
+    "spe": 0.02069679352000498,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s0",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 0,
+    "wall": 10.220455624999886,
+    "spe": 0.022712123611110857,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s1",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.94,
+    "stops": 0,
+    "wall": 10.673950166004943,
+    "spe": 0.02371988925778876,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s2",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9533333333333334,
+    "stops": 0,
+    "wall": 10.409503708993725,
+    "spe": 0.0231322304644305,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s3",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9488888888888889,
+    "stops": 0,
+    "wall": 10.683714124999824,
+    "spe": 0.023741586944444053,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s4",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9533333333333334,
+    "stops": 0,
+    "wall": 10.943679750002048,
+    "spe": 0.024319288333337883,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s5",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9644444444444444,
+    "stops": 0,
+    "wall": 10.17470612499892,
+    "spe": 0.022610458055553156,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s6",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 0,
+    "wall": 10.169314457998553,
+    "spe": 0.02259847657333012,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s7",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9422222222222222,
+    "stops": 0,
+    "wall": 11.186996249998629,
+    "spe": 0.024859991666663618,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s8",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9555555555555556,
+    "stops": 0,
+    "wall": 10.316023958002916,
+    "spe": 0.022924497684450925,
+    "problems": []
+  },
+  {
+    "tag": "dqn_shield_s9",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9488888888888889,
+    "stops": 0,
+    "wall": 10.40184749999753,
+    "spe": 0.02311521666666118,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s0",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9466666666666667,
+    "stops": 0,
+    "wall": 9.155007375004061,
+    "spe": 0.02034446083334236,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s1",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9488888888888889,
+    "stops": 0,
+    "wall": 8.986229458001617,
+    "spe": 0.01996939879555915,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s2",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9444444444444444,
+    "stops": 0,
+    "wall": 9.206046665996837,
+    "spe": 0.02045788147999297,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s3",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9511111111111111,
+    "stops": 0,
+    "wall": 9.372253832996648,
+    "spe": 0.020827230739992552,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s4",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9466666666666667,
+    "stops": 0,
+    "wall": 9.17877883300389,
+    "spe": 0.0203972862955642,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s5",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9511111111111111,
+    "stops": 0,
+    "wall": 9.131516749999719,
+    "spe": 0.02029225944444382,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s6",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9466666666666667,
+    "stops": 0,
+    "wall": 9.217742374996305,
+    "spe": 0.020483871944436235,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s7",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9511111111111111,
+    "stops": 0,
+    "wall": 8.958184541996161,
+    "spe": 0.01990707675999147,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s8",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9377777777777778,
+    "stops": 0,
+    "wall": 9.52158587500162,
+    "spe": 0.02115907972222582,
+    "problems": []
+  },
+  {
+    "tag": "ppo_s9",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9444444444444444,
+    "stops": 0,
+    "wall": 9.294828207996034,
+    "spe": 0.020655173795546742,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s0",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9533333333333334,
+    "stops": 0,
+    "wall": 10.264663791997009,
+    "spe": 0.022810363982215576,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s1",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9488888888888889,
+    "stops": 0,
+    "wall": 10.439942292003252,
+    "spe": 0.023199871760007228,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s2",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9444444444444444,
+    "stops": 0,
+    "wall": 10.696115541002655,
+    "spe": 0.023769145646672568,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s3",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 0,
+    "wall": 10.511333166999975,
+    "spe": 0.023358518148888834,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s4",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9444444444444444,
+    "stops": 0,
+    "wall": 10.697316874997341,
+    "spe": 0.02377181527777187,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s5",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9555555555555556,
+    "stops": 0,
+    "wall": 10.632993958999577,
+    "spe": 0.023628875464443505,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s6",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9488888888888889,
+    "stops": 0,
+    "wall": 10.740609917003894,
+    "spe": 0.023868022037786433,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s7",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9644444444444444,
+    "stops": 0,
+    "wall": 10.437323749996722,
+    "spe": 0.023194052777770494,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s8",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9488888888888889,
+    "stops": 0,
+    "wall": 11.264120499996352,
+    "spe": 0.02503137888888078,
+    "problems": []
+  },
+  {
+    "tag": "ppo_shield_s9",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 0,
+    "wall": 11.144422041004873,
+    "spe": 0.024765382313344162,
+    "problems": []
+  },
+  {
+    "tag": "ens_s0",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9688888888888889,
+    "stops": 0,
+    "wall": 28.10937970800296,
+    "spe": 0.062465288240006585,
+    "problems": []
+  },
+  {
+    "tag": "ens_s1",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9755555555555555,
+    "stops": 0,
+    "wall": 27.501943082999787,
+    "spe": 0.06111542907333286,
+    "problems": []
+  },
+  {
+    "tag": "ens_s2",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.98,
+    "stops": 0,
+    "wall": 27.350173042003007,
+    "spe": 0.06077816231556224,
+    "problems": []
+  },
+  {
+    "tag": "ens_s3",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9711111111111111,
+    "stops": 0,
+    "wall": 27.644244667004386,
+    "spe": 0.061431654815565305,
+    "problems": []
+  },
+  {
+    "tag": "ens_s4",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 0,
+    "wall": 28.544770125001378,
+    "spe": 0.06343282250000307,
+    "problems": []
+  },
+  {
+    "tag": "ens_s5",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9688888888888889,
+    "stops": 0,
+    "wall": 28.06737220800278,
+    "spe": 0.062371938240006176,
+    "problems": []
+  },
+  {
+    "tag": "ens_s6",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9711111111111111,
+    "stops": 0,
+    "wall": 27.897425375005696,
+    "spe": 0.06199427861112377,
+    "problems": []
+  },
+  {
+    "tag": "ens_s7",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9755555555555555,
+    "stops": 0,
+    "wall": 28.579704750001838,
+    "spe": 0.06351045500000409,
+    "problems": []
+  },
+  {
+    "tag": "ens_s8",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9733333333333334,
+    "stops": 0,
+    "wall": 28.341155750000325,
+    "spe": 0.06298034611111183,
+    "problems": []
+  },
+  {
+    "tag": "ens_s9",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9644444444444444,
+    "stops": 0,
+    "wall": 28.76308383399737,
+    "spe": 0.06391796407554971,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s0",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9666666666666667,
+    "stops": 15,
+    "wall": 33.32638920899626,
+    "spe": 0.07405864268665836,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s1",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9844444444444445,
+    "stops": 7,
+    "wall": 31.965030958999705,
+    "spe": 0.07103340213111045,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s2",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9755555555555555,
+    "stops": 11,
+    "wall": 29.370477791999292,
+    "spe": 0.06526772842666509,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s3",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9844444444444445,
+    "stops": 7,
+    "wall": 31.491979667000123,
+    "spe": 0.06998217703777805,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s4",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9688888888888889,
+    "stops": 13,
+    "wall": 35.1071236659991,
+    "spe": 0.07801583036888689,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s5",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9755555555555555,
+    "stops": 11,
+    "wall": 35.26478704100009,
+    "spe": 0.07836619342444465,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s6",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9755555555555555,
+    "stops": 11,
+    "wall": 34.58931933299755,
+    "spe": 0.07686515407332788,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s7",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9777777777777777,
+    "stops": 10,
+    "wall": 34.227447624994966,
+    "spe": 0.07606099472221103,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s8",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.98,
+    "stops": 9,
+    "wall": 35.02618670799711,
+    "spe": 0.07783597046221581,
+    "problems": []
+  },
+  {
+    "tag": "assured-unc_only_p95_s9",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9822222222222222,
+    "stops": 8,
+    "wall": 37.392062792001525,
+    "spe": 0.0830934728711145,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s0",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9466666666666667,
+    "stops": 24,
+    "wall": 353.75688979199913,
+    "spe": 0.786126421759998,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s1",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9466666666666667,
+    "stops": 24,
+    "wall": 353.2322808329991,
+    "spe": 0.7849606240733313,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s2",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9511111111111111,
+    "stops": 22,
+    "wall": 350.83448779099854,
+    "spe": 0.7796321950911078,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s3",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9488888888888889,
+    "stops": 23,
+    "wall": 341.34500883400324,
+    "spe": 0.7585444640755628,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s4",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9533333333333334,
+    "stops": 21,
+    "wall": 341.92994829200325,
+    "spe": 0.759844329537785,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s5",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.96,
+    "stops": 18,
+    "wall": 303.5573380420028,
+    "spe": 0.6745718623155618,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s6",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9533333333333334,
+    "stops": 21,
+    "wall": 344.2511572500007,
+    "spe": 0.7650025716666682,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s7",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9533333333333334,
+    "stops": 21,
+    "wall": 335.60714129199914,
+    "spe": 0.7457936473155536,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s8",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 19,
+    "wall": 341.4420990409999,
+    "spe": 0.7587602200911109,
+    "problems": []
+  },
+  {
+    "tag": "assured_p95_s9",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9488888888888889,
+    "stops": 23,
+    "wall": 324.6371929579982,
+    "spe": 0.7214159843511071,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s0",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9822222222222222,
+    "stops": 0,
+    "wall": 344.3704595829986,
+    "spe": 0.7652676879622191,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s1",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9822222222222222,
+    "stops": 0,
+    "wall": 343.8110846660056,
+    "spe": 0.7640246325911236,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s2",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9844444444444445,
+    "stops": 0,
+    "wall": 344.1974566670033,
+    "spe": 0.764883237037785,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s3",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9866666666666667,
+    "stops": 0,
+    "wall": 338.00317150000046,
+    "spe": 0.7511181588888899,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s4",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9844444444444445,
+    "stops": 0,
+    "wall": 333.93594870800007,
+    "spe": 0.742079886017778,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s5",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9866666666666667,
+    "stops": 0,
+    "wall": 297.8042338749947,
+    "spe": 0.661787186388877,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s6",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9844444444444445,
+    "stops": 0,
+    "wall": 338.8580704579945,
+    "spe": 0.7530179343510989,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s7",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9866666666666667,
+    "stops": 0,
+    "wall": 336.91019591700024,
+    "spe": 0.7486893242600006,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s8",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9866666666666667,
+    "stops": 0,
+    "wall": 280.2609951659979,
+    "spe": 0.6228022114799953,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_stop_p95_s9",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9844444444444445,
+    "stops": 0,
+    "wall": 277.11471479199827,
+    "spe": 0.6158104773155517,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s0",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9511111111111111,
+    "stops": 22,
+    "wall": 55.38368437500321,
+    "spe": 0.12307485416667381,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s1",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9488888888888889,
+    "stops": 23,
+    "wall": 56.84182991700072,
+    "spe": 0.12631517759333494,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s2",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9533333333333334,
+    "stops": 21,
+    "wall": 51.35569675000443,
+    "spe": 0.1141237705555654,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s3",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9622222222222222,
+    "stops": 17,
+    "wall": 55.63223429200298,
+    "spe": 0.12362718731556217,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s4",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 19,
+    "wall": 55.821911334001925,
+    "spe": 0.12404869185333761,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s5",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 19,
+    "wall": 53.337657333002426,
+    "spe": 0.11852812740667205,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s6",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9555555555555556,
+    "stops": 20,
+    "wall": 54.32873629099777,
+    "spe": 0.12073052509110616,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s7",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9444444444444444,
+    "stops": 25,
+    "wall": 52.95214554099948,
+    "spe": 0.1176714345355544,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s8",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9555555555555556,
+    "stops": 20,
+    "wall": 53.78801974999806,
+    "spe": 0.11952893277777346,
+    "problems": []
+  },
+  {
+    "tag": "assured-aood_p95_s9",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9444444444444444,
+    "stops": 25,
+    "wall": 54.98587350000162,
+    "spe": 0.1221908300000036,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s0",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.94,
+    "stops": 27,
+    "wall": 35.27390537500469,
+    "spe": 0.07838645638889931,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s1",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9444444444444444,
+    "stops": 25,
+    "wall": 33.63834837500326,
+    "spe": 0.07475188527778502,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s2",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9511111111111111,
+    "stops": 22,
+    "wall": 34.332711458999256,
+    "spe": 0.07629491435333167,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s3",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 19,
+    "wall": 34.91266583399556,
+    "spe": 0.07758370185332347,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s4",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9488888888888889,
+    "stops": 23,
+    "wall": 35.40440108400071,
+    "spe": 0.07867644685333491,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s5",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9466666666666667,
+    "stops": 24,
+    "wall": 33.61372316699999,
+    "spe": 0.07469716259333331,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s6",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 19,
+    "wall": 34.424229415999434,
+    "spe": 0.07649828759110985,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s7",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9422222222222222,
+    "stops": 26,
+    "wall": 33.812051708999206,
+    "spe": 0.0751378926866649,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s8",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9511111111111111,
+    "stops": 22,
+    "wall": 33.38695424999605,
+    "spe": 0.0741932316666579,
+    "problems": []
+  },
+  {
+    "tag": "assured-monitor_only_p95_s9",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9444444444444444,
+    "stops": 25,
+    "wall": 32.707613124999625,
+    "spe": 0.07268358472222139,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s0",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9511111111111111,
+    "stops": 22,
+    "wall": 37.61926004200359,
+    "spe": 0.08359835564889687,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s1",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9511111111111111,
+    "stops": 22,
+    "wall": 37.81804525000189,
+    "spe": 0.08404010055555974,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s2",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9533333333333334,
+    "stops": 21,
+    "wall": 35.21537704200455,
+    "spe": 0.07825639342667677,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s3",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.96,
+    "stops": 18,
+    "wall": 37.849941291002324,
+    "spe": 0.08411098064667183,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s4",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 19,
+    "wall": 37.63432783399912,
+    "spe": 0.08363183963110916,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s5",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9533333333333334,
+    "stops": 21,
+    "wall": 36.417642624997825,
+    "spe": 0.08092809472221739,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s6",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9577777777777777,
+    "stops": 19,
+    "wall": 37.39834679199703,
+    "spe": 0.08310743731554895,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s7",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9444444444444444,
+    "stops": 25,
+    "wall": 33.59082345799834,
+    "spe": 0.07464627435110742,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s8",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9555555555555556,
+    "stops": 20,
+    "wall": 27.508072416007053,
+    "spe": 0.061129049813349004,
+    "problems": []
+  },
+  {
+    "tag": "assured-no_ood_p95_s9",
+    "preset": "real_combined",
+    "status": "ok",
+    "sr": 0.9466666666666667,
+    "stops": 24,
+    "wall": 26.023074166005244,
+    "spe": 0.057829053702233874,
+    "problems": []
+  }
+]

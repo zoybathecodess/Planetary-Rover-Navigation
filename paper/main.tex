@@ -25,14 +25,15 @@ five-member deep-Q ensemble proposes each move. The move is executed only if an 
 out-of-distribution (OOD) check and explicit safety rules all pass; otherwise a battery-aware A* planner takes over, and
 the rover stops when no safe, energy-feasible move exists. In a $32\times32$ partially observable simulator with terrain,
 sensor, dynamics and combined shifts, we compare the system with eight baselines and nine variants using 10 training
-seeds and 500 identical held-out maps per condition under a frozen, pre-registered protocol. The assured system
-attempts the fewest unsafe moves of all baselines in every condition, 77--99\% fewer than the unshielded ensemble.
-On procedural maps it does not reach the success of plain A*. The safety rules provide most of the gain, while a
+seeds and 500 identical held-out maps per condition under a frozen, pre-registered protocol. On these procedural maps
+the assured system attempts the fewest unsafe moves of all baselines in every condition, 77--99\% fewer than the
+unshielded ensemble, but does not reach the success of plain A*. The safety rules provide most of the gain, while a
 raw-observation OOD check fires on 94\% of decisions under sensor shift and degrades results. Pre-registered follow-up
 experiments show that an action-conditioned OOD score removes this harm but adds no value, and that energy awareness in
 the fallback is decisive under combined shift (+44 points of success). On 450 maps built from HiRISE terrain models of
-three rover landing sites, the assured system matches A* in success with 81\% fewer unsafe moves. All results are from
-simulation.
+three rover landing sites, the assured system matches A* in success with 81\% fewer unsafe moves under nominal physics;
+under shifted physics A* regains a 0.4--3.7 point success advantage, while the assured system still attempts 53--84\%
+fewer unsafe moves. All results are from simulation.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -296,7 +297,37 @@ against no OOD check (grey). Mean and 95\% CI over 10 seeds; * Holm $p<0.05$.}
 \end{figure}
 
 \subsection{Real-Terrain Transfer}
-%A4_TEXT%
+Table~\ref{tab:real} reports the transfer results. Real terrain is flatter than the procedural maps (3--7\% obstacle cells
+against 15\%), and every method does better on it. With nominal physics the assured system matches A* in success (0.996
+for both; difference not significant) while attempting 81\% fewer unsafe moves and using 3.1 fewer energy units per
+episode, and it beats A*+monitor on success, unsafe moves, collisions and energy.
+
+Under shifted physics the procedural pattern returns. A* regains a significant success advantage of 0.4, 2.9 and 3.7
+points under dynamics, sensor and combined shift, although the assured system still attempts 53--84\% fewer unsafe moves.
+Against A*+monitor, the assured system succeeds more often under sensor and combined shift (+0.6 and +0.8 points) but
+attempts no fewer unsafe moves, because the raw OOD check again fires on about 90\% of decisions. The action-conditioned
+variant fires on 3--4\% of decisions and lowers unsafe moves by a further 0.06--0.07 per episode under these shifts,
+reaching the level of the rules-only variant (Table~\ref{tab:real}).
+
+\begin{table}[t]
+\centering
+\caption{Real-terrain maps (450 tiles from three HiRISE sites): success / unsafe moves per episode under nominal (ID) and
+shifted physics. Mean over 10 seeds.}
+\label{tab:real}
+\footnotesize
+\setlength{\tabcolsep}{2.2pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Method & ID & Sensor & Dynamics & Combined \\ \midrule
+A*                 & .996 / .102 & .991 / .382 & .991 / .093 & .989 / .389 \\
+A*+monitor         & .991 / .040 & .956 / .176 & .987 / .036 & .944 / .191 \\
+DQN+shield         & .972 / .231 & .965 / .352 & .966 / .168 & .953 / .317 \\
+Ensemble           & .980 / 1.90 & .980 / 1.72 & .973 / 1.71 & .971 / 1.46 \\
+Assured            & .996 / .019 & .962 / .180 & .987 / .015 & .952 / .184 \\
+Assured, act.-OOD  & .994 / .015 & .962 / .124 & .985 / .013 & .953 / .115 \\
+Rules only         & .987 / .014 & .955 / .120 & .978 / .013 & .948 / .116 \\ \bottomrule
+\end{tabular}
+\end{table}
 
 % =====================================================================================================================
 \section{Discussion}
@@ -310,8 +341,9 @@ whole-observation score responds to changes that do not affect the policy's comp
 own feature space, conditioned on the proposed action, stops the over-firing but leaves nothing for the check to add
 beyond the uncertainty check and the rules. A check that adds value would probably need to predict failure directly.
 
-On procedural maps a classical planner reaches the goal more often, so the learned proposer is best seen as a component
-inside the RTA layer rather than a replacement for planning: it uses less energy and attempts fewer unsafe moves than the
+On procedural maps, and on real terrain under shifted physics, a classical planner reaches the goal more often; only on
+real terrain with nominal physics does the assured system match it. The learned proposer is therefore best seen as a
+component inside the RTA layer rather than a replacement for planning: it uses less energy and attempts fewer unsafe moves than the
 same planner under the same rules.
 
 % =====================================================================================================================
@@ -330,7 +362,9 @@ We evaluated, under a frozen and pre-registered protocol, an onboard runtime-ass
 navigator. It reduces attempted unsafe moves by up to two orders of magnitude relative to the unshielded learned policy,
 at a small cost in success relative to a classical planner on procedural maps. Explicit safety rules provide most of this
 gain, ensemble uncertainty adds modest value, a raw OOD check is harmful under sensor shift, and an action-conditioned
-check removes the harm without adding value. An energy-aware fallback is decisive under harsh shift. %A4_CONCL%
+check removes the harm without adding value. An energy-aware fallback is decisive under harsh shift.
+On maps derived from real Mars elevation data these conclusions hold; the assured system matches A* in success under
+nominal physics but not under shifted physics, where it remains the safer of the two.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}

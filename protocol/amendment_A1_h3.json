@@ -1,0 +1,27 @@
+{
+  "id": "A1",
+  "title": "H3: battery-aware vs energy-blind fallback planner",
+  "status": "pre-registered before any H3 data was generated (written and committed before the H3 code ran on any split)",
+  "date": "2026-11-24",
+  "reason": "The plan's hypothesis H3 had no matching method in protocol v1.1 (found in the post-campaign review). This amendment ADDS two variants and one analysis; it changes nothing in the v1.1 methods, thresholds, maps or analysis, whose results stay as reported.",
+  "hypothesis": "H3: a battery-aware fallback planner increases the proportion of fallback interventions that remain energy-feasible, compared with a fallback that ignores energy reserves.",
+  "new_methods": {
+    "assured-fb_blind@95": "full runtime-assurance system (same ensemble, same thresholds, same monitor) whose fallback is the energy-blind A*: every traversable known cell costs 1, unknown cells cost a constant 2 (fixed uncertainty premium, no dependence on battery), same obstacle / collision / revisit handling, and no route energy-feasibility check (it never issues an 'infeasible_route' stop; 'all_moves_vetoed' stops remain)",
+    "assured-fb_blind_no_stop@95": "the same with safe stop disabled (allow_stop=False); compared with the existing assured-no_stop@95 it isolates the planner's cost model from the stop rule"
+  },
+  "comparisons": [
+    {"name": "battery-aware vs energy-blind fallback", "a": "assured@95", "b": "assured-fb_blind@95"},
+    {"name": "battery-aware vs energy-blind fallback (no stop)", "a": "assured-no_stop@95", "b": "assured-fb_blind_no_stop@95"}
+  ],
+  "primary_metric": {
+    "name": "energy_feasible_intervention_rate",
+    "definition": "among episodes in which the fallback acted at least once (fallback_steps > 0): fraction that did NOT end in battery depletion (terminal reason != 'battery_depleted'). Computed per system seed. Higher is better.",
+    "note": "A safe stop counts as energy-feasible (the rover keeps a reserve) but is a mission failure; therefore success among intervention episodes (fallback_success) and energy_used are reported alongside, and the no-stop comparison is reported so the result cannot be produced by stopping alone."
+  },
+  "secondary_metrics": ["fallback_success", "depleted_rate", "success", "energy_used", "safe_stop_rate", "collisions", "unsafe"],
+  "conditions": ["id", "terrain_shift", "sensor_shift", "dynamics_shift", "combined_shift"],
+  "data": "split 'final', map seeds 40000-40499 (identical to the v1.1 campaign), system seeds 0-9, frozen best_val ensemble checkpoints and frozen thresholds (percentile 95)",
+  "statistics": "as v1.1: paired over system seeds on identical maps, 95% t interval, exact sign-flip permutation p, Holm step-down across the five conditions within each (comparison, metric); alpha 0.05. Primary decision: H3 is supported if the primary metric difference (a - b) is positive with Holm-adjusted p < 0.05 in at least one condition of the first comparison and negative-significant in none; otherwise reported as not supported / mixed.",
+  "reproduction_check": "before the H3 run, one existing v1.1 cell (assured@95, seed 0, id) is re-run from the amended code and must be byte-identical to the stored CSV, apart from the wall-clock column plan_ms",
+  "freeze": "code + this amendment are re-frozen (protocol/freeze.json) and tagged v6.1-freeze-A1; the v1.1 freeze stays at tag v5.1-freeze"
+}

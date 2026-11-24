@@ -141,3 +141,30 @@ class BatteryAwareAStar:
                           "feasible": e_est * self.margin <= battery, "n_unknown": int(sum(unknown[c] for c in cells))}
         step = (path[1][0] - pos[0], path[1][1] - pos[1])
         return _DELTAS.index(step)
+
+
+class EnergyBlindAStar(BatteryAwareAStar):
+    """Amendment A1 (H3) ablation fallback: the SAME planner with its energy awareness removed.
+
+    * every traversable known cell costs 1 (terrain energy ignored); unknown cells cost a constant 1 + `unknown_risk`
+      (an uncertainty premium that does NOT grow as the battery drains)
+    * obstacle / collision (`bumped`) / revisit handling unchanged, so only the energy model differs
+    * `analyse` always reports the route as feasible: no 'infeasible_route' safe stop is ever triggered by the fallback
+    Used only for the H3 comparison; never the proposed system.
+    """
+    name = "energy_blind_astar"
+
+    def _grids(self, m, battery_ratio: float):
+        known = m.seen > 0
+        of = np.nan_to_num(m.obstacle_frac, nan=0.0)
+        soft = known & (of > 0.5)
+        energy = np.ones(m.seen.shape)
+        cost = np.where(known, 1.0, 1.0 + self.unknown_risk)
+        cost = np.where(soft, self.obstacle_penalty, cost) + self.visit_penalty * np.minimum(m.visits, 3)
+        cost = np.where(m.bumped, np.inf, cost)
+        return cost, energy, ~known
+
+    def analyse(self, obs, m) -> dict:
+        info = super().analyse(obs, m)
+        info["feasible"] = True
+        return info

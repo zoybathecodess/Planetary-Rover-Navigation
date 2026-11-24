@@ -24,7 +24,9 @@ from src.evaluation.reproducibility import SPLIT_OFFSET
 
 VARIANTS = {"full": {}, "no_ood": {"use_ood": False}, "no_unc": {"use_uncertainty": False}, "no_monitor": {"use_monitor": False},
             "no_stop": {"allow_stop": False}, "monitor_only": {"use_ood": False, "use_uncertainty": False},
-            "unc_only": {"use_ood": False, "use_monitor": False}, "ood_only": {"use_uncertainty": False, "use_monitor": False}}
+            "unc_only": {"use_ood": False, "use_monitor": False}, "ood_only": {"use_uncertainty": False, "use_monitor": False},
+            # amendment A1 (H3, protocol/amendment_A1_h3.json): same system, energy-blind fallback planner
+            "fb_blind": {"fallback": "energy_blind"}, "fb_blind_no_stop": {"fallback": "energy_blind", "allow_stop": False}}
 SEEDLESS = ("astar", "reactive", "random", "astar_monitor")
 PRESETS = ("id", "terrain_shift", "sensor_shift", "dynamics_shift", "combined_shift")
 VALID_REASONS = ("goal", "battery_depleted", "timeout", "safe_stop")

@@ -31,7 +31,7 @@ MAIN_METHODS = [("astar", "A*"), ("astar_monitor", "A*+monitor"), ("dqn", "DQN")
 COL = {"astar": "#000000", "astar_monitor": "#7f7f7f", "dqn": "#E69F00", "dqn_shield": "#D55E00", "ppo_shield": "#CC79A7",
        "ens": "#56B4E9", "assured-unc_only@95": "#009E73", "assured@95": "#0072B2", "assured-no_stop@95": "#5fa8d3"}
 
-plt.rcParams.update({"font.family": "serif", "font.size": 8, "axes.titlesize": 8, "axes.labelsize": 8, "legend.fontsize": 6.5,
+plt.rcParams.update({"font.family": "serif", "font.serif": ["STIXGeneral", "DejaVu Serif"], "mathtext.fontset": "stix", "font.size": 8, "axes.titlesize": 8, "axes.labelsize": 8, "legend.fontsize": 6.5,
                      "xtick.labelsize": 7, "ytick.labelsize": 7, "axes.spines.top": False, "axes.spines.right": False,
                      "savefig.bbox": "tight", "savefig.pad_inches": 0.02, "pdf.fonttype": 42})
 COLW, TEXTW = 3.5, 7.16       # IEEE column / text width, inches
@@ -117,10 +117,10 @@ def fig1():
     for x in (16, 50, 84):
         arrow((50, 104), (x, 94))
         arrow((x, 84), (50, 76))
-    arrow((64, 67), (71, 67), "yes", ly=2.8)
+    arrow((64, 67), (71, 67), "yes", ly=4.2)
     arrow((50, 58), (50, 53), "no", lx=4)
     arrow((50, 44), (50, 37))
-    arrow((64, 28), (71, 28), "yes", ly=2.8)
+    arrow((64, 28), (71, 28), "yes", ly=4.2)
     arrow((50, 19), (50, 12), "no", lx=4)
     save(fig, "fig1_architecture")
 

@@ -24,7 +24,7 @@ SPLIT_OFFSET = {"val": 10_000, "test": 20_000, "fit": 30_000, "final": 40_000, "
 HELD_OUT = ("test", "final", "real_final")
 FREEZE_PATH = "protocol/freeze.json"
 CODE_GLOBS = ("src/**/*.py", "scripts/*.py", "configs/*.yaml", "tests/*.py", "protocol/phase2_protocol.json", "protocol/analysis_plan.json",
-              "protocol/amendment_*.json")
+              "protocol/amendment_*.json", "data/real_tiles/*")
 
 
 def sha256_file(path) -> str:

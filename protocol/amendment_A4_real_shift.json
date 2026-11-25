@@ -1,0 +1,31 @@
+{
+  "id": "A4",
+  "title": "Real-terrain tiles under shifted physics",
+  "status": "pre-registered before any method was run on real tiles with shifted physics",
+  "date": "2026-11-24",
+  "purpose": "A2 found that on real-terrain tiles (ID physics) the assured system ties A* on success with far fewer unsafe moves. A4 tests whether this holds under the sensor and dynamics shifts where A* won on procedural maps.",
+  "tiles": "the frozen A2 real_final tile set (data/real_tiles/hirise_tiles.npz, sha256 3a44de6ef624ca1d1804e3ce931bd6052967e4dba21dd08a58bc60a32d2b519c), 450 tiles, seeds 70000-70449",
+  "conditions": {
+    "real_sensor": "configs/sim32_real_sensor.yaml = sensor-shift physics of configs/sim32_sensor_shift.yaml",
+    "real_dynamics": "configs/sim32_real_dynamics.yaml = dynamics-shift physics of configs/sim32_dynamics_shift.yaml",
+    "real_combined": "configs/sim32_real_combined.yaml = sensor + dynamics shift physics of configs/sim32_combined_shift.yaml (its terrain component does not apply: terrain is the real tile)"
+  },
+  "note_terrain_shift": "no terrain-shift condition: on real tiles the terrain is fixed by the DTM",
+  "methods": ["astar", "astar_monitor", "reactive", "dqn", "dqn_shield", "ppo", "ppo_shield", "ens", "assured-unc_only@95", "assured@95", "assured-no_stop@95", "assured-aood@95", "assured-monitor_only@95", "assured-no_ood@95"],
+  "primary_comparisons": [
+    {"name": "assured vs A*", "a": "assured@95", "b": "astar"},
+    {"name": "assured vs A*+monitor", "a": "assured@95", "b": "astar_monitor"},
+    {"name": "assured vs ensemble", "a": "assured@95", "b": "ens"},
+    {"name": "assured vs DQN+shield", "a": "assured@95", "b": "dqn_shield"}
+  ],
+  "secondary_comparisons": [
+    {"name": "action-OOD vs raw-OOD", "a": "assured-aood@95", "b": "assured@95"},
+    {"name": "full vs monitor-only", "a": "assured@95", "b": "assured-monitor_only@95"}
+  ],
+  "primary_metrics": ["success", "unsafe"],
+  "secondary_metrics": ["collisions", "energy_used", "intervention_rate", "safe_stop_rate", "depleted_rate"],
+  "statistics": "as v1.1: paired by system seed on identical tiles (seedless A* paired with every seed), 95% t interval, exact sign-flip p, Holm across the three conditions within each (comparison, metric); alpha 0.05",
+  "key_question": "Does 'assured vs A*' success remain non-significantly different (as on real terrain with ID physics), or does A* regain a significant success advantage under shifted physics? Reported as found; no decision threshold beyond the significance tests.",
+  "reproduction_check": "the v1.1 cell assured@95 / seed 0 / id must be byte-identical when re-run from the amended code",
+  "freeze": "re-frozen and tagged v6.4-freeze-A4"
+}

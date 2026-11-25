@@ -1,0 +1,77 @@
+{
+  "amendment": "A2",
+  "sha256": "3a44de6ef624ca1d1804e3ce931bd6052967e4dba21dd08a58bc60a32d2b519c",
+  "n_final": 450,
+  "n_pilot": 450,
+  "by_split": {
+    "real_final": {
+      "victoria": 140,
+      "jezero": 159,
+      "gale": 151
+    },
+    "real_pilot": {
+      "victoria": 160,
+      "jezero": 141,
+      "gale": 149
+    }
+  },
+  "sites": {
+    "victoria": {
+      "map_scale": 1.0118550737574,
+      "cells": [
+        847,
+        639
+      ],
+      "valid_cells": 433461,
+      "rough_p97": 0.324263509114644,
+      "rough_p20": 0.01451280381934339,
+      "candidates": 379,
+      "accepted": 332,
+      "kept": 300,
+      "composition": {
+        "normal": 0.6953982019143591,
+        "sand": 0.15669229757694464,
+        "rock": 0.08055626688444865,
+        "obstacle": 0.06735323362424762
+      }
+    },
+    "jezero": {
+      "map_scale": 1.0096633268711,
+      "cells": [
+        10629,
+        4117
+      ],
+      "valid_cells": 29236837,
+      "rough_p97": 0.17934163411473492,
+      "rough_p20": 0.014309353298813221,
+      "candidates": 28103,
+      "accepted": 27873,
+      "kept": 300,
+      "composition": {
+        "normal": 0.8197367930053446,
+        "sand": 0.11549939550574503,
+        "rock": 0.032416365696467095,
+        "obstacle": 0.03234744579244328
+      }
+    },
+    "gale": {
+      "map_scale": 1.0117671078927,
+      "cells": [
+        12429,
+        4176
+      ],
+      "valid_cells": 32989934,
+      "rough_p97": 0.09818522135446983,
+      "rough_p20": 0.007771809895530168,
+      "candidates": 31686,
+      "accepted": 30975,
+      "kept": 300,
+      "composition": {
+        "normal": 0.8137714976938117,
+        "sand": 0.13485746894795242,
+        "rock": 0.01819476207500142,
+        "obstacle": 0.03317627128323446
+      }
+    }
+  }
+}

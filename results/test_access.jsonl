@@ -1,1 +1,0 @@
-{"time": "2026-11-24 09:07:01 +0530", "split": "final", "purpose": "run_experiment phase2", "git": {"commit": "d3356e8bcdba19350f1da47ffb5d4528a0862428", "dirty": false, "tag": "v5.1-freeze"}, "argv": ["scripts/run_experiment.py", "run", "--name", "phase2", "--split", "final", "--seeds", "0-9", "--n-maps", "500", "--jobs", "4"]}

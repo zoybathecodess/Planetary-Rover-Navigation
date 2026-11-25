@@ -1,0 +1,81 @@
+comparison,metric,condition,n,diff,lo,hi,p_perm,p_holm,primary
+battery-aware vs energy-blind fallback,energy_feasible_intervention_rate,id,10,0.0,0.0,0.0,1.0,1.0,True
+battery-aware vs energy-blind fallback,energy_feasible_intervention_rate,terrain_shift,10,0.0004032258064516125,-0.0005089343398379827,0.0013153859527412076,1.0,1.0,True
+battery-aware vs energy-blind fallback,energy_feasible_intervention_rate,sensor_shift,10,0.0,0.0,0.0,1.0,1.0,True
+battery-aware vs energy-blind fallback,energy_feasible_intervention_rate,dynamics_shift,10,0.0007565376270412205,-0.0003861151702768763,0.0018991904243593175,0.5,1.0,True
+battery-aware vs energy-blind fallback,energy_feasible_intervention_rate,combined_shift,10,0.0022169306159537825,0.0011526556820922564,0.0032812055498153084,0.0078125,0.0390625,True
+battery-aware vs energy-blind fallback,fallback_success,id,10,-0.023603801237951826,-0.034474628668361144,-0.012732973807542505,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback,fallback_success,terrain_shift,10,-0.008066766954017956,-0.015830036513230686,-0.00030349739480522737,0.0546875,0.1640625,False
+battery-aware vs energy-blind fallback,fallback_success,sensor_shift,10,0.0024169356612444683,-0.00357569728893967,0.008409568611428607,0.375,0.75,False
+battery-aware vs energy-blind fallback,fallback_success,dynamics_shift,10,-0.0029035562501384614,-0.010535699990336036,0.0047285874900591125,0.3984375,0.75,False
+battery-aware vs energy-blind fallback,fallback_success,combined_shift,10,0.4484081910819758,0.4359756938107058,0.4608406883532459,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback,depleted_rate,id,10,0.0,0.0,0.0,1.0,1.0,False
+battery-aware vs energy-blind fallback,depleted_rate,terrain_shift,10,-0.0002,-0.0006524314325596397,0.0002524314325596396,1.0,1.0,False
+battery-aware vs energy-blind fallback,depleted_rate,sensor_shift,10,0.0,0.0,0.0,1.0,1.0,False
+battery-aware vs energy-blind fallback,depleted_rate,dynamics_shift,10,-0.0004,-0.0010032419100795195,0.00020324191007951956,0.5,1.0,False
+battery-aware vs energy-blind fallback,depleted_rate,combined_shift,10,-0.0021999999999999997,-0.003255673342639159,-0.0011443266573608404,0.0078125,0.0390625,False
+battery-aware vs energy-blind fallback,success,id,10,-0.009600000000000008,-0.01380109377432888,-0.005398906225671136,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback,success,terrain_shift,10,-0.004400000000000004,-0.008654887178680556,-0.00014511282131945014,0.0546875,0.1640625,False
+battery-aware vs energy-blind fallback,success,sensor_shift,10,0.0024000000000000132,-0.0035488951076589293,0.008348895107658957,0.4296875,0.859375,False
+battery-aware vs energy-blind fallback,success,dynamics_shift,10,-0.0016000000000000014,-0.006114249097721318,0.0029142490977213144,0.49609375,0.859375,False
+battery-aware vs energy-blind fallback,success,combined_shift,10,0.44499999999999995,0.43266945646504007,0.45733054353495983,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback,energy_used,id,10,-0.21799999999999925,-0.5300938936214086,0.09409389362141002,0.142578125,0.142578125,False
+battery-aware vs energy-blind fallback,energy_used,terrain_shift,10,-1.797800000000001,-2.366836710054626,-1.228763289945376,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback,energy_used,sensor_shift,10,-39.079,-39.7905554934845,-38.367444506515504,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback,energy_used,dynamics_shift,10,-5.297800000000002,-6.962277613627277,-3.6333223863727273,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback,energy_used,combined_shift,10,-33.45020000000001,-34.145833480289255,-32.754566519710764,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback,safe_stop_rate,id,10,0.0096,0.005398906225671131,0.013801093774328867,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback,safe_stop_rate,terrain_shift,10,0.004599999999999997,0.0004397077147442899,0.008760292285255704,0.046875,0.140625,False
+battery-aware vs energy-blind fallback,safe_stop_rate,sensor_shift,10,-0.0024000000000000002,-0.008348895107658953,0.003548895107658952,0.4296875,0.7421875,False
+battery-aware vs energy-blind fallback,safe_stop_rate,dynamics_shift,10,0.0019999999999999996,-0.002370902894026625,0.006370902894026625,0.37109375,0.7421875,False
+battery-aware vs energy-blind fallback,safe_stop_rate,combined_shift,10,-0.44279999999999997,-0.4553490267390964,-0.43025097326090356,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback,collisions,id,10,0.0007999999999999952,-0.009521432061873121,0.011121432061873111,0.90234375,0.90234375,False
+battery-aware vs energy-blind fallback,collisions,terrain_shift,10,0.016800000000000002,0.0036146441765118192,0.029985355823488186,0.029296875,0.05859375,False
+battery-aware vs energy-blind fallback,collisions,sensor_shift,10,-0.35819999999999996,-0.3746715145553794,-0.34172848544462053,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback,collisions,dynamics_shift,10,-0.06359999999999999,-0.10560444070413702,-0.021595559295862966,0.005859375,0.017578125,False
+battery-aware vs energy-blind fallback,collisions,combined_shift,10,-0.4856,-0.5323308111769997,-0.4388691888230003,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback,unsafe,id,10,-0.0004000000000000007,-0.002400727073551077,0.001600727073551076,0.8125,0.8359375,False
+battery-aware vs energy-blind fallback,unsafe,terrain_shift,10,0.0022,-0.0012024394581028278,0.005602439458102828,0.21875,0.65625,False
+battery-aware vs energy-blind fallback,unsafe,sensor_shift,10,-0.15860000000000002,-0.17889003514410567,-0.13830996485589436,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback,unsafe,dynamics_shift,10,-0.0016000000000000012,-0.005403295529213632,0.002203295529213629,0.41796875,0.8359375,False
+battery-aware vs energy-blind fallback,unsafe,combined_shift,10,-0.010399999999999965,-0.02391921513412904,0.0031192151341291087,0.12890625,0.515625,False
+battery-aware vs energy-blind fallback (no stop),energy_feasible_intervention_rate,id,10,-0.019554180062417315,-0.03019986208224353,-0.008908498042591102,0.001953125,0.009765625,True
+battery-aware vs energy-blind fallback (no stop),energy_feasible_intervention_rate,terrain_shift,10,0.002937352926980241,-0.0061664436000285,0.012041149453988983,0.484375,0.96875,True
+battery-aware vs energy-blind fallback (no stop),energy_feasible_intervention_rate,sensor_shift,10,-0.005400000000000005,-0.0076419589266264725,-0.0031580410733735363,0.00390625,0.01171875,True
+battery-aware vs energy-blind fallback (no stop),energy_feasible_intervention_rate,dynamics_shift,10,4.2434716368078275e-05,-0.007972872729150246,0.008057742161886403,0.99609375,0.99609375,True
+battery-aware vs energy-blind fallback (no stop),energy_feasible_intervention_rate,combined_shift,10,0.4718,0.4589598361715774,0.4846401638284226,0.001953125,0.009765625,True
+battery-aware vs energy-blind fallback (no stop),fallback_success,id,10,-0.019554180062417315,-0.03019986208224353,-0.008908498042591102,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback (no stop),fallback_success,terrain_shift,10,0.002937352926980241,-0.0061664436000285,0.012041149453988983,0.484375,0.96875,False
+battery-aware vs energy-blind fallback (no stop),fallback_success,sensor_shift,10,-0.005400000000000005,-0.0076419589266264725,-0.0031580410733735363,0.00390625,0.01171875,False
+battery-aware vs energy-blind fallback (no stop),fallback_success,dynamics_shift,10,4.2434716368078275e-05,-0.007972872729150246,0.008057742161886403,0.99609375,0.99609375,False
+battery-aware vs energy-blind fallback (no stop),fallback_success,combined_shift,10,0.4718,0.4589598361715774,0.4846401638284226,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback (no stop),depleted_rate,id,10,0.008,0.0037344355468684623,0.012265564453131539,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback (no stop),depleted_rate,terrain_shift,10,-0.0013999999999999991,-0.0064493365846888095,0.003649336584688811,0.59375,1.0,False
+battery-aware vs energy-blind fallback (no stop),depleted_rate,sensor_shift,10,0.0054,0.003158041073373534,0.0076419589266264664,0.00390625,0.01171875,False
+battery-aware vs energy-blind fallback (no stop),depleted_rate,dynamics_shift,10,-0.00019999999999999982,-0.005037703001790998,0.004637703001790999,1.0,1.0,False
+battery-aware vs energy-blind fallback (no stop),depleted_rate,combined_shift,10,-0.4718,-0.4846401638284226,-0.4589598361715774,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback (no stop),success,id,10,-0.008000000000000007,-0.01226556445313155,-0.003734435546868466,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback (no stop),success,terrain_shift,10,0.0014000000000000013,-0.0036493365846888143,0.006449336584688816,0.59375,1.0,False
+battery-aware vs energy-blind fallback (no stop),success,sensor_shift,10,-0.005400000000000005,-0.0076419589266264725,-0.0031580410733735363,0.00390625,0.01171875,False
+battery-aware vs energy-blind fallback (no stop),success,dynamics_shift,10,0.00020000000000000017,-0.004637703001791002,0.005037703001791003,1.0,1.0,False
+battery-aware vs energy-blind fallback (no stop),success,combined_shift,10,0.4718,0.4589598361715774,0.4846401638284226,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback (no stop),energy_used,id,10,0.04380000000000024,-0.356872219728566,0.44447221972856643,0.8046875,0.8046875,False
+battery-aware vs energy-blind fallback (no stop),energy_used,terrain_shift,10,-0.8168000000000063,-1.359042925535138,-0.27455707446487476,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback (no stop),energy_used,sensor_shift,10,-39.987399999999994,-41.08689175815445,-38.88790824184554,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback (no stop),energy_used,dynamics_shift,10,-5.072799999999998,-6.8055054379050945,-3.340094562094902,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback (no stop),energy_used,combined_shift,10,-39.22600000000001,-39.94936760792677,-38.50263239207326,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback (no stop),safe_stop_rate,id,10,0.0,0.0,0.0,1.0,1.0,False
+battery-aware vs energy-blind fallback (no stop),safe_stop_rate,terrain_shift,10,0.0,0.0,0.0,1.0,1.0,False
+battery-aware vs energy-blind fallback (no stop),safe_stop_rate,sensor_shift,10,0.0,0.0,0.0,1.0,1.0,False
+battery-aware vs energy-blind fallback (no stop),safe_stop_rate,dynamics_shift,10,0.0,0.0,0.0,1.0,1.0,False
+battery-aware vs energy-blind fallback (no stop),safe_stop_rate,combined_shift,10,0.0,0.0,0.0,1.0,1.0,False
+battery-aware vs energy-blind fallback (no stop),collisions,id,10,0.024199999999999992,0.011502330957220166,0.036897669042779815,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback (no stop),collisions,terrain_shift,10,0.09700000000000002,0.07841601213488826,0.11558398786511177,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback (no stop),collisions,sensor_shift,10,-0.32860000000000006,-0.3480895922473345,-0.30911040775266563,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback (no stop),collisions,dynamics_shift,10,-0.03960000000000001,-0.08296319198962654,0.0037631919896265187,0.076171875,0.076171875,False
+battery-aware vs energy-blind fallback (no stop),collisions,combined_shift,10,-0.5067999999999999,-0.5646027267026767,-0.4489972732973231,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback (no stop),unsafe,id,10,0.0224,0.014956620584967474,0.029843379415032525,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback (no stop),unsafe,terrain_shift,10,0.0794,0.06689000045191942,0.09190999954808057,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback (no stop),unsafe,sensor_shift,10,-0.12399999999999997,-0.1459376117831003,-0.10206238821689964,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback (no stop),unsafe,dynamics_shift,10,0.020399999999999998,0.01460605065680181,0.026193949343198186,0.001953125,0.009765625,False
+battery-aware vs energy-blind fallback (no stop),unsafe,combined_shift,10,0.017800000000000003,0.0008655210934519035,0.0347344789065481,0.05078125,0.05078125,False

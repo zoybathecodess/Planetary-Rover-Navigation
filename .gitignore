@@ -7,3 +7,7 @@ results/**/*.pt
 
 # macOS
 .DS_Store
+
+# Paper build files
+paper/*.zip
+paper/build/

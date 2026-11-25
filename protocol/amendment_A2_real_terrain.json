@@ -1,0 +1,43 @@
+{
+  "id": "A2",
+  "title": "Real-terrain transfer: evaluation on 32x32 tiles derived from HiRISE digital terrain models",
+  "status": "pre-registered before the DTM data was inspected (written while the files were downloading) and before any method was run on derived tiles",
+  "date": "2026-11-24",
+  "purpose": "External-validity check: does the v1.1 ranking of methods hold when the terrain STRUCTURE comes from real Mars elevation data instead of the procedural generator? Evaluation only: no training, no threshold change.",
+  "data": [
+    {"site": "victoria", "rover": "Opportunity", "file": "DTEEC_001414_1780_001612_1780_U01.IMG", "bytes": 8671620},
+    {"site": "jezero", "rover": "Perseverance", "file": "DTEEC_023524_1985_023379_1985_U01.IMG", "bytes": 700271460},
+    {"site": "gale", "rover": "Curiosity", "file": "DTEEC_009505_1755_009571_1755_U01.IMG", "bytes": 830489472}
+  ],
+  "source": "https://hirise-pds.lpl.arizona.edu/PDS/DTM/ (University of Arizona HiRISE, NASA PDS). Raw files are stored in data/hirise/ (git-ignored); derived tiles and their SHA-256 are committed.",
+  "map_construction": {
+    "cell": "2 m: elevation averaged over blocks of round(2 / MAP_SCALE) x round(2 / MAP_SCALE) DTM pixels (factor >= 1); a cell is invalid if any of its pixels is the missing-data constant",
+    "slope": "degrees(arctan(|grad z|)) with numpy.gradient on the 2 m grid, spacing 2 m",
+    "roughness": "|z - mean of z over the 3x3-cell neighbourhood| in metres (local relief residual)",
+    "site_percentiles": "P97 and P20 of roughness over all valid interior cells of the site, computed once per site",
+    "classes": "obstacle if slope > 25 deg or roughness > P97(site); rock if 15 < slope <= 25 deg; sand if slope < 5 deg and roughness < P20(site); normal otherwise. Rule fixed a priori as a modelling choice (rover slope limits are typically 20-30 deg); it encodes terrain STRUCTURE, not measured traversability.",
+    "tiles": "non-overlapping 32x32 tiles on the 2 m grid, scanned row-major from the DTM origin; a tile is a candidate only if all 1024 cells are valid",
+    "endpoints": "start (0,0), goal (31,31); the 3x3 corner blocks are set to normal (landing pads), exactly as the procedural generator does",
+    "acceptance": "the simulator's own rule: goal reachable, nominal optimal cost <= 0.6 x 250, true optimal cost <= 250",
+    "selection": "accepted tiles shuffled with numpy default_rng(2026); per site at most 300 kept; the pooled kept list is shuffled again with default_rng(2027); first half -> real_pilot (debugging only), second half -> real_final (confirmatory), real_final capped at 500",
+    "seeds": "real_final tile i -> map seed 70000 + i, real_pilot tile i -> 75000 + i; the tile file and its hash are frozen before any run"
+  },
+  "physics": "in-distribution sensor, slip and energy parameters (configs/sim32_id.yaml); only the terrain differs",
+  "methods": ["astar", "astar_monitor", "reactive", "dqn", "dqn_shield", "ppo", "ppo_shield", "ens", "assured-unc_only@95", "assured@95", "assured-no_stop@95", "assured-aood@95", "assured-monitor_only@95", "assured-no_ood@95"],
+  "primary_comparisons": [
+    {"name": "assured vs A*+monitor", "a": "assured@95", "b": "astar_monitor"},
+    {"name": "assured vs ensemble", "a": "assured@95", "b": "ens"},
+    {"name": "assured vs DQN+shield", "a": "assured@95", "b": "dqn_shield"}
+  ],
+  "secondary_comparisons": [
+    {"name": "assured vs A*", "a": "assured@95", "b": "astar"},
+    {"name": "action-OOD vs raw-OOD", "a": "assured-aood@95", "b": "assured@95"},
+    {"name": "full vs monitor-only", "a": "assured@95", "b": "assured-monitor_only@95"}
+  ],
+  "primary_metrics": ["success", "unsafe"],
+  "secondary_metrics": ["collisions", "energy_used", "intervention_rate", "safe_stop_rate", "depleted_rate"],
+  "statistics": "paired by system seed on identical tiles; 95% t interval; exact sign-flip p; one condition, so Holm is applied across the comparisons within each family (primary, secondary) per metric; alpha 0.05; seedless A* paired with every seed",
+  "transfer_question": "Report, descriptively, each method's change from the procedural ID condition to the real-terrain condition, and whether the qualitative v1.1 conclusions (assured has the lowest unsafe exposure; success comparable to A*+monitor; monitor drives safety) hold.",
+  "reproduction_check": "before the A2 run, the v1.1 cell assured@95 / seed 0 / id must be byte-identical when re-run from the amended code",
+  "freeze": "code + A2 + tile file re-frozen, tag v6.3-freeze-A2"
+}

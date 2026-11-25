@@ -1,0 +1,34 @@
+{
+  "id": "A3",
+  "title": "Action-conditioned OOD gate (fix for the H2 failure)",
+  "status": "pre-registered before the new detector was fitted or evaluated on any split; design fixed a priori, no tuning on any data",
+  "date": "2026-11-24",
+  "motivation": "v1.1 found that the raw-observation Mahalanobis OOD gate fires on ~95% of steps under sensor and combined shift, hands control to the fallback, and worsens success and unsafe moves (H2 not supported). Diagnosis: it scores ANY input change, including noise the policy is insensitive to, and it ignores which action is proposed. A3 replaces only the OOD score with one that is (a) computed in the policy's own learned feature space and (b) conditioned on the proposed action.",
+  "detector": {
+    "name": "action-conditioned feature Mahalanobis (class-conditional Mahalanobis of Lee et al. 2018, with class = proposed action)",
+    "features": "h_k(o): output of the last hidden layer (128-d, post-ReLU) of the TRAINABLE network of ensemble member k (the frozen random prior is excluded)",
+    "classes": "a = the ensemble's proposed action (argmax of mean Q), 4 classes",
+    "fit": "per member k: class means mu_{k,a} and ONE shared covariance (within-class scatter), shrinkage 0.1 toward its diagonal plus a 1e-6 relative ridge (same regularisation as v1.1); classes with fewer than 256 fit samples use the pooled mean",
+    "score": "s_t = mean_k (h_k - mu_{k,a})^T Sigma_k^{-1} (h_k - mu_{k,a}) / 128; the gate uses the mean of the last 10 step scores (same window as v1.1)",
+    "fit_data": "observations and proposed actions from plain-ensemble rollouts on the 200 'fit' maps (seeds 30000-30199, ID), as in v1.1",
+    "threshold": "95th percentile (primary; 90/99 not run) of windowed scores of the plain ensemble on the 100 ID validation maps (10000-10099), per system seed; frozen in results/task4/calib/ens_s<k>/aood_val_scores.npz",
+    "information_boundary": "uses only the observation and the policy's own network; no ground truth"
+  },
+  "new_methods": {
+    "assured-aood@95": "full system (uncertainty gate + monitor + battery-aware fallback + safe stop) with the action-conditioned OOD gate in place of the raw one",
+    "assured-aood_only@95": "action-conditioned OOD gate + fallback only (no uncertainty gate, no monitor): characterises the detector itself, compared descriptively with assured-ood_only@95"
+  },
+  "comparisons": [
+    {"name": "action-OOD vs raw-OOD (full system)", "a": "assured-aood@95", "b": "assured@95"},
+    {"name": "action-OOD vs no OOD (full system)", "a": "assured-aood@95", "b": "assured-no_ood@95"}
+  ],
+  "primary_metrics": ["success", "unsafe"],
+  "secondary_metrics": ["collisions", "intervention_rate", "safe_stop_rate", "energy_used"],
+  "hypothesis": "H2': replacing the raw OOD gate by the action-conditioned gate improves the full system under sensor and combined shift without harming ID.",
+  "decision_rule": "H2' supported if, in comparison 1, success is significantly higher OR unsafe significantly lower (Holm p<0.05) in at least one of {sensor_shift, combined_shift}, AND neither primary metric is significantly worse in any condition. The OOD gate is judged to ADD VALUE only if, in comparison 2, at least one primary metric is significantly better in some condition and none significantly worse anywhere. Otherwise reported as not supported / mixed.",
+  "conditions": ["id", "terrain_shift", "sensor_shift", "dynamics_shift", "combined_shift"],
+  "data": "split 'final', map seeds 40000-40499, system seeds 0-9, frozen best_val ensembles; identical maps to v1.1 and A1",
+  "statistics": "as v1.1: paired by system seed on identical maps, 95% t interval, exact sign-flip p, Holm across the five conditions within each (comparison, metric), alpha 0.05",
+  "reproduction_check": "before the A3 run, the v1.1 cell assured@95 / seed 0 / id is re-run from the amended code and must be byte-identical (excluding plan_ms)",
+  "freeze": "code + A3 + new calibration artefacts are re-frozen and tagged v6.2-freeze-A3"
+}

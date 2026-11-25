@@ -1,18 +1,11 @@
-% Published works only (journals, conference proceedings, peer-reviewed workshops). Checked 2026-11-24.
-% Removed as unpublished preprints: Kahn et al. 2017, SODA-MPC 2024, evaluation-time policy switching 2025,
-% Endo et al. 2024, Mortensen et al. 2023, Toupet et al. 2020 (draft), Sinha et al. 2023 (no venue record found),
-% Schulman et al. 2017 (PPO, arXiv only).
-
-@article{sha2001simplex,
-  author  = {Sha, Lui},
-  title   = {Using Simplicity to Control Complexity},
-  journal = {IEEE Software},
-  volume  = {18},
-  number  = {4},
-  pages   = {20--28},
-  year    = {2001},
-  doi     = {10.1109/MS.2001.936213}
+% Published works from 2020-2026 only (journals, conference proceedings, peer-reviewed workshops). Checked 2026-11-25.
+@IEEEtranBSTCTL{IEEEexample:BSTcontrol,
+  CTLuse_forced_etal = "yes",
+  CTLmax_names_forced_etal = "6",
+  CTLnames_show_etal = "1"
 }
+
+% ---------------- runtime assurance and safety filters
 @article{hobbs2023rta,
   author  = {Hobbs, Kerianne L. and Mote, Mark L. and Abate, Matthew C. L. and Coogan, Samuel D. and Feron, Eric M.},
   title   = {Run Time Assurance for Safety-Critical Systems: An Introduction to Safety Filtering Approaches for Complex Control Systems},
@@ -44,14 +37,17 @@
   publisher = {Springer},
   doi       = {10.1007/978-3-031-06773-0_12}
 }
-@inproceedings{alshiekh2018shield,
-  author    = {Alshiekh, Mohammed and Bloem, Roderick and Ehlers, R{\"u}diger and K{\"o}nighofer, Bettina and Niekum, Scott and Topcu, Ufuk},
-  title     = {Safe Reinforcement Learning via Shielding},
-  booktitle = {Proc. AAAI Conference on Artificial Intelligence},
-  volume    = {32},
-  year      = {2018},
-  doi       = {10.1609/aaai.v32i1.11797}
+@article{wabersich2023safety,
+  author  = {Wabersich, Kim P. and Taylor, Andrew J. and Choi, Jason J. and Sreenath, Koushil and Tomlin, Claire J. and Ames, Aaron D. and Zeilinger, Melanie N.},
+  title   = {Data-Driven Safety Filters: {H}amilton-{J}acobi Reachability, Control Barrier Functions, and Predictive Methods for Uncertain Systems},
+  journal = {IEEE Control Systems Magazine},
+  volume  = {43},
+  number  = {5},
+  pages   = {137--177},
+  year    = {2023}
 }
+
+% ---------------- safe RL and shielding
 @inproceedings{carr2023pomdpshield,
   author    = {Carr, Steven and Jansen, Nils and Junges, Sebastian and Topcu, Ufuk},
   title     = {Safe Reinforcement Learning via Shielding under Partial Observability},
@@ -62,13 +58,12 @@
   year      = {2023},
   doi       = {10.1609/aaai.v37i12.26723}
 }
-@article{garcia2015saferl,
-  author  = {Garc{\'i}a, Javier and Fern{\'a}ndez, Fernando},
-  title   = {A Comprehensive Survey on Safe Reinforcement Learning},
-  journal = {Journal of Machine Learning Research},
-  volume  = {16},
-  pages   = {1437--1480},
-  year    = {2015}
+@article{gu2024saferl,
+  author  = {Gu, Shangding and Yang, Long and Du, Yali and Chen, Guang and Walter, Florian and Wang, Jun and Knoll, Alois},
+  title   = {A Review of Safe Reinforcement Learning: Methods, Theories and Applications},
+  journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  year    = {2024},
+  doi     = {10.1109/TPAMI.2024.3457538}
 }
 @article{brunke2022saferobot,
   author  = {Brunke, Lukas and Greeff, Melissa and Hall, Adam W. and Yuan, Zhaocong and Zhou, Siqi and Panerati, Jacopo and Schoellig, Angela P.},
@@ -79,48 +74,75 @@
   year    = {2022},
   doi     = {10.1146/annurev-control-042920-020211}
 }
-@inproceedings{lakshminarayanan2017ensembles,
-  author    = {Lakshminarayanan, Balaji and Pritzel, Alexander and Blundell, Charles},
-  title     = {Simple and Scalable Predictive Uncertainty Estimation using Deep Ensembles},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
-  volume    = {30},
-  year      = {2017}
+
+% ---------------- uncertainty, ensembles, OOD and generalisation
+@article{abdar2021uq,
+  author  = {Abdar, Moloud and Pourpanah, Farhad and Hussain, Sadiq and Rezazadegan, Dana and Liu, Li and Ghavamzadeh, Mohammad and Fieguth, Paul and Cao, Xiaochun and Khosravi, Abbas and Acharya, U. Rajendra and Makarenkov, Vladimir and Nahavandi, Saeid},
+  title   = {A Review of Uncertainty Quantification in Deep Learning: Techniques, Applications and Challenges},
+  journal = {Information Fusion},
+  volume  = {76},
+  pages   = {243--297},
+  year    = {2021},
+  doi     = {10.1016/j.inffus.2021.05.008}
 }
-@inproceedings{osband2016bootstrapped,
-  author    = {Osband, Ian and Blundell, Charles and Pritzel, Alexander and Van Roy, Benjamin},
-  title     = {Deep Exploration via Bootstrapped {DQN}},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
-  volume    = {29},
-  year      = {2016}
+@inproceedings{lee2021sunrise,
+  author    = {Lee, Kimin and Laskin, Michael and Srinivas, Aravind and Abbeel, Pieter},
+  title     = {{SUNRISE}: A Simple Unified Framework for Ensemble Learning in Deep Reinforcement Learning},
+  booktitle = {Proc. International Conference on Machine Learning (ICML)},
+  series    = {PMLR},
+  volume    = {139},
+  pages     = {6131--6141},
+  year      = {2021}
 }
-@inproceedings{osband2018priors,
-  author    = {Osband, Ian and Aslanides, John and Cassirer, Albin},
-  title     = {Randomized Prior Functions for Deep Reinforcement Learning},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
-  volume    = {31},
-  year      = {2018}
+@article{yang2024ood,
+  author  = {Yang, Jingkang and Zhou, Kaiyang and Li, Yixuan and Liu, Ziwei},
+  title   = {Generalized Out-of-Distribution Detection: A Survey},
+  journal = {International Journal of Computer Vision},
+  volume  = {132},
+  number  = {12},
+  pages   = {5635--5662},
+  year    = {2024},
+  doi     = {10.1007/s11263-024-02117-4}
 }
-@inproceedings{lee2018mahalanobis,
-  author    = {Lee, Kimin and Lee, Kibok and Lee, Honglak and Shin, Jinwoo},
-  title     = {A Simple Unified Framework for Detecting Out-of-Distribution Samples and Adversarial Attacks},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
-  volume    = {31},
-  year      = {2018}
+@inproceedings{haider2023ood,
+  author    = {Haider, Tom and Roscher, Karsten and Schmoeller da Roza, Felippe and G{\"u}nnemann, Stephan},
+  title     = {Out-of-Distribution Detection for Reinforcement Learning Agents with Probabilistic Dynamics Models},
+  booktitle = {Proc. International Conference on Autonomous Agents and Multiagent Systems (AAMAS)},
+  pages     = {851--859},
+  year      = {2023}
 }
-@inproceedings{ovadia2019shift,
-  author    = {Ovadia, Yaniv and Fertig, Emily and Ren, Jie and Nado, Zachary and Sculley, D. and Nowozin, Sebastian and Dillon, Joshua V. and Lakshminarayanan, Balaji and Snoek, Jasper},
-  title     = {Can You Trust Your Model's Uncertainty? Evaluating Predictive Uncertainty Under Dataset Shift},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
-  volume    = {32},
-  year      = {2019}
+@article{kirk2023generalisation,
+  author  = {Kirk, Robert and Zhang, Amy and Grefenstette, Edward and Rockt{\"a}schel, Tim},
+  title   = {A Survey of Zero-Shot Generalisation in Deep Reinforcement Learning},
+  journal = {Journal of Artificial Intelligence Research},
+  volume  = {76},
+  pages   = {201--264},
+  year    = {2023},
+  doi     = {10.1613/jair.1.14174}
 }
-@inproceedings{lutjens2019safe,
-  author    = {L{\"u}tjens, Bj{\"o}rn and Everett, Michael and How, Jonathan P.},
-  title     = {Safe Reinforcement Learning with Model Uncertainty Estimates},
+
+% ---------------- planetary rover navigation
+@article{verma2023perseverance,
+  author  = {Verma, Vandi and Maimone, Mark W. and Gaines, Daniel M. and Francis, Raymond and Estlin, Tara A. and Kuhn, Stephen R. and Rabideau, Gregg R. and Chien, Steve A. and others},
+  title   = {Autonomous Robotics is Driving {P}erseverance Rover's Progress on {M}ars},
+  journal = {Science Robotics},
+  volume  = {8},
+  number  = {80},
+  year    = {2023},
+  doi     = {10.1126/scirobotics.adi3099}
+}
+@article{daftry2022mlnav,
+  author  = {Daftry, Shreyansh and Abcouwer, Neil and Del Sesto, Tyler and Venkatraman, Siddarth and Song, Jialin and Igel, Lucas and Byon, Amos and Rosolia, Ugo and Yue, Yisong and Ono, Masahiro},
+  title   = {{MLNav}: Learning to Safely Navigate on {M}artian Terrains},
+  journal = {IEEE Robotics and Automation Letters},
+  year    = {2022},
+  doi     = {10.1109/LRA.2022.3156654}
+}
+@inproceedings{endo2023risk,
+  author    = {Endo, Masafumi and Taniai, Tatsunori and Yonetani, Ryo and Ishigami, Genya},
+  title     = {Risk-Aware Path Planning via Probabilistic Fusion of Traversability Prediction for Planetary Rovers on Heterogeneous Terrains},
   booktitle = {Proc. IEEE International Conference on Robotics and Automation (ICRA)},
-  pages     = {8662--8668},
-  year      = {2019},
-  doi       = {10.1109/ICRA.2019.8793611}
+  year      = {2023}
 }
 @inproceedings{swan2021ai4mars,
   author    = {Swan, R. Michael and Atha, Deegan and Leopold, Henry A. and Gildner, Matthew and Oij, Stephanie and Chiu, Cindy and Ono, Masahiro},
@@ -148,46 +170,4 @@
   pages   = {1924},
   year    = {2025},
   doi     = {10.3390/rs17111924}
-}
-@article{mnih2015dqn,
-  author  = {Mnih, Volodymyr and Kavukcuoglu, Koray and Silver, David and others},
-  title   = {Human-level Control through Deep Reinforcement Learning},
-  journal = {Nature},
-  volume  = {518},
-  pages   = {529--533},
-  year    = {2015},
-  doi     = {10.1038/nature14236}
-}
-@inproceedings{vanhasselt2016double,
-  author    = {van Hasselt, Hado and Guez, Arthur and Silver, David},
-  title     = {Deep Reinforcement Learning with Double {Q}-Learning},
-  booktitle = {Proc. AAAI Conference on Artificial Intelligence},
-  volume    = {30},
-  year      = {2016},
-  doi       = {10.1609/aaai.v30i1.10295}
-}
-@article{hart1968astar,
-  author  = {Hart, Peter E. and Nilsson, Nils J. and Raphael, Bertram},
-  title   = {A Formal Basis for the Heuristic Determination of Minimum Cost Paths},
-  journal = {IEEE Transactions on Systems Science and Cybernetics},
-  volume  = {4},
-  number  = {2},
-  pages   = {100--107},
-  year    = {1968},
-  doi     = {10.1109/TSSC.1968.300136}
-}
-@article{holm1979,
-  author  = {Holm, Sture},
-  title   = {A Simple Sequentially Rejective Multiple Test Procedure},
-  journal = {Scandinavian Journal of Statistics},
-  volume  = {6},
-  number  = {2},
-  pages   = {65--70},
-  year    = {1979}
-}
-
-@IEEEtranBSTCTL{IEEEexample:BSTcontrol,
-  CTLuse_forced_etal = "yes",
-  CTLmax_names_forced_etal = "6",
-  CTLnames_show_etal = "1"
 }

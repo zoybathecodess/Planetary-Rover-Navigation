@@ -181,8 +181,12 @@ class TestSplitHygiene(unittest.TestCase):
                     self.assertFalse(groups[a] & groups[b], f"{a} / {b} overlap")
 
     def test_split_ranges_are_disjoint_for_realistic_sizes(self):
-        offs = sorted(R.SPLIT_OFFSET.values())
+        proc = {k: v for k, v in R.SPLIT_OFFSET.items() if not k.startswith("real_")}
+        offs = sorted(proc.values())
         self.assertTrue(all(b - a >= 10_000 for a, b in zip(offs, offs[1:])))
+        # amendment A2: real-terrain tile seeds (<= 500 per split) sit above every procedural range and do not overlap
+        self.assertGreaterEqual(R.SPLIT_OFFSET["real_pilot"] - R.SPLIT_OFFSET["real_final"], 500)
+        self.assertGreaterEqual(R.SPLIT_OFFSET["real_final"] - max(offs), 10_000)
 
     def test_training_does_not_evaluate_on_test_maps_by_default(self):
         from src.config import RunConfig

@@ -120,6 +120,12 @@ class AdvancedRoverEnv:
         map_ss, slip_ss, sens_ss = ss.spawn(3)
         rng, c = np.random.default_rng(map_ss), self.cfg
         start, goal = (0, 0), (self.size - 1, self.size - 1)
+        if c.external_tiles:                     # amendment A2: real-terrain tile (generator side; the rover never sees it)
+            grid = self._external_tile(seed)
+            G.clear_blocks(grid, start, goal)
+            true = G.dijkstra_lut(grid, start, self._lut)[goal]
+            self._install_world(grid, start, goal, int(true), f"tile({seed})", (slip_ss, sens_ss))
+            return self._observe()
         for _ in range(c.map_retry_limit):
             grid = G.generate_terrain(rng, self.size, c.p_normal, c.p_sand, c.p_rock, c.gen_corr)
             G.clear_blocks(grid, start, goal)
@@ -134,6 +140,20 @@ class AdvancedRoverEnv:
             raise RuntimeError(f"No valid map after {c.map_retry_limit} attempts; check terrain probabilities/battery")
         self._install_world(grid, start, goal, int(true), map_id, (slip_ss, sens_ss))
         return self._observe()
+
+    def _external_tile(self, seed):
+        if seed is None:
+            raise ValueError("external_tiles maps are evaluation-only: call reset(seed=<tile seed>)")
+        if getattr(self, "_tiles", None) is None:
+            from pathlib import Path
+            p = Path(self.cfg.external_tiles)
+            if not p.is_absolute():
+                p = Path(__file__).resolve().parents[2] / p
+            z = np.load(p)
+            self._tiles = {int(s): g.astype(np.int64) for s, g in zip(z["seeds"], z["grids"])}
+        if int(seed) not in self._tiles:
+            raise KeyError(f"no real-terrain tile with seed {seed}")
+        return self._tiles[int(seed)].copy()
 
     def _install_world(self, grid, start, goal, optimal_cost, map_id, streams=None) -> None:
         if streams is None:  # injected maps (evaluator.reset_with_map, tests): streams from the env's own seed

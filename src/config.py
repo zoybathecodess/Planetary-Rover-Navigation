@@ -34,6 +34,7 @@ class EnvConfig:
     sensor_miss: float = 0.05           # TRUE P(obstacle not detected)
     sensor_false: float = 0.02          # TRUE P(free cell reported as obstacle)
     sensor_sigma: float = 0.05          # TRUE std-dev of the terrain reading (reading scale 0..1)
+    external_tiles: str = ""            # amendment A2: .npz of real-terrain tiles; reset(seed) loads the tile with that seed
 
 
 @dataclass
@@ -91,6 +92,8 @@ class AssuranceConfig:
     use_ood: bool = True
     use_monitor: bool = True
     allow_stop: bool = True      # False = ablation: never end the episode; keep driving on the best ranked move
+    fallback: str = "battery"    # "battery" (battery-aware A*, default) | "energy_blind" (amendment A1 / H3 ablation only)
+    ood_kind: str = "raw"        # "raw" (v1.1 observation Mahalanobis, default) | "action" (amendment A3: action-conditioned)
 
 
 @dataclass

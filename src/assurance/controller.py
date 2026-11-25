@@ -59,7 +59,7 @@ class RuntimeAssuranceController:
             self.reset()
         q = self.ens.q_matrix(obs)
         a, unc, margin = self.ens.summarise(q)
-        score = self.win.update(self.ood.score(obs))
+        score = self.win.update(self.ood.score(obs, a) if getattr(self.ood, "needs_action", False) else self.ood.score(obs))
         reasons = self.monitor.check(obs, a, m) if self.cfg.use_monitor else []
         unc_alarm = bool(self.cfg.use_uncertainty and unc > self.tau_unc)
         ood_alarm = bool(self.cfg.use_ood and score > self.tau_ood)

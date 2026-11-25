@@ -24,6 +24,10 @@ def build_ensemble(cfg, ckpt_dir_for_member, system_seed: int) -> EnsemblePolicy
 
 def build_assured(cfg, ensemble, ood: MahalanobisOOD, tau_unc: float, tau_ood: float, keep_log: bool = False, seed: int = 0,
                   acfg=None):
-    from src.policies.astar_battery import BatteryAwareAStar
-    fb = BatteryAwareAStar(nominal_energy=cfg.env.ref_energy_cost, seed=seed)
-    return RuntimeAssuranceController(ensemble, ood, fb, acfg or cfg.assurance, tau_unc, tau_ood, cfg.env.ref_energy_cost, keep_log)
+    from src.policies.astar_battery import BatteryAwareAStar, EnergyBlindAStar
+    acfg = acfg or cfg.assurance
+    kind = getattr(acfg, "fallback", "battery")
+    if kind not in ("battery", "energy_blind"):
+        raise ValueError(f"unknown fallback {kind!r}")
+    fb = (EnergyBlindAStar if kind == "energy_blind" else BatteryAwareAStar)(nominal_energy=cfg.env.ref_energy_cost, seed=seed)
+    return RuntimeAssuranceController(ensemble, ood, fb, acfg, tau_unc, tau_ood, cfg.env.ref_energy_cost, keep_log)

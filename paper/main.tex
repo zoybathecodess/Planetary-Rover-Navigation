@@ -13,7 +13,7 @@
 \begin{document}
 \bstctlcite{IEEEexample:BSTcontrol}
 
-\title{Uncertainty-Aware Runtime Assurance for Safe Learning-Based Planetary Rover Navigation Under Distribution Shift}
+\title{Runtime Assurance for Learned Planetary Rover Navigation: Safety Monitoring, Uncertainty Gating, and Energy-Aware Fallback}
 
 \author{
 \IEEEauthorblockN{Zoyba Parihan}
@@ -86,6 +86,8 @@ safety rules as the main source of safety and shows that a raw OOD check is harm
 an energy-aware fallback is decisive under combined shift;
 \item a transfer test on 450 maps derived from Mars elevation data at three rover sites.
 \end{enumerate}
+The rest of the paper reviews related work, describes the method and its implementation, reports the results, and
+closes with a discussion, directions for future work and conclusions.
 
 % =====================================================================================================================
 \section{Related Work}
@@ -194,15 +196,8 @@ an obstacle if its slope exceeds $25^\circ$ or its local relief exceeds the site
 15--25$^\circ$, sand if its slope is below $5^\circ$ and its relief below the 20th percentile, and normal otherwise. We kept
 fully valid, non-overlapping $32\times32$ tiles that pass the simulator's acceptance rule (at most 300 per site), half for
 debugging and 450 for evaluation. The rule encodes terrain structure, not traversability; real terrain is flatter, with
-3--7\% obstacle cells against 15\% in the procedural maps (Fig.~\ref{fig:tiles}).
+3--7\% obstacle cells against 15\% in the procedural maps.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{fig10_real_tiles}
-\caption{Real-terrain maps from HiRISE terrain models at the Opportunity, Perseverance and Curiosity sites (2\,m cells):
-one evaluation tile per site and the terrain composition compared with the procedural ID generator.}
-\label{fig:tiles}
-\end{figure}
 
 % =====================================================================================================================
 \section{Implementation}
@@ -214,8 +209,11 @@ exploration decaying from 1.0 to 0.05 by 0.992 per episode. The randomised prior
 and transitions receive Poisson(1) bootstrap weights. Members train independently for 1{,}500 ID episodes, keeping the
 checkpoint with the best success on 50 validation maps. PPO uses two 256-unit layers, clipping 0.2, GAE ($\lambda=0.95$), 512-step rollouts and the same budget.
 
-The Mahalanobis detector (shrinkage 0.1) is fitted on plain-ensemble observations from 200 fitting maps, and both
-thresholds are set on 100 ID validation maps separately for each of the 10 ensembles.
+\subsection{Calibration}
+The Mahalanobis detector (covariance shrinkage 0.1) is fitted on plain-ensemble observations from 200 maps reserved for
+fitting. Both thresholds are set from per-step scores of the plain ensemble on 100 ID validation maps, separately for each
+of the 10 ensembles (90th and 99th percentiles for sensitivity), and stored with a hash. The action-conditioned detector
+uses the same maps; every action class had at least 300 fitting samples.
 
 \subsection{Baselines and Variants}
 The baselines are battery-aware A* on the explored map; A*+monitor, which has the assured system's rules, fallback and
@@ -307,17 +305,12 @@ Noisier readings move every observation away from the training distribution, so 
 \subsection{Energy-Aware Fallback}
 Replacing the fallback with an energy-blind planner (unit cell costs, constant unknown-cell premium, no feasibility check)
 barely changes the pre-registered primary measure, the share of fallback episodes that avoid depletion ($+0.2$ points
-under combined shift), because safe stop prevents depletion with either planner. The effect appears in
-Fig.~\ref{fig:h3}: with the energy-blind fallback, success under combined shift falls from 0.71 to 0.27 because the rules
-veto moves the battery can no longer afford, and energy use rises by 33--40 units under sensor and combined shift. In the
-ID condition the energy-blind planner is marginally better (+1.0 point).
+under combined shift), because safe stop prevents depletion with either planner. The effect appears
+elsewhere: with the energy-blind fallback, success under combined shift falls from 0.71 to 0.27 because the rules
+veto moves the battery can no longer afford, and energy use rises by 33--40 units under sensor and combined shift.
+Without safe stop, the battery-aware fallback avoids depletion in 47 points more of the fallback episodes under combined
+shift. In the ID condition the energy-blind planner is marginally better (+1.0 point) because it stops less often.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{fig8_h3}
-\caption{Battery-aware minus energy-blind fallback, with and without safe stop (mean and 95\% CI over 10 seeds).}
-\label{fig:h3}
-\end{figure}
 
 \subsection{Repairing the OOD Check}
 \label{sec:a3}
@@ -364,7 +357,16 @@ The safety gain is large and consistent, but it comes almost entirely from expli
 learned confidence, in line with the RTA preference for simple, verifiable switching conditions~\cite{hobbs2023rta}.
 Rules and fallback should therefore come first, with learned-confidence checks added only where they measurably help. The
 OOD results show that detecting a shift and deciding when to distrust the policy are different problems; a check that adds
-value would probably need to predict failure directly. 
+value would probably need to predict failure directly. Because a classical planner still reaches the goal more often
+under shift, the learned proposer is best seen as a component that saves energy and avoids unsafe moves, not as a
+replacement for planning.
+
+For rover operations these findings have a practical reading. The intervention rate is itself a useful health signal:
+in nominal conditions the layer overrides the policy on only 5--12\% of decisions, so a sustained rise towards the levels
+seen under sensor shift indicates that the learned component is no longer operating in its trained regime and that ground
+operators should review the drive. Safe stops, in turn, mark exactly the situations in which onboard energy estimates no
+longer support the remaining traverse, which is where human planning effort is best spent. Both signals are available
+onboard at negligible cost and could be downlinked with routine telemetry. 
 
 % =====================================================================================================================
 \section{Future Work}
